@@ -1,0 +1,10 @@
+$primary: #28a745; // Green
+$secondary: #6c757d;
+$success: #28a745;
+$danger: #dc3545;
+
+@import "bootstrap/scss/bootstrap";
+
+body {
+  font-family: 'Arial', sans-serif;
+}

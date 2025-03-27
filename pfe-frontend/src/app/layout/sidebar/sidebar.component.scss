@@ -1,0 +1,11 @@
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+  }
+  
+  .nav-link.active {
+    background-color: darken(#28a745, 10%); // Darker green for active link
+  }
