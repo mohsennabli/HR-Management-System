@@ -1,0 +1,53 @@
+<div class="hr-employee-list">
+  <div class="page-header">
+    <h2>Employee Management</h2>
+    <button class="btn-primary" routerLink="create">Add New Employee</button>
+  </div>
+  
+  <div class="search-filter">
+    <input type="text" placeholder="Search employees..." class="search-input" [(ngModel)]="searchTerm" (input)="filterEmployees()">
+    <select class="filter-select" [(ngModel)]="selectedDepartment" (change)="filterEmployees()">
+      <option value="">All Departments</option>
+      <option value="it">IT</option>
+      <option value="hr">HR</option>
+      <option value="finance">Finance</option>
+      <option value="marketing">Marketing</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <div *ngIf="loading" class="loading">Loading...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+    
+    <table class="employee-table" *ngIf="!loading && !error">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Position</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let employee of employees">
+          <td>{{ employee.id }}</td>
+          <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+          <td>{{ employee.department }}</td>
+          <td>{{ employee.position }}</td>
+          <td>{{ employee.email }}</td>
+          <td>{{ employee.phone }}</td>
+          <td class="actions">
+            <button class="btn-edit" (click)="onEdit(employee.id!)">Edit</button>
+            <button class="btn-delete" (click)="onDelete(employee.id!)">Delete</button>
+          </td>
+        </tr>
+        <tr *ngIf="employees.length === 0">
+          <td colspan="7" class="no-data">No employees found</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> 

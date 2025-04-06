@@ -1,10 +1,211 @@
-$primary: #28a745; // Green
-$secondary: #6c757d;
-$success: #28a745;
-$danger: #dc3545;
+// Dark blue theme variables
+$primary: #1a237e;
+$secondary: #283593;
+$accent: #3949ab;
+$light-blue: #5c6bc0;
+$dark-blue: #0d1b2a;
+$text-light: #e8eaf6;
+$text-dark: #1a237e;
+$background-light: #f5f7ff;
+$background-dark: #0d1b2a;
+
+// Gradient backgrounds
+$gradient-primary: linear-gradient(135deg, $primary, $secondary);
+$gradient-accent: linear-gradient(135deg, $accent, $light-blue);
+$gradient-dark: linear-gradient(135deg, $dark-blue, $primary);
 
 @import "bootstrap/scss/bootstrap";
 
+// Global styles
 body {
   font-family: 'Arial', sans-serif;
+  background: $gradient-dark;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  color: $text-light;
+}
+
+// Card styles
+.card {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  .card-header {
+    background: $gradient-primary;
+    color: $text-light;
+    border-radius: 12px 12px 0 0;
+    padding: 1rem;
+    border: none;
+
+    h6 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+// Button styles
+.btn-primary {
+  background: $gradient-primary;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: $text-light;
+  transition: all 0.3s ease;
+  font-weight: 500;
+
+  &:hover {
+    background: $gradient-accent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    background: #b0bec5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  background: $gradient-accent;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: $text-light;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $gradient-primary;
+    transform: translateY(-1px);
+  }
+}
+
+// Sidebar styles
+.sidebar {
+  background: rgba(13, 27, 42, 0.95);
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  color: $text-light;
+
+  .nav-link {
+    color: $text-light;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 4px 0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.active {
+      background: $gradient-primary;
+      color: $text-light;
+    }
+  }
+}
+
+// Table styles
+.table {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  th {
+    background: $gradient-primary;
+    color: $text-light;
+    font-weight: 500;
+    padding: 12px 15px;
+  }
+  
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  
+  tr:hover {
+    background-color: rgba($primary, 0.05);
+  }
+}
+
+// Form styles
+.form-control {
+  border-radius: 8px;
+  border: 1px solid rgba($primary, 0.2);
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    border-color: $primary;
+    box-shadow: 0 0 0 0.2rem rgba($primary, 0.25);
+  }
+}
+
+// Alert styles
+.alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+}
+
+// Dashboard specific styles
+.dashboard-container {
+  padding: 20px;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Status badges
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.success {
+    background: #4caf50;
+    color: white;
+  }
+
+  &.warning {
+    background: #ff9800;
+    color: white;
+  }
+
+  &.danger {
+    background: #f44336;
+    color: white;
+  }
+
+  &.info {
+    background: $light-blue;
+    color: white;
+  }
 }
