@@ -9,6 +9,8 @@ use App\Http\Controllers\API\HR\LeaveTypeController;
 use App\Http\Controllers\API\HR\LeaveRequestController;
 use App\Http\Controllers\API\HR\TrainingProgramController;
 use App\Http\Controllers\API\HR\TrainingParticipantController;
+use App\Http\Controllers\API\HR\DisciplinaryActionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -49,4 +51,11 @@ Route::prefix('hr')->group(function () {
     // Training Participant Routes
     Route::apiResource('training-participants', TrainingParticipantController::class);
     Route::patch('training-participants/{trainingParticipant}/status', [TrainingParticipantController::class, 'updateStatus']);
+
+    //Discipline Routes
+    Route::prefix('hr/discipline')->group(function () {
+        Route::get('/actions', [DisciplinaryActionController::class, 'index']);
+        Route::get('/employees', [DisciplinaryActionController::class, 'getEmployees']);
+        Route::post('/actions', [DisciplinaryActionController::class, 'store']);
+    });
 });

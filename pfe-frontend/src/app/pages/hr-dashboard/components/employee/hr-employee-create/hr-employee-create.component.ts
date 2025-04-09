@@ -12,7 +12,7 @@ import { HrEmployeeService } from '../../../services/hr-employee.service';
       </div>
       
       <div class="form-container">
-        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="employee-form text-black">
           <div class="form-row">
             <div class="form-group">
               <label for="firstName">First Name</label>

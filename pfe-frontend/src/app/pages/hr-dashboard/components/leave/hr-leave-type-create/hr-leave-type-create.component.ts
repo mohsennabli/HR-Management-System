@@ -18,6 +18,7 @@ export class HrLeaveTypeCreateComponent {
     private leaveTypeService: HrLeaveTypeService,
     private router: Router
   ) {
+    // ✅ Correct field names to match Laravel's expectations
     this.leaveTypeForm = this.fb.group({
       name: ['', Validators.required],
       description: ['', Validators.required],
@@ -30,7 +31,7 @@ export class HrLeaveTypeCreateComponent {
     if (this.leaveTypeForm.valid) {
       this.loading = true;
       this.error = '';
-      
+
       const leaveType: LeaveType = {
         name: this.leaveTypeForm.value.name,
         description: this.leaveTypeForm.value.description,
@@ -39,7 +40,7 @@ export class HrLeaveTypeCreateComponent {
       };
 
       this.leaveTypeService.createLeaveType(leaveType).subscribe({
-        next: (response) => {
+        next: () => {
           this.router.navigate(['/hr-dashboard/leave']);
         },
         error: (error) => {
@@ -54,4 +55,4 @@ export class HrLeaveTypeCreateComponent {
       });
     }
   }
-} 
+}

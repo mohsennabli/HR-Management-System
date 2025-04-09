@@ -24,6 +24,13 @@ import { HrTrainingListComponent } from './components/training/hr-training-list/
 import { HrTrainingCreateComponent } from './components/training/hr-training-create/hr-training-create.component';
 import { HrTrainingEditComponent } from './components/training/hr-training-edit/hr-training-edit.component';
 import { HrTrainingViewComponent } from './components/training/hr-training-view/hr-training-view.component';
+// Discipline Components
+import { HrDisciplineListComponent } from './components/discipline/hr-discipline-list/hr-discipline-list.component';
+import { HrDisciplineService } from 'src/app/services/hr/discipline.service';
+
+
+
+
 
 import { HrDashboardRoutingModule } from './hr-dashboard-routing.module';
 
@@ -42,7 +49,8 @@ import { HrDashboardRoutingModule } from './hr-dashboard-routing.module';
     HrTrainingListComponent,
     HrTrainingCreateComponent,
     HrTrainingEditComponent,
-    HrTrainingViewComponent
+    HrTrainingViewComponent,
+    HrDisciplineListComponent
   ],
   imports: [
     CommonModule,

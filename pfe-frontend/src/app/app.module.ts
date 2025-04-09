@@ -10,6 +10,7 @@ import { EmployeeCreateComponent } from './admin-dashboard/employee-create/emplo
 import { EmployeeEditComponent } from './admin-dashboard/employee-edit/employee-edit.component';
 import { AppPerformanceComponent } from './admin-dashboard/app-performance/app-performance.component';
 import { SumPipe } from './pipes/sum.pipe';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,7 @@ import { SumPipe } from './pipes/sum.pipe';
     FormsModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

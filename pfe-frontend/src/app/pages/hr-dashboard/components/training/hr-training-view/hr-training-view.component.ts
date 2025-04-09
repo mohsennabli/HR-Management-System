@@ -52,7 +52,7 @@ import { ActivatedRoute } from '@angular/router';
         <div class="participants-card">
           <h3>Participants</h3>
           <div class="table-container">
-            <table class="participants-table">
+            <table class="participants-table text-black">
               <thead>
                 <tr>
                   <th>Employee ID</th>

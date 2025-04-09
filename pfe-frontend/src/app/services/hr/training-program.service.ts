@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators'; // Add this import
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,9 @@ export class HrTrainingProgramService {
   constructor(private api: ApiService) { }
 
   getAll(): Observable<any> {
-    return this.api.get(this.endpoint);
+    return this.api.get(this.endpoint).pipe(
+      map((res: any) => res.data) // Extract the data array from the response
+    );
   }
 
   getById(id: number): Observable<any> {

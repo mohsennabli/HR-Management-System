@@ -10,7 +10,7 @@ import { ActivatedRoute, Router } from '@angular/router';
         <h2>Edit Training Program</h2>
       </div>
       
-      <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form">
+      <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form text-black">
         <div class="form-group">
           <label for="programName">Program Name</label>
           <input 

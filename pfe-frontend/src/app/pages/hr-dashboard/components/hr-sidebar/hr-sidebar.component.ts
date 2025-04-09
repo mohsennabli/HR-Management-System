@@ -37,6 +37,12 @@ import { Component } from '@angular/core';
             </ul>
           </li>
         </ul>
+        <li class="nav-section">
+            <h3>Discipline Management</h3>
+            <ul>
+                <li><a routerLink="discipline" routerLinkActive="active">Disciplinary Actions</a></li>
+            </ul>
+        </li> 
       </nav>
     </div>
   `,

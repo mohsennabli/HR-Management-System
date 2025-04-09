@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-
+import { HrTrainingProgramService } from 'src/app/services/hr/training-program.service';
 @Component({
   selector: 'app-hr-training-create',
   template: `
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
         <h2>Add New Training Program</h2>
       </div>
       
-      <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form">
+      <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form text-black">
         <div class="form-group">
           <label for="programName">Program Name</label>
           <input 
@@ -205,7 +205,8 @@ export class HrTrainingCreateComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private trainingService: HrTrainingProgramService // <-- Injecté ici
   ) {
     this.trainingForm = this.fb.group({
       programName: ['', Validators.required],
@@ -218,18 +219,35 @@ export class HrTrainingCreateComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   onSubmit(): void {
     if (this.trainingForm.valid) {
-      // TODO: Implement training program creation logic
-      console.log('Form submitted:', this.trainingForm.value);
-      this.router.navigate(['/hr-dashboard/training']);
+      const formData = {
+        name: this.trainingForm.value.programName,
+        description: this.trainingForm.value.description,
+        start_date: this.trainingForm.value.startDate,
+        end_date: this.trainingForm.value.endDate,
+        capacity: this.trainingForm.value.capacity,
+        instructor: this.trainingForm.value.instructor,
+        location: this.trainingForm.value.location,
+        status: 'upcoming' // valeur par défaut d’après ta BDD
+      };
+
+      this.trainingService.create(formData).subscribe({
+        next: (res) => {
+          console.log('Training program created:', res);
+          this.router.navigate(['/hr-dashboard/training']);
+        },
+        error: (err) => {
+          console.error('Error creating training program:', err);
+          // ici tu peux afficher un message d'erreur à l'utilisateur
+        }
+      });
     }
   }
 
   onCancel(): void {
     this.router.navigate(['/hr-dashboard/training']);
   }
-} 
+}

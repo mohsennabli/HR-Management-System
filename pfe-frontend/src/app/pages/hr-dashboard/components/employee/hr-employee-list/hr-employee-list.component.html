@@ -21,7 +21,7 @@
     
     <table class="employee-table" *ngIf="!loading && !error">
       <thead>
-        <tr>
+        <tr class="table-header bg-primary text-black">
           <th>ID</th>
           <th>Name</th>
           <th>Department</th>
@@ -32,7 +32,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let employee of employees">
+        <tr *ngFor="let employee of employees" class="bg-white text-black hover:bg-gray-100">
           <td>{{ employee.id }}</td>
           <td>{{ employee.first_name }} {{ employee.last_name }}</td>
           <td>{{ employee.department }}</td>

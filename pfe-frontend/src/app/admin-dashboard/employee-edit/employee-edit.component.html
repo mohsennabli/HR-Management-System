@@ -1,5 +1,5 @@
 <div class="container">
-    <h2 class="text-success mb-4">Edit Employee</h2>
+    <h2 class="text-white mb-4">Edit Employee</h2>
 
     <div *ngIf="error" class="alert alert-danger mb-3">
         {{ error }}
@@ -20,10 +20,7 @@
         <label for="email" class="form-label">Email</label>
         <input type="email" class="form-control" id="email" [(ngModel)]="user.email" name="email" required>
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password (leave blank to keep unchanged)</label>
-        <input type="password" class="form-control" id="password" [(ngModel)]="user.password" name="password">
-      </div>
+     
       <div class="mb-3">
         <label for="role_id" class="form-label">Role</label>
         <select class="form-select" id="role_id" [(ngModel)]="user.role_id" name="role_id" required>
@@ -33,7 +30,7 @@
           <option value="3">Employee</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-success" [disabled]="!userForm.valid || loading">
+      <button type="submit" class="btn" [disabled]="!userForm.valid || loading">
         <span *ngIf="loading" class="spinner-border spinner-border-sm me-1"></span>
         {{ loading ? 'Updating...' : 'Update' }}
       </button>

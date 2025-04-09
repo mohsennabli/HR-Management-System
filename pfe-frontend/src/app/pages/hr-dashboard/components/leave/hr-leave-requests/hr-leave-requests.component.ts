@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HrLeaveRequestService } from 'src/app/services/hr/leave-request.service';
 
 @Component({
   selector: 'app-hr-leave-requests',
@@ -16,7 +17,7 @@ import { Component, OnInit } from '@angular/core';
         </div>
       </div>
       
-      <div class="table-container">
+      <div class="table-container text-black bg-white rounded shadow-sm">
         <table class="requests-table">
           <thead>
             <tr>
@@ -30,42 +31,28 @@ import { Component, OnInit } from '@angular/core';
             </tr>
           </thead>
           <tbody>
-            <!-- Sample data - replace with actual data from service -->
-            <tr>
-              <td>John Doe</td>
-              <td>Annual Leave</td>
-              <td>2024-03-15</td>
-              <td>2024-03-20</td>
-              <td>6 days</td>
-              <td><span class="status-badge pending">Pending</span></td>
-              <td class="actions">
-                <button class="btn-approve" (click)="approveRequest(1)">Approve</button>
-                <button class="btn-reject" (click)="rejectRequest(1)">Reject</button>
-              </td>
-            </tr>
-            <tr>
-              <td>Jane Smith</td>
-              <td>Sick Leave</td>
-              <td>2024-03-10</td>
-              <td>2024-03-12</td>
-              <td>3 days</td>
-              <td><span class="status-badge approved">Approved</span></td>
-              <td class="actions">
-                <button class="btn-view" (click)="viewRequest(2)">View</button>
-              </td>
-            </tr>
-            <tr>
-              <td>Mike Johnson</td>
-              <td>Personal Leave</td>
-              <td>2024-03-18</td>
-              <td>2024-03-19</td>
-              <td>2 days</td>
-              <td><span class="status-badge rejected">Rejected</span></td>
-              <td class="actions">
-                <button class="btn-view" (click)="viewRequest(3)">View</button>
-              </td>
-            </tr>
-          </tbody>
+      <tr *ngFor="let request of filteredRequests">
+        <td>{{ request.employee?.name || 'N/A' }}</td>
+        <td>{{ request.leave_type?.name || 'N/A' }}</td>
+        <td>{{ request.start_date | date }}</td>
+        <td>{{ request.end_date | date }}</td>
+        <td>{{ request.days }} days</td>
+        <td>
+          <span class="status-badge" [ngClass]="request.status">
+            {{ request.status | titlecase }}
+          </span>
+        </td>
+        <td class="actions">
+          <ng-container *ngIf="request.status === 'pending'; else viewActions">
+            <button class="btn-approve" (click)="updateStatus(request.id, 'approved')">Approve</button>
+            <button class="btn-reject" (click)="updateStatus(request.id, 'rejected')">Reject</button>
+          </ng-container>
+          <ng-template #viewActions>
+            <button class="btn-view" (click)="viewRequest(request.id)">View</button>
+          </ng-template>
+        </td>
+      </tr>
+    </tbody>
         </table>
       </div>
     </div>
@@ -166,30 +153,53 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HrLeaveRequestsComponent implements OnInit {
   statusFilter: string = 'all';
+  allRequests: any[] = [];
+  filteredRequests: any[] = [];
 
-  constructor() { }
+  constructor(private leaveService: HrLeaveRequestService) { }
 
   ngOnInit(): void {
-    // Initialize component - load leave requests from service
+    this.loadRequests();
+  }
+
+  loadRequests(): void {
+    this.leaveService.getAll().subscribe({
+      next: (data) => {
+        this.allRequests = data;
+        this.filterRequests();
+      },
+      error: (err) => console.error('Error loading requests:', err)
+    });
   }
 
   filterRequests(): void {
-    // TODO: Implement filtering logic
-    console.log('Filtering by status:', this.statusFilter);
+    if (this.statusFilter === 'all') {
+      this.filteredRequests = [...this.allRequests];
+    } else {
+      this.filteredRequests = this.allRequests.filter(
+        req => req.status === this.statusFilter
+      );
+    }
   }
 
-  approveRequest(id: number): void {
-    // TODO: Implement approve logic
-    console.log('Approving request:', id);
-  }
-
-  rejectRequest(id: number): void {
-    // TODO: Implement reject logic
-    console.log('Rejecting request:', id);
+  updateStatus(id: number, status: string): void {
+    if (confirm(`Are you sure you want to ${status} this leave request?`)) {
+      this.leaveService.updateStatus(id, status).subscribe({
+        next: (updatedRequest) => {
+          // Update local data
+          const index = this.allRequests.findIndex(req => req.id === id);
+          if (index > -1) {
+            this.allRequests[index] = updatedRequest;
+            this.filterRequests();
+          }
+        },
+        error: (err) => console.error('Error updating status:', err)
+      });
+    }
   }
 
   viewRequest(id: number): void {
     // TODO: Implement view logic
     console.log('Viewing request:', id);
   }
-} 
+}

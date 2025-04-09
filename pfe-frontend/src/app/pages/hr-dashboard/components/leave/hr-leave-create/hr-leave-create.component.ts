@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
         <h2>Add New Leave Type</h2>
       </div>
       
-      <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()" class="leave-form">
+      <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()" class="leave-form text-black" >
         <div class="form-group">
           <label for="leaveType">Leave Type</label>
           <input 
@@ -55,7 +55,7 @@ import { Router } from '@angular/router';
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="!leaveForm.valid">Save Leave Type</button>
+          <button type="submit" class="btn-primary" [disabled]="!leaveForm.valid" >Save Leave Type</button>
           <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
         </div>
       </form>

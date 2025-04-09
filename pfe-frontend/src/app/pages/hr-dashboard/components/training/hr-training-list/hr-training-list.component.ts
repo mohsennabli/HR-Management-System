@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HrTrainingProgramService } from 'src/app/services/hr/training-program.service';
 
 @Component({
   selector: 'app-hr-training-list',
@@ -10,7 +11,7 @@ import { Component, OnInit } from '@angular/core';
       </div>
       
       <div class="table-container">
-        <table class="training-table">
+        <table class="training-table text-black bg-white">
           <thead>
             <tr>
               <th>ID</th>
@@ -24,43 +25,26 @@ import { Component, OnInit } from '@angular/core';
             </tr>
           </thead>
           <tbody>
-            <!-- Sample data - replace with actual data from service -->
-            <tr>
-              <td>1</td>
-              <td>Leadership Development</td>
-              <td>Advanced leadership skills training</td>
-              <td>2024-04-01</td>
-              <td>2024-04-05</td>
-              <td>20/25</td>
-              <td><span class="status-badge upcoming">Upcoming</span></td>
-              <td class="actions">
-                <button class="btn-edit" routerLink="edit/1">Edit</button>
-                <button class="btn-delete">Delete</button>
+            <tr *ngFor="let training of trainingPrograms">
+              <td>{{ training.id }}</td>
+              <td>{{ training.name }}</td>
+              <td>{{ training.description }}</td>
+              <td>{{ training.start_date }}</td>
+              <td>{{ training.end_date }}</td>
+              <td>{{ training.capacity }}</td>
+              <td>
+                <span [ngClass]="{
+                  'status-badge': true,
+                  'upcoming': training.status === 'upcoming',
+                  'ongoing': training.status === 'ongoing',
+                  'completed': training.status === 'completed'
+                }">
+                  {{ training.status | titlecase }}
+                </span>
               </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Project Management</td>
-              <td>PM fundamentals and best practices</td>
-              <td>2024-03-25</td>
-              <td>2024-03-27</td>
-              <td>15/20</td>
-              <td><span class="status-badge ongoing">Ongoing</span></td>
               <td class="actions">
-                <button class="btn-edit" routerLink="edit/2">Edit</button>
-                <button class="btn-delete">Delete</button>
-              </td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Technical Skills</td>
-              <td>Advanced programming workshop</td>
-              <td>2024-03-15</td>
-              <td>2024-03-16</td>
-              <td>18/20</td>
-              <td><span class="status-badge completed">Completed</span></td>
-              <td class="actions">
-                <button class="btn-view" routerLink="view/3">View</button>
+                <button class="btn-edit" [routerLink]="'edit/' + training.id">Edit</button>
+                <button class="btn-delete" (click)="deleteTraining(training.id)">Delete</button>
               </td>
             </tr>
           </tbody>
@@ -164,9 +148,40 @@ import { Component, OnInit } from '@angular/core';
   `]
 })
 export class HrTrainingListComponent implements OnInit {
-  constructor() { }
+  trainingPrograms: any[] = [];
+
+  constructor(private trainingService: HrTrainingProgramService) {}
 
   ngOnInit(): void {
-    // Initialize component - load training programs from service
+    this.fetchTrainings();
   }
-} 
+
+  fetchTrainings(): void {
+    this.trainingService.getAll().subscribe({
+      next: (data) => {
+        // Ensure that data is an array before assigning it
+        if (Array.isArray(data)) {
+          this.trainingPrograms = data;
+        } else {
+          console.error('Training data is not an array:', data);
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching training programs:', err);
+      }
+    });
+  }
+
+  deleteTraining(id: number): void {
+    if (confirm('Are you sure you want to delete this training?')) {
+      this.trainingService.delete(id).subscribe({
+        next: () => {
+          this.trainingPrograms = this.trainingPrograms.filter(t => t.id !== id);
+        },
+        error: (err) => {
+          console.error('Error deleting training:', err);
+        }
+      });
+    }
+  }
+}

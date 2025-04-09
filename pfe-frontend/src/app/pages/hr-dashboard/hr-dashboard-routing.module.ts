@@ -19,7 +19,8 @@ import { HrTrainingListComponent } from './components/training/hr-training-list/
 import { HrTrainingCreateComponent } from './components/training/hr-training-create/hr-training-create.component';
 import { HrTrainingEditComponent } from './components/training/hr-training-edit/hr-training-edit.component';
 import { HrTrainingViewComponent } from './components/training/hr-training-view/hr-training-view.component';
-
+// Discipline Routes
+import { HrDisciplineListComponent } from 'src/app/pages/hr-dashboard/components/discipline/hr-discipline-list/hr-discipline-list.component';
 const routes: Routes = [
   {
     path: '',
@@ -32,7 +33,7 @@ const routes: Routes = [
       
       // Leave Management Routes
       { path: 'leave', component: HrLeaveListComponent },
-      { path: 'leave/create', component: HrLeaveCreateComponent },
+      { path: 'leave/create', component: HrLeaveTypeCreateComponent },
       { path: 'leave/edit/:id', component: HrLeaveEditComponent },
       { path: 'leave/requests', component: HrLeaveRequestsComponent },
       { path: 'leave/type/create', component: HrLeaveTypeCreateComponent },
@@ -42,7 +43,8 @@ const routes: Routes = [
       { path: 'training/create', component: HrTrainingCreateComponent },
       { path: 'training/edit/:id', component: HrTrainingEditComponent },
       { path: 'training/view/:id', component: HrTrainingViewComponent },
-      
+      // Discipline Management Routes
+      { path: 'discipline', component: HrDisciplineListComponent },
       // Default route
       { path: '', redirectTo: 'employee', pathMatch: 'full' }
     ]

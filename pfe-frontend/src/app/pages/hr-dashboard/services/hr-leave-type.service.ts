@@ -20,6 +20,9 @@ export interface ApiResponse<T> {
   providedIn: 'root'
 })
 export class HrLeaveTypeService {
+  create(leaveType: LeaveType) {
+    throw new Error('Method not implemented.');
+  }
   private apiUrl = `${environment.apiUrl}/hr/leave-types`;
 
   constructor(private http: HttpClient) { }

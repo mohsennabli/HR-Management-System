@@ -15,7 +15,7 @@ import { HrLeaveTypeService, LeaveType } from '../../../services/hr-leave-type.s
       <div *ngIf="error" class="error">{{ error }}</div>
       
       <div class="table-container" *ngIf="!loading && !error">
-        <table class="leave-table">
+        <table class="leave-table text-black bg-white rounded shadow-sm">
           <thead>
             <tr>
               <th>ID</th>
