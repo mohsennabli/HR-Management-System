@@ -1,0 +1,27 @@
+<div class="container">
+  <h2 class="text-white mb-4">Users List</h2>
+  <button class="btn btn-primary mb-3 text-white" routerLink="/admin/users/create">Add User</button>
+  <table class="table table-striped">
+    <thead class="bg-success text-white">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.id }}</td>
+        <td>{{ user.name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role?.name || 'N/A' }}</td>
+        <td>
+          <button class="btn btn-outline-primary btn-sm me-2" [routerLink]="['/admin/users/edit', user.id]">Edit</button>
+          <button (click)="deleteUser(user.id!)" class="btn btn-danger btn-sm">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

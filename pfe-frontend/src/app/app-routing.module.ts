@@ -1,21 +1,17 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { EmployeeListComponent } from './admin-dashboard/employee-list/employee-list.component';
-import { EmployeeCreateComponent } from './admin-dashboard/employee-create/employee-create.component';
-import { EmployeeEditComponent } from './admin-dashboard/employee-edit/employee-edit.component';
-import { AppPerformanceComponent } from './admin-dashboard/app-performance/app-performance.component';
 
 const routes: Routes = [
-  { path: 'employees', component: EmployeeListComponent },
-  { path: 'employees/create', component: EmployeeCreateComponent },
-  { path: 'employees/edit/:id', component: EmployeeEditComponent },
-  { path: 'app-performance', component: AppPerformanceComponent },
   { 
-    path: 'hr-dashboard', 
-    loadChildren: () => import('./pages/hr-dashboard/hr-dashboard.module').then(m => m.HrDashboardModule)
+    path: 'admin',
+    loadChildren: () => import('src/app/core/dashboards/admin/admin-dashboard.module').then(m => m.AdminDashboardModule)
   },
-  { path: '', redirectTo: '/employees', pathMatch: 'full' },
-  { path: '**', redirectTo: '/employees' } // Handle 404 - redirect to employees page
+  { 
+    path: 'hr',
+    loadChildren: () => import('src/app/core/dashboards/hr/hr-dashboard.module').then(m => m.HrDashboardModule)
+  },
+  { path: '', redirectTo: '/admin', pathMatch: 'full' },
+  { path: '**', redirectTo: '/admin' }
 ];
 
 @NgModule({

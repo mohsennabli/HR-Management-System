@@ -1,0 +1,44 @@
+<div class="leave-list-container">
+  <!-- Success Message -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-indicator">
+    Loading leave types...
+  </div>
+
+  <!-- Leave Types Table -->
+  <div *ngIf="!loading" class="table-container">
+    <table class="leave-types-table">
+      <thead>
+        <tr>
+          <th *ngFor="let col of columns">{{ col.label }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let leaveType of leaveTypes">
+          <td>{{ leaveType.id }}</td>
+          <td>{{ leaveType.name }}</td>
+          <td>{{ leaveType.description }}</td>
+          <td>{{ leaveType.daysAllowed }}</td>
+          <td>{{ getPaidStatus(leaveType.isPaid) }}</td>
+          <td class="actions-cell">
+            <button (click)="leaveTypes(leaveType.id)" class="btn-edit">
+              Edit
+            </button>
+            <button (click)="confirmDelete(leaveType)" class="btn-delete">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

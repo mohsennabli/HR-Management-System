@@ -1,0 +1,56 @@
+<div class="leave-list-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Leave Types</h2>
+      <button class="btn-primary" routerLink="type/create">
+        <span class="icon-plus">+</span>
+        Add New Leave Type
+      </button>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Loading leave types...</p>
+      </div>
+
+      <div *ngIf="error" class="alert alert-danger">
+        {{ error }}
+      </div>
+
+      <div *ngIf="!loading && !error" class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th *ngFor="let col of cols" (click)="sort(col.field)">
+                {{ col.header }}
+                <span class="sort-icon">{{ currentSortField === col.field ? (sortAsc ? '↑' : '↓') : '' }}</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let leaveType of leaveTypes">
+              <td>{{ leaveType.id }}</td>
+              <td>{{ leaveType.name }}</td>
+              <td>{{ leaveType.description }}</td>
+              <td>{{ leaveType.daysAllowed }}</td>
+              <td>{{ getPaidStatus(leaveType.isPaid) }}</td>
+              <td class="actions">
+                <button class="btn-icon edit" (click)="navigateToEdit(leaveType.id)">
+                  <svg aria-hidden="true" class="icon"><use xlink:href="#icon-edit"></use></svg>
+                </button>
+                <button class="btn-icon delete" (click)="confirmDelete(leaveType)">
+                  <svg aria-hidden="true" class="icon"><use xlink:href="#icon-delete"></use></svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="leaveTypes.length === 0" class="empty-message">
+          No leave types found
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

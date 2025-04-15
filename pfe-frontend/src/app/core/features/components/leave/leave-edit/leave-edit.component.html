@@ -1,0 +1,48 @@
+<div class="leave-edit-container">
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Edit Leave Type</h2>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()">
+        <!-- Form fields same as your create component -->
+        <!-- Name Field -->
+        <div class="form-group">
+          <label for="name">Leave Type Name*</label>
+          <input 
+            type="text" 
+            id="name" 
+            formControlName="name"
+            placeholder="Annual Leave"
+            [class]="{'invalid': name?.touched && name?.errors}">
+          <div *ngIf="name?.touched && name?.errors" class="error-message">
+            <div *ngIf="name?.errors?.['required']">Name is required</div>
+            <div *ngIf="name?.errors?.['maxlength']">Max 50 characters allowed</div>
+          </div>
+        </div>
+
+        <!-- Other form fields... -->
+
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn-primary"
+            [disabled]="leaveForm.invalid || isSubmitting">
+            Update Leave Type
+          </button>
+          <button 
+            type="button" 
+            class="btn-secondary"
+            (click)="onCancel()">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

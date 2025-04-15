@@ -1,0 +1,145 @@
+<!-- template section -->
+<div class="container-fluid p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="mb-0">Disciplinary Management</h2>
+    </div>
+  
+    <div class="row g-4">
+      <!-- Employees List -->
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">All Employees</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Position</th>
+                    <th scope="col" class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let employee of employees">
+                    <td>{{ employee.first_name }} {{ employee.last_name }}</td>
+                    <td>{{ employee.position }}</td>
+                    <td class="text-end">
+                      <button class="btn btn-sm btn-outline-primary" 
+                              (click)="openDisciplineForm(employee)">
+                        <i class="bi bi-plus-circle me-2"></i>Add Action
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- <app-hr-employee-list></app-hr-employee-list> -->
+  
+      <!-- Disciplinary Actions List -->
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-warning text-white">
+            <h5 class="mb-0">Disciplinary Actions</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">Employee</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Reason</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let action of disciplinaryActions">
+                    <td>{{ action.employee.first_name }} {{ action.employee.last_name }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="{
+                        'bg-primary': action.type === 'verbal_warning',
+                        'bg-warning text-dark': action.type === 'written_warning',
+                        'bg-danger': action.type === 'suspension',
+                        'bg-dark': action.type === 'termination'
+                      }">
+                        {{ action.type | titlecase }}
+                      </span>
+                    </td>
+                    <td>{{ action.reason }}</td>
+                    <td>{{ action.action_date | date: 'mediumDate' }}</td>
+                    <td>{{ action.notes || 'N/A' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Modal -->
+    <div class="modal fade" [class.show]="showForm" [style.display]="showForm ? 'block' : 'none'">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">Add Disciplinary Action</h5>
+            <button type="button" class="btn-close btn-close-white" 
+                    (click)="closeForm()"></button>
+          </div>
+          <form (ngSubmit)="submitDiscipline()">
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label text-dark">Employee</label>
+                  <input type="text" class="form-control" 
+                         [value]="selectedEmployee?.first_name + ' ' + selectedEmployee?.last_name" 
+                         disabled>
+                </div>
+                
+                <div class="col-md-6">
+                  <label class="form-label text-dark">Type</label>
+                  <select class="form-select" [(ngModel)]="newAction.type" name="type" required>
+                    <option value="verbal_warning">Verbal Warning</option>
+                    <option value="written_warning">Written Warning</option>
+                    <option value="suspension">Suspension</option>
+                    <option value="termination">Termination</option>
+                  </select>
+                </div>
+  
+                <div class="col-12">
+                  <label class="form-label text-dark">Reason</label>
+                  <textarea class="form-control" rows="3" 
+                            [(ngModel)]="newAction.reason" name="reason" required></textarea>
+                </div>
+  
+                <div class="col-md-6">
+                  <label class="form-label text-dark">Action Date</label>
+                  <input type="date" class="form-control" 
+                         [(ngModel)]="newAction.action_date" name="action_date" required>
+                </div>
+  
+                <div class="col-md-6 text-dark">
+                  <label class="form-label">Notes</label>
+                  <textarea class="form-control" rows="2" 
+                            [(ngModel)]="newAction.notes" name="notes"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" 
+                      (click)="closeForm()">Cancel</button>
+              <button type="submit" class="btn btn-primary">Submit Action</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade" [class.show]="showForm" 
+         [style.display]="showForm ? 'block' : 'none'"></div>
+  </div>

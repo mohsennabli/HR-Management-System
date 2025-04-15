@@ -53,7 +53,7 @@ Route::prefix('hr')->group(function () {
     Route::patch('training-participants/{trainingParticipant}/status', [TrainingParticipantController::class, 'updateStatus']);
 
     //Discipline Routes
-    Route::prefix('hr/discipline')->group(function () {
+    Route::prefix('discipline')->group(function () {
         Route::get('/actions', [DisciplinaryActionController::class, 'index']);
         Route::get('/employees', [DisciplinaryActionController::class, 'getEmployees']);
         Route::post('/actions', [DisciplinaryActionController::class, 'store']);

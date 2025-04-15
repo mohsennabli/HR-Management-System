@@ -1,0 +1,116 @@
+<div class="hr-leave-create">
+  <div class="page-header">
+    <h2>Add New Leave Type</h2>
+  </div>
+  
+  <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()" class="leave-form text-black">
+    <div class="form-group">
+      <label for="name">Leave Type Name</label>
+      <input 
+        type="text" 
+        id="name" 
+        formControlName="name" 
+        placeholder="Annual Leave"
+        class="form-control">
+      <div class="error-message" 
+        *ngIf="leaveForm.get('name')?.touched && leaveForm.get('name')?.errors?.['required']">
+        Name is required
+      </div>
+      <div class="error-message" 
+        *ngIf="leaveForm.get('name')?.touched && leaveForm.get('name')?.errors?.['maxlength']">
+        Maximum 50 characters allowed
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea 
+        id="description" 
+        formControlName="description" 
+        placeholder="Description of the leave type"
+        class="form-control"
+        rows="3"></textarea>
+      <div class="error-message" 
+        *ngIf="leaveForm.get('description')?.touched && leaveForm.get('description')?.errors?.['required']">
+        Description is required
+      </div>
+      <div class="error-message" 
+        *ngIf="leaveForm.get('description')?.touched && leaveForm.get('description')?.errors?.['maxlength']">
+        Maximum 200 characters allowed
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="daysAllowed">Days Allowed Per Year</label>
+      <input 
+        type="number" 
+        id="daysAllowed" 
+        formControlName="daysAllowed" 
+        placeholder="20"
+        class="form-control"
+        min="1"
+        max="365">
+      <div class="error-message" 
+        *ngIf="leaveForm.get('daysAllowed')?.touched && leaveForm.get('daysAllowed')?.errors?.['required']">
+        Days allowed is required
+      </div>
+      <div class="error-message" 
+        *ngIf="leaveForm.get('daysAllowed')?.touched && leaveForm.get('daysAllowed')?.errors?.['min']">
+        Minimum 1 day required
+      </div>
+      <div class="error-message" 
+        *ngIf="leaveForm.get('daysAllowed')?.touched && leaveForm.get('daysAllowed')?.errors?.['max']">
+        Maximum 365 days allowed
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input 
+          type="checkbox" 
+          formControlName="isPaid"
+          class="checkbox-input">
+        Paid Leave
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input 
+          type="checkbox" 
+          formControlName="carryOver"
+          class="checkbox-input">
+        Allow Carry Over
+      </label>
+    </div>
+
+    <div class="form-group" *ngIf="leaveForm.get('carryOver')?.value">
+      <label for="maxCarryOver">Maximum Carry Over Days</label>
+      <input 
+        type="number" 
+        id="maxCarryOver" 
+        formControlName="maxCarryOver" 
+        class="form-control"
+        min="0">
+      <div class="error-message" 
+        *ngIf="leaveForm.get('maxCarryOver')?.touched && leaveForm.get('maxCarryOver')?.errors?.['min']">
+        Minimum value is 0
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn-primary" 
+        [disabled]="!leaveForm.valid || isSubmitting">
+        Create Leave Type
+      </button>
+      <button 
+        type="button" 
+        class="btn-secondary" 
+        (click)="onCancel()">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>
