@@ -43,4 +43,26 @@ class DisciplinaryActionController extends Controller
         return response()->json(['error' => 'Failed to fetch employees'], 500);
     }
 }
+
+public function destroy($id)
+    {
+        try {
+            $action = DisciplinaryAction::findOrFail($id);
+            $action->delete();
+            
+            return response()->json([
+                'data' => [
+                    'message' => 'Disciplinary action deleted successfully',
+                    'id' => $id
+                ]
+            ], 200);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to delete disciplinary action',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 }

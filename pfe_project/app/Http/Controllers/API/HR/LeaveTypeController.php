@@ -31,7 +31,10 @@ class LeaveTypeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'days_allowed' => 'required|integer|min:1'
+            'days_allowed' => 'required|integer|min:1',
+            'is_paid' => 'boolean',
+            'carry_over' => 'boolean',
+            'max_carry_over' => 'integer|min:0'
         ]);
 
         if ($validator->fails()) {
@@ -68,7 +71,10 @@ class LeaveTypeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'days_allowed' => 'required|integer|min:1'
+            'days_allowed' => 'required|integer|min:1',
+            'is_paid' => 'boolean',
+            'carry_over' => 'boolean',
+            'max_carry_over' => 'integer|min:0'
         ]);
 
         if ($validator->fails()) {

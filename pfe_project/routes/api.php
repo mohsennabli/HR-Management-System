@@ -24,6 +24,10 @@ use App\Http\Controllers\API\HR\DisciplinaryActionController;
 */
 Route::prefix('admin')->group(function () {
     Route::apiResource('users', UserController::class);
+
+});
+Route::prefix('admin')->group(function () {
+    Route::apiResource('employees', \App\Http\Controllers\API\Admin\EmployeeController::class);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -36,8 +40,8 @@ Route::prefix('admin')->group(function () {
 // HR Dashboard API Routes
 Route::prefix('hr')->group(function () {
     // Employee Routes
-    Route::apiResource('employees', EmployeeController::class);
-    
+    Route::apiResource('employees', \App\Http\Controllers\API\HR\EmployeeController::class);
+
     // Leave Type Routes
     Route::apiResource('leave-types', LeaveTypeController::class);
     
@@ -57,5 +61,7 @@ Route::prefix('hr')->group(function () {
         Route::get('/actions', [DisciplinaryActionController::class, 'index']);
         Route::get('/employees', [DisciplinaryActionController::class, 'getEmployees']);
         Route::post('/actions', [DisciplinaryActionController::class, 'store']);
+        Route::delete('/actions/{id}', [DisciplinaryActionController::class, 'destroy']);
+
     });
 });
