@@ -1,213 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
 
 @Component({
   selector: 'app-training-edit',
-  template: `
-    <div class="training-edit">
-      <div class="page-header">
-        <h2>Edit Training Program</h2>
-      </div>
-      
-      <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form text-black">
-        <div class="form-group">
-          <label for="programName">Program Name</label>
-          <input 
-            type="text" 
-            id="programName" 
-            formControlName="programName" 
-            placeholder="Enter program name"
-            class="form-control"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']">
-            Program name is required
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea 
-            id="description" 
-            formControlName="description" 
-            placeholder="Enter program description"
-            class="form-control"
-            rows="3"
-          ></textarea>
-          <div class="error-message" *ngIf="trainingForm.get('description')?.touched && trainingForm.get('description')?.errors?.['required']">
-            Description is required
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="startDate">Start Date</label>
-            <input 
-              type="date" 
-              id="startDate" 
-              formControlName="startDate" 
-              class="form-control"
-            >
-            <div class="error-message" *ngIf="trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']">
-              Start date is required
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="endDate">End Date</label>
-            <input 
-              type="date" 
-              id="endDate" 
-              formControlName="endDate" 
-              class="form-control"
-            >
-            <div class="error-message" *ngIf="trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']">
-              End date is required
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="capacity">Capacity</label>
-          <input 
-            type="number" 
-            id="capacity" 
-            formControlName="capacity" 
-            placeholder="Enter maximum number of participants"
-            class="form-control"
-            min="1"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('capacity')?.touched && trainingForm.get('capacity')?.errors?.['required']">
-            Capacity is required
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="instructor">Instructor</label>
-          <input 
-            type="text" 
-            id="instructor" 
-            formControlName="instructor" 
-            placeholder="Enter instructor name"
-            class="form-control"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('instructor')?.touched && trainingForm.get('instructor')?.errors?.['required']">
-            Instructor is required
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="location">Location</label>
-          <input 
-            type="text" 
-            id="location" 
-            formControlName="location" 
-            placeholder="Enter training location"
-            class="form-control"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('location')?.touched && trainingForm.get('location')?.errors?.['required']">
-            Location is required
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="!trainingForm.valid">Update Training Program</button>
-          <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
-        </div>
-      </form>
-    </div>
-  `,
-  styles: [`
-    .hr-training-edit {
-      padding: 20px;
-    }
-    .page-header {
-      margin-bottom: 20px;
-    }
-    .page-header h2 {
-      margin: 0;
-    }
-    .training-form {
-      max-width: 800px;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-row {
-      display: flex;
-      gap: 20px;
-    }
-    .form-row .form-group {
-      flex: 1;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-    .form-control {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    .form-control:focus {
-      outline: none;
-      border-color: #3498db;
-    }
-    textarea.form-control {
-      resize: vertical;
-    }
-    .error-message {
-      color: #e74c3c;
-      font-size: 12px;
-      margin-top: 5px;
-    }
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .btn-primary, .btn-secondary {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .btn-primary {
-      background-color: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background-color: #2980b9;
-    }
-    .btn-primary:disabled {
-      background-color: #bdc3c7;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background-color: #95a5a6;
-      color: white;
-    }
-    .btn-secondary:hover {
-      background-color: #7f8c8d;
-    }
-  `]
+  templateUrl: './training-edit.component.html',
+  styleUrls: ['./training-edit.component.scss']
 })
 export class TrainingEditComponent implements OnInit {
   trainingForm: FormGroup;
-  trainingId: number | undefined;
+  trainingId!: number;
+  loading = false;
+  errorMessage: string | null = null;
+  statusOptions = ['Draft', 'Published', 'Completed', 'Cancelled'];
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private trainingService: TrainingProgramService
   ) {
     this.trainingForm = this.fb.group({
       programName: ['', Validators.required],
@@ -216,34 +28,99 @@ export class TrainingEditComponent implements OnInit {
       endDate: ['', Validators.required],
       capacity: ['', [Validators.required, Validators.min(1)]],
       instructor: ['', Validators.required],
-      location: ['', Validators.required]
+      location: ['', Validators.required],
+      status: ['Draft', Validators.required] // Added status field
     });
   }
 
   ngOnInit(): void {
     this.trainingId = Number(this.route.snapshot.paramMap.get('id'));
-    // TODO: Load training program data using the ID
-    // For now, we'll use sample data
-    this.trainingForm.patchValue({
-      programName: 'Leadership Development',
-      description: 'Advanced leadership skills training',
-      startDate: '2024-04-01',
-      endDate: '2024-04-05',
-      capacity: 25,
-      instructor: 'John Smith',
-      location: 'Training Room A'
+    if (this.trainingId) {
+      this.loadTrainingProgram();
+    }
+  }
+
+  loadTrainingProgram(): void {
+    this.loading = true;
+    this.errorMessage = null;
+    
+    this.trainingService.getById(this.trainingId).subscribe({
+      next: (response) => {
+        console.log('Full API Response:', response); // Debug log
+        
+        // Extract data from response (assuming it's in response.data)
+        const programData = response.data || response;
+        
+        if (!programData) {
+          this.errorMessage = 'Training program not found';
+          this.loading = false;
+          return;
+        }
+  
+        // Format dates
+        const startDate = programData.start_date ? new Date(programData.start_date).toISOString().split('T')[0] : '';
+        const endDate = programData.end_date ? new Date(programData.end_date).toISOString().split('T')[0] : '';
+        
+        console.log('Form data being set:', { // Debug log
+          name: programData.name,
+          startDate,
+          endDate
+        });
+        
+        this.trainingForm.patchValue({
+          programName: programData.name || '',
+          description: programData.description || '',
+          startDate: startDate,
+          endDate: endDate,
+          capacity: programData.capacity || '',
+          instructor: programData.instructor || '',
+          location: programData.location || '',
+          status: programData.status || 'Draft'
+        });
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error details:', error); // Debug log
+        this.errorMessage = 'Failed to load training program details';
+        this.loading = false;
+      }
     });
   }
 
   onSubmit(): void {
-    if (this.trainingForm.valid) {
-      // TODO: Implement training program update logic
-      console.log('Form submitted:', this.trainingForm.value);
-      this.router.navigate(['/hr-dashboard/training']);
-    }
+    if (this.trainingForm.invalid || this.loading) return;
+
+    this.loading = true;
+    this.errorMessage = null;
+
+    const formData = {
+      name: this.trainingForm.value.programName,
+      description: this.trainingForm.value.description,
+      start_date: this.trainingForm.value.startDate,
+      end_date: this.trainingForm.value.endDate,
+      capacity: this.trainingForm.value.capacity,
+      instructor: this.trainingForm.value.instructor,
+      location: this.trainingForm.value.location,
+      status: this.trainingForm.value.status // Include status in submission
+    };
+
+    const operation = this.trainingId 
+      ? this.trainingService.update(this.trainingId, formData)
+      : this.trainingService.create(formData);
+
+    operation.subscribe({
+      next: () => {
+        this.router.navigate(['/hr/training']);
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || 'Failed to save training program';
+        this.loading = false;
+        console.error('Error saving training:', error);
+      }
+    });
   }
 
   onCancel(): void {
-    this.router.navigate(['/hr-dashboard/training']);
+    this.router.navigate(['/hr/training']);
   }
-} 
+}

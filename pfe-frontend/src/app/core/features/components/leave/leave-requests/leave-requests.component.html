@@ -1,44 +1,86 @@
-<div class="leave-list-container">
-  <!-- Success Message -->
-  <div *ngIf="successMessage" class="alert alert-success">
-    {{ successMessage }}
+<!-- leave-requests.component.html -->
+<div class="leave-request-container">
+  <div class="header-section">
+    <h2>Leave Requests</h2>
+    <button class="btn-primary" (click)="openNewRequest()">
+      <i class="fas fa-plus"></i> New Request
+    </button>
   </div>
 
-  <!-- Error Message -->
-  <div *ngIf="error" class="alert alert-error">
-    {{ error }}
+  <!-- Status Filter -->
+  <div class="filter-section">
+    <div class="filter-buttons">
+      <button *ngFor="let filter of filters" 
+              [class.active]="activeFilter === filter.value"
+              (click)="setFilter(filter.value)">
+        {{ filter.label }}
+      </button>
+    </div>
   </div>
 
-  <!-- Loading Indicator -->
-  <div *ngIf="loading" class="loading-indicator">
-    Loading leave types...
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading leave requests...</p>
   </div>
 
-  <!-- Leave Types Table -->
-  <div *ngIf="!loading" class="table-container">
-    <table class="leave-types-table">
-      <thead>
-        <tr>
-          <th *ngFor="let col of columns">{{ col.label }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let leaveType of leaveTypes">
-          <td>{{ leaveType.id }}</td>
-          <td>{{ leaveType.name }}</td>
-          <td>{{ leaveType.description }}</td>
-          <td>{{ leaveType.daysAllowed }}</td>
-          <td>{{ getPaidStatus(leaveType.isPaid) }}</td>
-          <td class="actions-cell">
-            <button (click)="leaveTypes(leaveType.id)" class="btn-edit">
-              Edit
-            </button>
-            <button (click)="confirmDelete(leaveType)" class="btn-delete">
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Content -->
+  <div *ngIf="!loading" class="request-list">
+    <!-- Empty State -->
+    <div *ngIf="filteredRequests.length === 0" class="empty-state">
+      <i class="fas fa-calendar-alt"></i>
+      <p>No leave requests found</p>
+    </div>
+
+    <!-- Request Cards -->
+    <div *ngFor="let request of filteredRequests" class="request-card">
+      <div class="card-header">
+        <div class="request-meta text-black">
+          <h3>{{ request.employeeName }}</h3>
+          <span class="request-id">#{{ request.id }}</span>
+        </div>
+        <span class="status-badge" [ngClass]="request.status.toLowerCase()">
+          {{ request.status }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="detail-item">
+          <i class="fas fa-calendar-day"></i>
+          <div>
+            <span class="label">Dates</span>
+            <span class="value">{{ request.startDate | date }} - {{ request.endDate | date }}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <i class="fas fa-clock"></i>
+          <div>
+            <span class="label">Duration</span>
+            <span class="value">{{ request.duration }} days</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <i class="fas fa-file-alt"></i>
+          <div>
+            <span class="label">Type</span>
+            <span class="value">{{ request.type }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <button class="btn-icon approve" *ngIf="request.status === 'PENDING'">
+          <i class="fas fa-check"></i>
+        </button>
+        <button class="btn-icon reject" *ngIf="request.status === 'PENDING'">
+          <i class="fas fa-times"></i>
+        </button>
+        <button class="btn-icon delete">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
   </div>
 </div>

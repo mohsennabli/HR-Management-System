@@ -1,15 +1,15 @@
 export interface Employee {
-    salary: any;
-    id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone?: string;
-    position: string;
-    department: string;
-    hire_date: string;
-    status: 'active' | 'inactive';
-  }
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  department: string;
+  position: string;
+  hire_date: string | Date;
+  salary: number;
+  status: 'active' | 'inactive';
+}
   
   export interface ApiResponse<T> {
     success: boolean;

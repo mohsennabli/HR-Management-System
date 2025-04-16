@@ -8,9 +8,8 @@ const routes: Routes = [
     component: HrDashboardComponent,
     children: [
       {
-        path: 'employee',
-        loadChildren: () => import('src/app/core/features/components/employee/employee.module')
-          .then(m => m.EmployeeModule)
+        path: 'employees',
+        loadChildren: () => import('../../shared/shared-employee.module').then(m => m.SharedEmployeeModule)
       },
       {
         path: 'leave',

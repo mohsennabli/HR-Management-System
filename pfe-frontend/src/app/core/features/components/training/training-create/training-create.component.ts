@@ -237,7 +237,7 @@ export class TrainingCreateComponent implements OnInit {
       this.trainingService.create(formData).subscribe({
         next: (res) => {
           console.log('Training program created:', res);
-          this.router.navigate(['/hr-dashboard/training']);
+          this.router.navigate(['/hr/training']);
         },
         error: (err) => {
           console.error('Error creating training program:', err);
@@ -248,6 +248,6 @@ export class TrainingCreateComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/hr-dashboard/training']);
+    this.router.navigate(['/hr/training']);
   }
 }

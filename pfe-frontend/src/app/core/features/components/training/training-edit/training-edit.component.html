@@ -1,0 +1,148 @@
+<div class="training-edit">
+    <div class="page-header">
+      <h2>Edit Training Program</h2>
+    </div>
+    
+    <div *ngIf="loading" class="loading-message">
+      <div class="spinner"></div>
+      <p>Loading training program details...</p>
+    </div>
+  
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+  
+    <form *ngIf="!loading" [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form text-black">
+      <!-- Program Name -->
+      <div class="form-group">
+        <label for="programName">Program Name*</label>
+        <input 
+          type="text" 
+          id="programName" 
+          formControlName="programName" 
+          class="form-control"
+          [class.is-invalid]="trainingForm.get('programName')?.invalid && trainingForm.get('programName')?.touched">
+        <div class="invalid-feedback" *ngIf="trainingForm.get('programName')?.invalid && trainingForm.get('programName')?.touched">
+          Program name is required
+        </div>
+      </div>
+  
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description">Description*</label>
+        <textarea 
+          id="description" 
+          formControlName="description" 
+          class="form-control"
+          rows="3"
+          [class.is-invalid]="trainingForm.get('description')?.invalid && trainingForm.get('description')?.touched"></textarea>
+        <div class="invalid-feedback" *ngIf="trainingForm.get('description')?.invalid && trainingForm.get('description')?.touched">
+          Description is required
+        </div>
+      </div>
+  
+      <!-- Dates Row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">Start Date*</label>
+          <input 
+            type="date" 
+            id="startDate" 
+            formControlName="startDate" 
+            class="form-control"
+            [class.is-invalid]="trainingForm.get('startDate')?.invalid && trainingForm.get('startDate')?.touched">
+          <div class="invalid-feedback" *ngIf="trainingForm.get('startDate')?.invalid && trainingForm.get('startDate')?.touched">
+            Start date is required
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="endDate">End Date*</label>
+          <input 
+            type="date" 
+            id="endDate" 
+            formControlName="endDate" 
+            class="form-control"
+            [class.is-invalid]="trainingForm.get('endDate')?.invalid && trainingForm.get('endDate')?.touched">
+          <div class="invalid-feedback" *ngIf="trainingForm.get('endDate')?.invalid && trainingForm.get('endDate')?.touched">
+            End date is required
+          </div>
+        </div>
+      </div>
+  
+      <!-- Capacity -->
+      <div class="form-group">
+        <label for="capacity">Capacity*</label>
+        <input 
+          type="number" 
+          id="capacity" 
+          formControlName="capacity" 
+          class="form-control"
+          min="1"
+          [class.is-invalid]="trainingForm.get('capacity')?.invalid && trainingForm.get('capacity')?.touched">
+        <div class="invalid-feedback" *ngIf="trainingForm.get('capacity')?.invalid && trainingForm.get('capacity')?.touched">
+          <div *ngIf="trainingForm.get('capacity')?.errors?.['required']">Capacity is required</div>
+          <div *ngIf="trainingForm.get('capacity')?.errors?.['min']">Minimum capacity is 1</div>
+        </div>
+      </div>
+  
+      <!-- Instructor -->
+      <div class="form-group">
+        <label for="instructor">Instructor*</label>
+        <input 
+          type="text" 
+          id="instructor" 
+          formControlName="instructor" 
+          class="form-control"
+          [class.is-invalid]="trainingForm.get('instructor')?.invalid && trainingForm.get('instructor')?.touched">
+        <div class="invalid-feedback" *ngIf="trainingForm.get('instructor')?.invalid && trainingForm.get('instructor')?.touched">
+          Instructor is required
+        </div>
+      </div>
+  
+      <!-- Location -->
+      <div class="form-group">
+        <label for="location">Location*</label>
+        <input 
+          type="text" 
+          id="location" 
+          formControlName="location" 
+          class="form-control"
+          [class.is-invalid]="trainingForm.get('location')?.invalid && trainingForm.get('location')?.touched">
+        <div class="invalid-feedback" *ngIf="trainingForm.get('location')?.invalid && trainingForm.get('location')?.touched">
+          Location is required
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="status">Status*</label>
+        <select 
+          id="status" 
+          formControlName="status" 
+          class="form-control"
+          [class.is-invalid]="trainingForm.get('status')?.invalid && trainingForm.get('status')?.touched">
+          <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+        </select>
+        <div class="invalid-feedback" *ngIf="trainingForm.get('status')?.invalid && trainingForm.get('status')?.touched">
+          Status is required
+        </div>
+      </div>
+  
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="trainingForm.invalid || loading">
+          <span *ngIf="!loading">Update Training Program</span>
+          <span *ngIf="loading">Updating...</span>
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          (click)="onCancel()"
+          [disabled]="loading">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>

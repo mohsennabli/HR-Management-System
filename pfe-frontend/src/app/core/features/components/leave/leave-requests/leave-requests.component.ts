@@ -1,6 +1,15 @@
+// leave-requests.component.ts
 import { Component, OnInit } from '@angular/core';
-import { LeaveRequestService } from 'src/app/core/features/components/leave/leave-request.service';
-import { LeaveRequest } from 'src/app/models/leave-request.model';
+
+interface LeaveRequest {
+  id: number;
+  employeeName: string;
+  startDate: Date;
+  endDate: Date;
+  duration: number;
+  type: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+}
 
 @Component({
   selector: 'app-leave-requests',
@@ -8,81 +17,75 @@ import { LeaveRequest } from 'src/app/models/leave-request.model';
   styleUrls: ['./leave-requests.component.scss']
 })
 export class LeaveRequestsComponent implements OnInit {
-confirmDelete(_t24: any) {
-throw new Error('Method not implemented.');
-}
-getPaidStatus(arg0: any) {
-throw new Error('Method not implemented.');
-}
-  statusFilter: string = 'all';
-  allRequests: LeaveRequest[] = [];
+  filters = [
+    { label: 'All', value: 'all' },
+    { label: 'Pending', value: 'pending' },
+    { label: 'Approved', value: 'approved' },
+    { label: 'Rejected', value: 'rejected' }
+  ];
+  
+  activeFilter = 'all';
+  loading = true;
+  requests: LeaveRequest[] = [];
   filteredRequests: LeaveRequest[] = [];
-  loading = false;
-  error = '';
-successMessage: any;
-columns: any;
-leaveTypes: any;
-
-  constructor(
-    private leaveRequestService: LeaveRequestService
-  ) {}
 
   ngOnInit(): void {
-    this.loadRequests();
+    // Simulate API call
+    setTimeout(() => {
+      this.requests = this.generateMockData();
+      this.filterRequests();
+      this.loading = false;
+    }, 1500);
   }
 
-  loadRequests(): void {
-    this.loading = true;
-    this.error = '';
-    
-    this.leaveRequestService.getAll().subscribe({
-      next: (data) => {
-        this.allRequests = data;
-        this.filterRequests();
-        this.loading = false;
+  generateMockData(): LeaveRequest[] {
+    return [
+      {
+        id: 1,
+        employeeName: 'John Doe',
+        startDate: new Date('2024-03-15'),
+        endDate: new Date('2024-03-20'),
+        duration: 5,
+        type: 'Vacation',
+        status: 'PENDING'
       },
-      error: (err) => {
-        console.error('Error loading requests:', err);
-        this.error = 'Failed to load leave requests. Please try again.';
-        this.loading = false;
+      {
+        id: 2,
+        employeeName: 'Jane Smith',
+        startDate: new Date('2024-04-01'),
+        endDate: new Date('2024-04-05'),
+        duration: 4,
+        type: 'Sick Leave',
+        status: 'APPROVED'
+      },
+      {
+        id: 3,
+        employeeName: 'Bob Johnson',
+        startDate: new Date('2024-03-10'),
+        endDate: new Date('2024-03-12'),
+        duration: 2,
+        type: 'Personal',
+        status: 'REJECTED'
       }
-    });
+    ];
+  }
+
+  setFilter(filter: string): void {
+    this.activeFilter = filter;
+    this.filterRequests();
   }
 
   filterRequests(): void {
-    this.filteredRequests = this.statusFilter === 'all' 
-      ? [...this.allRequests] 
-      : this.allRequests.filter(req => req.status === this.statusFilter);
-  }
-
-  updateStatus(request: LeaveRequest, status: 'approved' | 'rejected'): void {
-    if (confirm(`Are you sure you want to ${status} this leave request?`)) {
-      this.leaveRequestService.updateStatus(request.id, status).subscribe({
-        next: (updatedRequest) => {
-          const index = this.allRequests.findIndex(req => req.id === request.id);
-          if (index > -1) {
-            this.allRequests[index] = updatedRequest;
-            this.filterRequests();
-          }
-        },
-        error: (err) => {
-          console.error('Error updating status:', err);
-          this.error = `Failed to ${status} request. Please try again.`;
-        }
-      });
+    if (this.activeFilter === 'all') {
+      this.filteredRequests = [...this.requests];
+    } else {
+      this.filteredRequests = this.requests.filter(request =>
+        request.status.toLowerCase() === this.activeFilter
+      );
     }
   }
 
-  viewRequestDetails(request: LeaveRequest): void {
-    // Implement modal or navigation to detailed view
-    console.log('Viewing request details:', request);
-  }
-
-  getStatusClass(status: string): string {
-    return {
-      'pending': 'bg-warning',
-      'approved': 'bg-success',
-      'rejected': 'bg-danger'
-    }[status.toLowerCase()] || 'bg-secondary';
+  openNewRequest(): void {
+    // Add logic to open new request form
   }
 }

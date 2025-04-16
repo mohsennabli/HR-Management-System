@@ -9,10 +9,8 @@ import { LeaveType } from 'src/app/models/leave-type.model';
   styleUrls: ['./leave-list.component.scss']
 })
 export class LeaveListComponent implements OnInit {
-navigateToEdit(arg0: number) {
-throw new Error('Method not implemented.');
-}
-sort(arg0: any) {
+
+sort(field: string) {
 throw new Error('Method not implemented.');
 }
   leaveTypes: LeaveType[] = [];
@@ -24,7 +22,7 @@ throw new Error('Method not implemented.');
     { key: 'name', label: 'Leave Type' },
     { key: 'description', label: 'Description' },
     { key: 'daysAllowed', label: 'Days Allowed' },
-    { key: 'isPaid', label: 'Paid' },
+    { field: 'is_paid', header: 'Paid' }, // Changed to match API response
     { key: 'actions', label: 'Actions' }
   ];
 cols: any;
@@ -37,8 +35,17 @@ sortAsc: any;
   ) {}
 
   ngOnInit(): void {
+    this.cols = [
+      { field: 'id', header: 'ID' },
+      { field: 'name', header: 'Leave Type' },
+      { field: 'description', header: 'Description' },
+      { field: 'days_allowed', header: 'Days Allowed' }, // Changed to match API response
+      { field: 'is_paid', header: 'Paid' }, // Changed to match API response
+      { field: 'actions', header: 'Actions' }
+    ];
     this.loadLeaveTypes();
   }
+  
 
   loadLeaveTypes(): void {
     this.loading = true;
@@ -47,7 +54,16 @@ sortAsc: any;
     
     this.leaveTypeService.getAll().subscribe({
       next: (response) => {
-        this.leaveTypes = response;
+        // Map API response to match our model if needed
+        this.leaveTypes = response.data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          description: item.description,
+          days_allowed: item.days_allowed, // Using snake_case to match API
+          is_paid: item.is_paid, // Using snake_case to match API
+          carry_over: item.carry_over,
+          max_carry_over: item.max_carry_over
+        }));
         this.loading = false;
       },
       error: (error) => {
@@ -81,5 +97,8 @@ sortAsc: any;
 
   editLeaveType(id: number): void {
     this.router.navigate(['/leave/edit', id]);
+  }
+  navigateToEdit(id: number): void {
+    this.router.navigate(['/hr/leave/edit', id]);
   }
 }

@@ -2,7 +2,7 @@
   <div class="card">
     <div class="card-header">
       <h2>Leave Types</h2>
-      <button class="btn-primary" routerLink="type/create">
+      <button class="btn-primary" routerLink="create">
         <span class="icon-plus">+</span>
         Add New Leave Type
       </button>
@@ -33,14 +33,14 @@
               <td>{{ leaveType.id }}</td>
               <td>{{ leaveType.name }}</td>
               <td>{{ leaveType.description }}</td>
-              <td>{{ leaveType.daysAllowed }}</td>
-              <td>{{ getPaidStatus(leaveType.isPaid) }}</td>
+              <td>{{ leaveType.days_allowed }}</td>
+              <td>{{ getPaidStatus(leaveType.is_paid) }}</td>
               <td class="actions">
-                <button class="btn-icon edit" (click)="navigateToEdit(leaveType.id)">
-                  <svg aria-hidden="true" class="icon"><use xlink:href="#icon-edit"></use></svg>
+                <button class="btn-edit" (click)="navigateToEdit(leaveType.id)">
+                  Edit
                 </button>
-                <button class="btn-icon delete" (click)="confirmDelete(leaveType)">
-                  <svg aria-hidden="true" class="icon"><use xlink:href="#icon-delete"></use></svg>
+                <button class="btn-delete" (click)="confirmDelete(leaveType)">
+                  Delete
                 </button>
               </td>
             </tr>

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
 import { ApiResponse, Employee } from 'src/app/models/employee.model';
 
@@ -9,18 +9,24 @@ import { ApiResponse, Employee } from 'src/app/models/employee.model';
   styleUrls: ['./employee-list.component.scss'] // Updated style URL
 })
 export class EmployeeListComponent implements OnInit {
+  
   employees: Employee[] = [];
   loading = false;
   error = '';
   selectedDepartment: any;
   searchTerm: any;
+  currentDashboard: string = 'admin'; // Default to admin
+
 
   constructor(
     private employeeService: EmployeeService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
+    const urlSegments = this.router.url.split('/');
+    this.currentDashboard = urlSegments[1] || 'admin';
     this.loadEmployees();
   }
 
@@ -28,6 +34,7 @@ export class EmployeeListComponent implements OnInit {
     this.loading = true;
     this.employeeService.getAll().subscribe({
       next: (response: ApiResponse<Employee[]>) => {
+
         this.employees = response.data;
         this.loading = false;
       },
@@ -40,7 +47,7 @@ export class EmployeeListComponent implements OnInit {
   }
 
   onEdit(id: number): void {
-    this.router.navigate(['/admin/employee/edit', id]); // Updated navigation path
+    this.router.navigate(['edit', id], { relativeTo: this.route });
   }
 
   onDelete(id: number): void {

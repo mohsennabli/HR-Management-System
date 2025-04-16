@@ -54,7 +54,7 @@ export class LeaveCreateComponent {
 
     this.leaveTypeService.create(leaveTypeData).subscribe({
       next: () => {
-        this.router.navigate(['/leave']);
+        this.router.navigate(['/hr/leave']); // Updated to HR path
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -67,15 +67,15 @@ export class LeaveCreateComponent {
     const formValue = this.leaveForm.value;
     return {
       name: formValue.name,
-      description: formValue.description,
-      daysAllowed: Number(formValue.daysAllowed),
-      isPaid: formValue.isPaid,
-      carryOver: formValue.carryOver,
-      maxCarryOver: formValue.carryOver ? Number(formValue.maxCarryOver) : 0
+    description: formValue.description,
+    days_allowed: Number(formValue.daysAllowed), // Snake case
+    is_paid: formValue.isPaid, // Snake case
+    carry_over: formValue.carryOver, // Snake case
+    max_carry_over: formValue.carryOver ? Number(formValue.maxCarryOver) : 0 // Snake case
     };
   }
 
   onCancel(): void {
-    this.router.navigate(['/leave']);
+    this.router.navigate(['/hr/leave']); // Updated to HR path
   }
 }

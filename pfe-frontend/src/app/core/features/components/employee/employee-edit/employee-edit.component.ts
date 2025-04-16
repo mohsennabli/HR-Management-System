@@ -10,6 +10,8 @@ import { ApiResponse, Employee } from 'src/app/models/employee.model';
   styleUrls: ['./employee-edit.component.scss'] 
 })
 export class EmployeeEditComponent implements OnInit {
+  currentDashboard: string | undefined;
+
   employeeForm: FormGroup;
   loading = false;
   error = '';
@@ -34,8 +36,16 @@ export class EmployeeEditComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.employeeId = Number(this.route.snapshot.paramMap.get('id'));
-    this.loadEmployee();
+    const urlSegments = this.router.url.split('/');
+    this.currentDashboard = urlSegments[1] || 'admin';
+    
+    this.route.paramMap.subscribe(params => {
+      this.employeeId = +params.get('id')!;
+      this.loadEmployee();
+    });
+  }
+  onCancel() {
+    this.router.navigate([`/${this.currentDashboard}/employees`]);
   }
 
   loadEmployee(): void {
@@ -68,7 +78,7 @@ export class EmployeeEditComponent implements OnInit {
       this.loading = true;
       this.employeeService.update(this.employeeId, this.employeeForm.value).subscribe({
         next: (response: ApiResponse<Employee>) => {
-          this.router.navigate(['/dashboard/employee']); 
+          this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (error: any) => {
           this.error = 'Failed to update employee';

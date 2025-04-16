@@ -55,4 +55,21 @@ export class DisciplineListComponent implements OnInit {
       error: (err) => console.error('Error submitting action:', err)
     });
   }
+  deleteAction(actionId: number): void {
+    if (confirm('Are you sure you want to delete this disciplinary action?')) {
+      this.disciplineService.deleteAction(actionId).subscribe({
+        next: () => {
+          this.disciplinaryActions = this.disciplinaryActions.filter(
+            action => action.id !== actionId
+          );
+          // Optional: Show success message
+        },
+        error: (err) => {
+          console.error('Full error:', err);
+          // Show user-friendly error message
+          alert('Failed to delete action. Please try again.');
+        }
+      });
+    }
+  }
 }

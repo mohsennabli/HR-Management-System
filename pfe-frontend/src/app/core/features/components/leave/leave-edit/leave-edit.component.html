@@ -10,7 +10,6 @@
 
     <div class="card-body">
       <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()">
-        <!-- Form fields same as your create component -->
         <!-- Name Field -->
         <div class="form-group">
           <label for="name">Leave Type Name*</label>
@@ -19,21 +18,94 @@
             id="name" 
             formControlName="name"
             placeholder="Annual Leave"
-            [class]="{'invalid': name?.touched && name?.errors}">
-          <div *ngIf="name?.touched && name?.errors" class="error-message">
+            class="form-control"
+            [class.invalid]="name?.touched && name?.invalid">
+          <div class="error-message" *ngIf="name?.touched && name?.invalid">
             <div *ngIf="name?.errors?.['required']">Name is required</div>
-            <div *ngIf="name?.errors?.['maxlength']">Max 50 characters allowed</div>
+            <div *ngIf="name?.errors?.['maxlength']">Maximum 50 characters allowed</div>
           </div>
         </div>
 
-        <!-- Other form fields... -->
+        <!-- Description Field -->
+        <div class="form-group">
+          <label for="description">Description*</label>
+          <textarea 
+            id="description" 
+            formControlName="description" 
+            placeholder="Description of the leave type"
+            class="form-control"
+            rows="3"
+            [class.invalid]="description?.touched && description?.invalid"></textarea>
+          <div class="error-message" *ngIf="description?.touched && description?.invalid">
+            <div *ngIf="description?.errors?.['required']">Description is required</div>
+            <div *ngIf="description?.errors?.['maxlength']">Maximum 200 characters allowed</div>
+          </div>
+        </div>
+
+        <!-- Days Allowed Field -->
+        <div class="form-group">
+          <label for="daysAllowed">Days Allowed Per Year*</label>
+          <input 
+            type="number" 
+            id="daysAllowed" 
+            formControlName="daysAllowed" 
+            placeholder="20"
+            class="form-control"
+            min="1"
+            max="365"
+            [class.invalid]="daysAllowed?.touched && daysAllowed?.invalid">
+          <div class="error-message" *ngIf="daysAllowed?.touched && daysAllowed?.invalid">
+            <div *ngIf="daysAllowed?.errors?.['required']">Days allowed is required</div>
+            <div *ngIf="daysAllowed?.errors?.['min']">Minimum 1 day required</div>
+            <div *ngIf="daysAllowed?.errors?.['max']">Maximum 365 days allowed</div>
+          </div>
+        </div>
+
+        <!-- Paid Leave Checkbox -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              formControlName="isPaid"
+              class="checkbox-input">
+            Paid Leave
+          </label>
+        </div>
+
+        <!-- Carry Over Checkbox -->
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              formControlName="carryOver"
+              class="checkbox-input">
+            Allow Carry Over
+          </label>
+        </div>
+
+        <!-- Max Carry Over Days (conditional) -->
+        <div class="form-group" *ngIf="leaveForm.get('carryOver')?.value">
+          <label for="maxCarryOver">Maximum Carry Over Days</label>
+          <input 
+            type="number" 
+            id="maxCarryOver" 
+            formControlName="maxCarryOver" 
+            class="form-control"
+            min="0"
+            [class.invalid]="maxCarryOver?.touched && maxCarryOver?.invalid">
+          <div class="error-message" *ngIf="maxCarryOver?.touched && maxCarryOver?.invalid">
+            <div *ngIf="maxCarryOver?.errors?.['min']">Minimum value is 0</div>
+            <div *ngIf="maxCarryOver?.errors?.['required']">This field is required when carry over is enabled</div>
+          </div>
+        </div>
 
         <div class="form-actions">
           <button 
             type="submit" 
             class="btn-primary"
             [disabled]="leaveForm.invalid || isSubmitting">
-            Update Leave Type
+            <span *ngIf="!isSubmitting">Update Leave Type</span>
+            <span *ngIf="isSubmitting">Updating...</span>
           </button>
           <button 
             type="button" 

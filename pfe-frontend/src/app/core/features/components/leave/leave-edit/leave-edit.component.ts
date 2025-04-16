@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveTypeService } from 'src/app/core/features/components/leave/leave-type.service';
-import { LeaveType } from 'src/app/models/leave-type.model';
 
 @Component({
   selector: 'app-leave-edit',
@@ -11,7 +10,7 @@ import { LeaveType } from 'src/app/models/leave-type.model';
 })
 export class LeaveEditComponent implements OnInit {
   leaveForm: FormGroup;
-  leaveId!: number; // Added definite assignment assertion
+  leaveId!: number;
   loading = false;
   isSubmitting = false;
   errorMessage = '';
@@ -30,9 +29,20 @@ export class LeaveEditComponent implements OnInit {
         Validators.min(1),
         Validators.max(365)
       ]],
-      isPaid: [true],
+      isPaid: [false],
       carryOver: [false],
       maxCarryOver: [0, [Validators.min(0)]]
+    });
+
+    this.leaveForm.get('carryOver')?.valueChanges.subscribe(carryOver => {
+      const maxCarryOverControl = this.leaveForm.get('maxCarryOver');
+      if (carryOver) {
+        maxCarryOverControl?.setValidators([Validators.required, Validators.min(0)]);
+      } else {
+        maxCarryOverControl?.clearValidators();
+        maxCarryOverControl?.setValue(0);
+      }
+      maxCarryOverControl?.updateValueAndValidity();
     });
   }
 
@@ -44,20 +54,31 @@ export class LeaveEditComponent implements OnInit {
   loadLeaveType(): void {
     this.loading = true;
     this.leaveTypeService.getById(this.leaveId).subscribe({
-      next: (leaveType) => {
-        this.leaveForm.patchValue({
-          name: leaveType.name,
-          description: leaveType.description,
-          daysAllowed: leaveType.daysAllowed,
-          isPaid: leaveType.isPaid,
-          carryOver: leaveType.carryOver,
-          maxCarryOver: leaveType.maxCarryOver || 0
-        });
+      next: (response: any) => {
+        console.log('RAW API RESPONSE:', response); // Debug raw response
+  
+        // Ensure we're accessing the data property if response is wrapped
+        const responseData = response.data ? response.data : response;
+        
+        // Map all fields with proper fallbacks
+        const leaveData = {
+          name: responseData.name || '',
+          description: responseData.description || '',
+          daysAllowed: responseData.days_allowed?.toString() || '', // Convert to string for input
+          isPaid: this.convertToBoolean(responseData.is_paid),
+          carryOver: this.convertToBoolean(responseData.carry_over),
+          maxCarryOver: Number(responseData.max_carry_over) || 0
+        };
+  
+        console.log('PROCESSED FORM DATA:', leaveData); // Debug processed data
+        
+        this.leaveForm.patchValue(leaveData);
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error loading leave type:', error);
         this.errorMessage = 'Failed to load leave type';
-        this.router.navigate(['/leave']);
+        this.loading = false;
       }
     });
   }
@@ -66,41 +87,32 @@ export class LeaveEditComponent implements OnInit {
     if (this.leaveForm.invalid || this.isSubmitting) return;
 
     this.isSubmitting = true;
-    const leaveTypeData = this.prepareLeaveTypeData();
+    const leaveTypeData = {
+      name: this.leaveForm.value.name,
+      description: this.leaveForm.value.description,
+      days_allowed: Number(this.leaveForm.value.daysAllowed),
+      is_paid: this.leaveForm.value.isPaid,
+      carry_over: this.leaveForm.value.carryOver,
+      max_carry_over: this.leaveForm.value.carryOver ? Number(this.leaveForm.value.maxCarryOver) : 0
+    };
 
     this.leaveTypeService.update(this.leaveId, leaveTypeData).subscribe({
       next: () => {
-        this.router.navigate(['/leave']);
+        this.router.navigate(['/hr/leave']);
       },
       error: (error) => {
+        console.error('Update error:', error);
+        this.errorMessage = error.error?.message || 'Failed to update leave type';
         this.isSubmitting = false;
-        this.handleError(error);
       }
     });
   }
 
-  private prepareLeaveTypeData(): Partial<LeaveType> {
-    const formValue = this.leaveForm.value;
-    return {
-      name: formValue.name,
-      description: formValue.description,
-      daysAllowed: Number(formValue.daysAllowed),
-      isPaid: formValue.isPaid,
-      carryOver: formValue.carryOver,
-      maxCarryOver: formValue.carryOver ? Number(formValue.maxCarryOver) : 0
-    };
-  }
-
-  private handleError(error: any): void {
-    this.errorMessage = 'Failed to update leave type';
-    
-    if (error.error?.errors) {
-      this.errorMessage = Object.values(error.error.errors).join(', ');
-    }
-  }
-
   onCancel(): void {
-    this.router.navigate(['/leave']);
+    this.router.navigate(['/hr/leave']);
+  }
+  private convertToBoolean(value: any): boolean {
+    return value === true || value === 1 || value === '1' || value === 'true';
   }
 
   get name() { return this.leaveForm.get('name'); }

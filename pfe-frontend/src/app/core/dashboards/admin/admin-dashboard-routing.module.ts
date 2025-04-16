@@ -9,8 +9,7 @@ const routes: Routes = [
     children: [
       {
         path: 'employees',
-        loadChildren: () => import('src/app/core/features/components/employee/employee.module')
-          .then(m => m.EmployeeModule)
+        loadChildren: () => import('../../shared/shared-employee.module').then(m => m.SharedEmployeeModule)
       },
       { 
         path: '',

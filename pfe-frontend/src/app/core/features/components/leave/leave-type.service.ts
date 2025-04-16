@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class LeaveTypeService {
-  private endpoint = 'hr/leave-types';
+  private endpoint = 'hr/leave-types'; // Changed from 'api/hr/leave-types'
 
   constructor(private api: ApiService) { }
 

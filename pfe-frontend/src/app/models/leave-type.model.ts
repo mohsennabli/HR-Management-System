@@ -1,4 +1,6 @@
 export interface LeaveType {
+is_paid: boolean;
+days_allowed: any;
     id: number;
     name: string;
     description: string;

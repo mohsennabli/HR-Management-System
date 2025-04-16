@@ -14,8 +14,7 @@ import { Component, Input } from '@angular/core';
             <h3>Administration</h3>
             <ul>
               <li><a routerLink="/admin/users" routerLinkActive="active">Manage Users</a></li>
-              <li><a routerLink="/admin/employees" routerLinkActive="active">Manage Employees</a></li>
-
+              <li><a [routerLink]="getEmployeeRoute()" routerLinkActive="active">Manage Employees</a></li>
             </ul>
           </div>
         </div>
@@ -25,8 +24,7 @@ import { Component, Input } from '@angular/core';
           <div class="nav-section">
             <h3>Employee Management</h3>
             <ul>
-              <li><a routerLink="/hr/employee" routerLinkActive="active">Employee List</a></li>
-              <li><a routerLink="/hr/employee/create" routerLinkActive="active">Add Employee</a></li>
+              <li><a [routerLink]="getEmployeeRoute()" routerLinkActive="active">Employee List</a></li>
             </ul>
           </div>
 
@@ -34,7 +32,6 @@ import { Component, Input } from '@angular/core';
             <h3>Leave Management</h3>
             <ul>
               <li><a routerLink="/hr/leave" routerLinkActive="active">Leave Types</a></li>
-              <li><a routerLink="/hr/leave/create" routerLinkActive="active">Add Leave Type</a></li>
               <li><a routerLink="/hr/leave/requests" routerLinkActive="active">Leave Requests</a></li>
             </ul>
           </div>
@@ -43,7 +40,6 @@ import { Component, Input } from '@angular/core';
             <h3>Training Management</h3>
             <ul>
               <li><a routerLink="/hr/training" routerLinkActive="active">Training Programs</a></li>
-              <li><a routerLink="/hr/training/create" routerLinkActive="active">Add Training</a></li>
             </ul>
           </div>
 
@@ -63,11 +59,19 @@ export class DashboardSidebarComponent {
   @Input() dashboardType: 'admin' | 'hr' | 'employee' = 'admin';
 
   getDashboardTitle(type: 'admin' | 'hr' | 'employee'): string {
-    const titles: { [key: string]: string } = {
+    const titles = {
       admin: 'Admin',
       hr: 'HR',
       employee: 'Employee'
     };
-    return titles[type] || 'Unknown';
+    return titles[type] || '';
+  }
+
+  getEmployeeRoute(): string {
+    return `/${this.dashboardType}/employees`;
+  }
+
+  getEmployeeCreateRoute(): string {
+    return `/${this.dashboardType}/employees/create`;
   }
 }

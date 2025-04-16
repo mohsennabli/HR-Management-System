@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
+import { Employee } from 'src/app/models/employee.model';
 
 @Component({
   selector: 'app-employee-create', // Updated selector
@@ -92,7 +93,7 @@ import { EmployeeService } from 'src/app/core/features/components/employee/emplo
           </div>
           
           <div class="form-actions">
-            <button type="button" class="btn-secondary" routerLink="/admin/employee">Cancel</button> <!-- Updated navigation -->
+          <button type="button" class="btn-secondary" routerLink="../">Cancel</button> <!-- Updated navigation -->
             <button type="submit" class="btn-primary" [disabled]="employeeForm.invalid">Save Employee</button>
           </div>
         </form>
@@ -157,6 +158,7 @@ import { EmployeeService } from 'src/app/core/features/components/employee/emplo
 })
 export class EmployeeCreateComponent implements OnInit {
   employeeForm: FormGroup;
+  route: ActivatedRoute | null | undefined;
 
   constructor(
     private fb: FormBuilder,
@@ -182,7 +184,9 @@ export class EmployeeCreateComponent implements OnInit {
   onSubmit(): void {
     if (this.employeeForm.valid) {
       // Map form values to match backend API expectations
-      const employeeData = {
+      const employeeData: Employee = {
+        id: 0, // Default value for id
+        status: 'active', // Now matches the exact type 'active' | 'inactive'
         first_name: this.employeeForm.value.firstName,
         last_name: this.employeeForm.value.lastName,
         email: this.employeeForm.value.email,
@@ -198,7 +202,7 @@ export class EmployeeCreateComponent implements OnInit {
         next: (response) => {
           console.log('Employee created successfully:', response);
           // Navigate back to employee list
-          this.router.navigate(['/admin/employee']); // Updated navigation
+          this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (error) => {
           console.error('Error creating employee:', error);
