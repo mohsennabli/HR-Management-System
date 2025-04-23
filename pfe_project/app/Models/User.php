@@ -2,12 +2,28 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class User extends Model {
-    protected $fillable = ['name', 'email', 'password', 'role_id'];
+class User extends Authenticatable
+{
+    use Notifiable;
 
-    public function role() {
-        return $this->belongsTo(Role::class, 'role_id');
+    protected $fillable = [
+        'name', 'email', 'password'
+    ];
+
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles');
+    }
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
     }
 }

@@ -10,10 +10,17 @@ import { UserService } from '../user.service';
   styleUrls: ['./user-edit.component.scss'] // Updated style URL
 })
 export class UserEditComponent implements OnInit {
-  user: User = { name: '', email: '', password: '', role_id: 0 };
+  user: User = { 
+    name: '', 
+    email: '', 
+    password: '', 
+    roles: [] // Changed from role_id
+  };
+  selectedRoles: number[] = []; // For form binding
   loading = false;
   error = '';
   loadingUser = false;
+availableRoles: any;
 
   constructor(
     private userService: UserService,
@@ -22,6 +29,8 @@ export class UserEditComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.selectedRoles = this.user.roles.map(role => role.id);
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadingUser = true;

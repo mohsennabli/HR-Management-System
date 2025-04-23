@@ -24,10 +24,9 @@ export class EmployeeService {
     return `${this.endpointPrefix}/employees${path}`;
   }
 
-  getAll(): Observable<any> {
-
-    return this.api.get(this.getFullEndpoint(''));
-  }
+  getAll(params?: any): Observable<any> {
+    return this.api.get(this.getFullEndpoint(''), params);
+}
 
   getById(id: number): Observable<any> {
     return this.api.get(this.getFullEndpoint(`/${id}`));

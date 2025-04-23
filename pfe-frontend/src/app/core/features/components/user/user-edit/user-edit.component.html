@@ -21,13 +21,12 @@
         <input type="email" class="form-control" id="email" [(ngModel)]="user.email" name="email" required>
       </div>
      
-      <div class="mb-3">
-        <label for="role_id" class="form-label">Role</label>
-        <select class="form-select" id="role_id" [(ngModel)]="user.role_id" name="role_id" required>
-          <option value="" disabled>Select a role</option>
-          <option value="1">Admin</option>
-          <option value="2">HRManager</option>
-          <option value="3">Employee</option>
+      <div class="form-group">
+        <label>Roles</label>
+        <select multiple class="form-select" [(ngModel)]="selectedRoles" name="roles" required>
+          <option *ngFor="let role of availableRoles" [value]="role.id">
+            {{ role.name }}
+          </option>
         </select>
       </div>
       <button type="submit" class="btn" [disabled]="!userForm.valid || loading">

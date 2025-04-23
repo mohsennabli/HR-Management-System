@@ -20,11 +20,21 @@ export class UserService {
   }
 
   createUser(user: User): Observable<any> {
-    return this.api.post(this.endpoint, user);
+    return this.api.post(this.endpoint, {
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      roles: user.roles // Send array of role IDs
+    });
   }
 
   updateUser(id: number, user: User): Observable<any> {
-    return this.api.put(`${this.endpoint}/${id}`, user);
+    return this.api.put(`${this.endpoint}/${id}`, {
+      name: user.name,
+      email: user.email,
+      password: user.password,
+      roles: user.roles // Send array of role IDs
+    });
   }
 
   deleteUser(id: number): Observable<any> {

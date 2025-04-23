@@ -12,6 +12,7 @@ export interface Employee {
 }
   
   export interface ApiResponse<T> {
+    name: string;
     success: boolean;
     message: string;
     data: T;

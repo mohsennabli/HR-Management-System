@@ -1,0 +1,19 @@
+<div class="form-container">
+    <h2>Edit Permission</h2>
+    
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Permission Name</label>
+        <!-- <input type="text" [(ngModel)]="name" name="name" required> -->
+      </div>
+  
+      <div *ngIf="error" class="error">{{ error }}</div>
+  
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" routerLink="/admin/permissions">Cancel</button>
+        <button type="submit" [disabled]="loading" class="btn-submit">
+          {{ loading ? 'Updating...' : 'Update Permission' }}
+        </button>
+      </div>
+    </form>
+  </div>

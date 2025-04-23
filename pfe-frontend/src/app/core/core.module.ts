@@ -6,6 +6,7 @@ import { DashboardSidebarComponent } from 'src/app/core/sidebar/sidebar.componen
 @NgModule({
   declarations: [
     DashboardSidebarComponent,
+  
     
   ],
   imports: [

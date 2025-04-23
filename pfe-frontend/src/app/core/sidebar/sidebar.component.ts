@@ -17,6 +17,14 @@ import { Component, Input } from '@angular/core';
               <li><a [routerLink]="getEmployeeRoute()" routerLinkActive="active">Manage Employees</a></li>
             </ul>
           </div>
+
+          <div class="nav-section">
+            <h3>Access Control</h3>
+            <ul>
+              <li><a routerLink="/admin/roles" routerLinkActive="active">Manage Roles</a></li>
+              <li><a routerLink="/admin/permissions" routerLinkActive="active">Manage Permissions</a></li>
+            </ul>
+          </div>
         </div>
 
         <!-- HR Links -->

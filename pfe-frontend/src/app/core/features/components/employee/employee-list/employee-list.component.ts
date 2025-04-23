@@ -13,9 +13,10 @@ export class EmployeeListComponent implements OnInit {
   employees: Employee[] = [];
   loading = false;
   error = '';
-  selectedDepartment: any;
-  searchTerm: any;
+  searchTerm: string = '';
+  selectedDepartment: string = '';
   currentDashboard: string = 'admin'; // Default to admin
+  
 
 
   constructor(
@@ -32,7 +33,13 @@ export class EmployeeListComponent implements OnInit {
 
   loadEmployees(): void {
     this.loading = true;
-    this.employeeService.getAll().subscribe({
+
+    const params: any = {};
+    if (this.searchTerm) params.search = this.searchTerm;
+    if (this.selectedDepartment) params.department = this.selectedDepartment;
+
+
+    this.employeeService.getAll(params).subscribe({
       next: (response: ApiResponse<Employee[]>) => {
 
         this.employees = response.data;
@@ -65,7 +72,6 @@ export class EmployeeListComponent implements OnInit {
   }
 
   filterEmployees(): void {
-    // Implement filtering logic here
-    console.log('Filtering employees:', { searchTerm: this.searchTerm, department: this.selectedDepartment });
+    this.loadEmployees();
   }
 }

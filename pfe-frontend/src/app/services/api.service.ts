@@ -1,63 +1,99 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl = environment.apiUrl;
+  private readonly baseUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.baseUrl}/${endpoint}`);
+  /**
+   * Generic GET request
+   * @param endpoint - API endpoint (e.g., 'admin/users')
+   * @param params - Query parameters (optional)
+   * @param headers - Custom headers (optional)
+   */
+  get<T>(endpoint: string, params?: Record<string, any>, headers?: Record<string, string>): Observable<T> {
+    const httpParams = new HttpParams({ fromObject: params });
+    const httpHeaders = new HttpHeaders(headers);
+
+    return this.http.get<T>(`${this.baseUrl}/${endpoint}`, {
+      params: httpParams,
+      headers: httpHeaders
+    });
   }
 
-  post<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, data);
+  /**
+   * Generic POST request
+   * @param endpoint - API endpoint
+   * @param body - Request payload
+   * @param headers - Custom headers (optional)
+   */
+  post<T>(endpoint: string, body: any, headers?: Record<string, string>): Observable<T> {
+    const httpHeaders = new HttpHeaders(headers);
+
+    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, body, {
+      headers: httpHeaders
+    });
   }
 
-  put<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.put<T>(`${this.baseUrl}/${endpoint}`, data);
+  /**
+   * Generic PUT request
+   * @param endpoint - API endpoint
+   * @param body - Request payload
+   * @param headers - Custom headers (optional)
+   */
+  put<T>(endpoint: string, body: any, headers?: Record<string, string>): Observable<T> {
+    const httpHeaders = new HttpHeaders(headers);
+
+    return this.http.put<T>(`${this.baseUrl}/${endpoint}`, body, {
+      headers: httpHeaders
+    });
   }
 
-  patch<T>(endpoint: string, data: any): Observable<T> {
-    return this.http.patch<T>(`${this.baseUrl}/${endpoint}`, data);
+  /**
+   * Generic PATCH request
+   * @param endpoint - API endpoint
+   * @param body - Partial request payload
+   * @param headers - Custom headers (optional)
+   */
+  patch<T>(endpoint: string, body: any, headers?: Record<string, string>): Observable<T> {
+    const httpHeaders = new HttpHeaders(headers);
+
+    return this.http.patch<T>(`${this.baseUrl}/${endpoint}`, body, {
+      headers: httpHeaders
+    });
   }
 
-  delete<T>(endpoint: string): Observable<T> {
-    return this.http.delete<T>(`${this.baseUrl}/${endpoint}`);
+  /**
+   * Generic DELETE request
+   * @param endpoint - API endpoint
+   * @param headers - Custom headers (optional)
+   */
+  delete<T>(endpoint: string, headers?: Record<string, string>): Observable<T> {
+    const httpHeaders = new HttpHeaders(headers);
+
+    return this.http.delete<T>(`${this.baseUrl}/${endpoint}`, {
+      headers: httpHeaders
+    });
   }
 
-  getPerformanceMetrics(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/admin/performance`);
-  }
+  /**
+   * Generic file upload
+   * @param endpoint - API endpoint
+   * @param file - File to upload
+   * @param fieldName - Form field name (default: 'file')
+   */
+  uploadFile<T>(endpoint: string, file: File, fieldName = 'file'): Observable<T> {
+    const formData = new FormData();
+    formData.append(fieldName, file);
 
-  // Get all users
-  getUsers(): Observable<any> {
-    return this.http.get(`${this.baseUrl}/admin/users`);
-  }
-
-  // Get a single user
-  getUser(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/admin/users/${id}`);
-  }
-
-  // Create a user
-  createUser(user: User): Observable<any> {
-    return this.http.post(`${this.baseUrl}/admin/users`, user);
-  }
-
-  // Update a user
-  updateUser(id: number, user: User): Observable<any> {
-    return this.http.put(`${this.baseUrl}/admin/users/${id}`, user);
-  }
-
-  // Delete a user
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/admin/users/${id}`);
+    return this.http.post<T>(`${this.baseUrl}/${endpoint}`, formData, {
+      headers: new HttpHeaders({ 'enctype': 'multipart/form-data' })
+    });
   }
 }

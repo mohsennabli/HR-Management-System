@@ -4,7 +4,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AppPerformanceComponent } from './admin-dashboard/app-performance/app-performance.component';
 import { SumPipe } from './pipes/sum.pipe';
 import { DatePipe } from '@angular/common';
 
@@ -12,7 +11,6 @@ import { DatePipe } from '@angular/common';
   declarations: [
     AppComponent,
     
-    AppPerformanceComponent,
     SumPipe
   ],
   imports: [

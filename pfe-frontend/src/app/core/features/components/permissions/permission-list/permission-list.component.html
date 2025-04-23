@@ -1,0 +1,33 @@
+<div class="permission-list">
+    <div class="header">
+      <h2>Permissions</h2>
+      <button routerLink="/admin/permissions/create" class="btn-primary">
+        + New Permission
+      </button>
+    </div>
+  
+    <div *ngIf="loading" class="loading">Loading...</div>
+    <div *ngIf="error" class="error">{{ error }}</div>
+  
+    <table *ngIf="permissions.length > 0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let perm of permissions">
+          <td>{{ perm.name }}</td>
+          <td>
+            <button (click)="editPermission(perm.id)" class="btn-edit">Edit</button>
+            <button (click)="deletePermission(perm.id)" class="btn-delete">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <div *ngIf="!loading && permissions.length === 0" class="no-data">
+      No permissions found
+    </div>
+  </div>
