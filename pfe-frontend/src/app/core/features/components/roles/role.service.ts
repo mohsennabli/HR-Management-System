@@ -8,7 +8,7 @@ import { ApiService } from "src/app/services/api.service";
   providedIn: 'root'
 })
 export class RoleService {
-  private endpoint = 'admin/roles';
+  private endpoint = 'roles';
 
   constructor(private api: ApiService) { }
 

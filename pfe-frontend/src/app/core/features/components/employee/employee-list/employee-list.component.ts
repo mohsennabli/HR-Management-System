@@ -15,7 +15,6 @@ export class EmployeeListComponent implements OnInit {
   error = '';
   searchTerm: string = '';
   selectedDepartment: string = '';
-  currentDashboard: string = 'admin'; // Default to admin
   
 
 
@@ -26,8 +25,6 @@ export class EmployeeListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const urlSegments = this.router.url.split('/');
-    this.currentDashboard = urlSegments[1] || 'admin';
     this.loadEmployees();
   }
 

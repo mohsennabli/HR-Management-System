@@ -33,13 +33,14 @@ import { Employee } from 'src/app/models/employee.model';
           </div>
           
           <div class="form-row">
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" formControlName="email" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
-                Please enter a valid email
-              </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email" class="form-control">
+            <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+              <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
+              <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
             </div>
+          </div>
             
             <div class="form-group">
               <label for="phone">Phone</label>
@@ -187,8 +188,13 @@ export class EmployeeCreateComponent implements OnInit {
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
       salary: ['', [Validators.required, Validators.min(0)]],
-      status: ['active', Validators.required] // Add status control
+      status: ['active', Validators.required],
+      
+      
     });
+
+
+
   }
 
   ngOnInit(): void {

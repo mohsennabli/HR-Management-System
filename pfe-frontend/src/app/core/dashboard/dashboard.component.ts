@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-hr-dashboard',
+  selector: 'app-dashboard',
   template: `
     <div class="dashboard-container">
-      <app-dashboard-sidebar dashboardType="hr"></app-dashboard-sidebar>
+      <app-dashboard-sidebar></app-dashboard-sidebar>
       <div class="content">
         <router-outlet></router-outlet>
       </div>
@@ -25,4 +25,4 @@ import { Component } from '@angular/core';
     }
   `]
 })
-export class HrDashboardComponent {}
+export class DashboardComponent {} 

@@ -1,55 +1,70 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ApiService } from 'src/app/services/api.service';
-import { User } from 'src/app/models/user.model'; // Updated import path
 import { UserService } from '../user.service';
+import { RoleService } from 'src/app/core/features/components/roles/role.service'; // Add this import
+import { User } from 'src/app/models/user.model';
 
 @Component({
-  selector: 'app-user-edit', // Updated selector
-  templateUrl: './user-edit.component.html', // Updated template URL
-  styleUrls: ['./user-edit.component.scss'] // Updated style URL
+  selector: 'app-user-edit',
+  templateUrl: './user-edit.component.html',
+  styleUrls: ['./user-edit.component.scss']
 })
 export class UserEditComponent implements OnInit {
   user: User = { 
     name: '', 
     email: '', 
     password: '', 
-    roles: [] // Changed from role_id
+    roles: [] 
   };
-  selectedRoles: number[] = []; // For form binding
+  selectedRoles: number[] = [];
   loading = false;
   error = '';
   loadingUser = false;
-availableRoles: any;
+  availableRoles: any[] = [];
 
   constructor(
     private userService: UserService,
-  private route: ActivatedRoute,
-  private router: Router
+    private roleService: RoleService, // Add this
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.selectedRoles = this.user.roles.map(role => role.id);
-
+    this.loadRoles(); // Load available roles first
+    
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.loadingUser = true;
-      this.userService.getUser(+id).subscribe({
-        next: (response: any) => {
-          this.user = response.data;
-          this.loadingUser = false;
-        },
-        error: (error: any) => {
-          this.loadingUser = false;
-          if (error.error?.errors) {
-            this.error = Object.values(error.error.errors).flat().join(', ');
-          } else {
-            this.error = 'Failed to load user. Please try again.'; // Updated error message
-          }
-          console.error('Error fetching user:', error);
-        }
-      });
+      this.loadUser(+id);
     }
+  }
+
+  loadRoles(): void {
+    this.roleService.getRoles().subscribe({
+      next: (response) => {
+        this.availableRoles = response.data || response;
+      },
+      error: (error) => {
+        console.error('Error loading roles:', error);
+      }
+    });
+  }
+
+  loadUser(id: number): void {
+    this.loadingUser = true;
+    this.userService.getUser(id).subscribe({
+      next: (response: any) => {
+        this.user = response.data;
+        // Map the user's roles to selectedRoles
+        this.selectedRoles = this.user.roles.map(role => role.id);
+        this.loadingUser = false;
+      },
+      error: (error: any) => {
+        this.loadingUser = false;
+        this.error = error.error?.errors ? 
+          Object.values(error.error.errors).flat().join(', ') : 
+          'Failed to load user. Please try again.';
+      }
+    });
   }
 
   onSubmit(): void {
@@ -58,18 +73,18 @@ availableRoles: any;
     this.loading = true;
     this.error = '';
 
+    // Update user's roles with selectedRoles
+    this.user.roles = this.selectedRoles.map(roleId => ({ id: roleId, name: '' }));
+
     this.userService.updateUser(this.user.id, this.user).subscribe({
       next: () => {
-        this.router.navigate(['/admin/users']); // Updated navigation path
+        this.router.navigate(['/users']);
       },
       error: (error: any) => {
         this.loading = false;
-        if (error.error?.errors) {
-          this.error = Object.values(error.error.errors).flat().join(', ');
-        } else {
-          this.error = 'Failed to update user. Please try again.'; // Updated error message
-        }
-        console.error('Error updating user:', error);
+        this.error = error.error?.errors ? 
+          Object.values(error.error.errors).flat().join(', ') : 
+          'Failed to update user. Please try again.';
       }
     });
   }

@@ -1,14 +1,17 @@
-// leave-requests.component.ts
 import { Component, OnInit } from '@angular/core';
-
+import { LeaveRequestService } from 'src/app/core/features/components/leave/leave-request.service';
+import { EmployeeService } from '../../employee/employee.service';
 interface LeaveRequest {
   id: number;
+  employee_id: number;
   employeeName: string;
-  startDate: Date;
-  endDate: Date;
-  duration: number;
+  leave_type_id: number;
+  startDate: string;
+  endDate: string;
+  days: number;
   type: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'pending' | 'approved' | 'rejected';
+  reason?: string;
 }
 
 @Component({
@@ -28,46 +31,38 @@ export class LeaveRequestsComponent implements OnInit {
   loading = true;
   requests: LeaveRequest[] = [];
   filteredRequests: LeaveRequest[] = [];
+error: any;
+
+  constructor(private leaveRequestService: LeaveRequestService) {}
 
   ngOnInit(): void {
-    // Simulate API call
-    setTimeout(() => {
-      this.requests = this.generateMockData();
-      this.filterRequests();
-      this.loading = false;
-    }, 1500);
+    this.fetchLeaveRequests();
   }
 
-  generateMockData(): LeaveRequest[] {
-    return [
-      {
-        id: 1,
-        employeeName: 'John Doe',
-        startDate: new Date('2024-03-15'),
-        endDate: new Date('2024-03-20'),
-        duration: 5,
-        type: 'Vacation',
-        status: 'PENDING'
+  fetchLeaveRequests(): void {
+    this.loading = true;
+    this.leaveRequestService.getAll().subscribe({
+      next: (response) => {
+        this.requests = response.map((request: any) => ({
+          id: request.id,
+          employee_id: request.employee_id,
+          employeeName: request.employee?.name || 'Unknown Employee',
+          leave_type_id: request.leave_type_id,
+          startDate: request.start_date,
+          endDate: request.end_date,
+          days: request.days,
+          type: request.leave_type?.name || 'Unknown Type',
+          status: request.status,
+          reason: request.reason
+        }));
+        this.filterRequests();
+        this.loading = false;
       },
-      {
-        id: 2,
-        employeeName: 'Jane Smith',
-        startDate: new Date('2024-04-01'),
-        endDate: new Date('2024-04-05'),
-        duration: 4,
-        type: 'Sick Leave',
-        status: 'APPROVED'
-      },
-      {
-        id: 3,
-        employeeName: 'Bob Johnson',
-        startDate: new Date('2024-03-10'),
-        endDate: new Date('2024-03-12'),
-        duration: 2,
-        type: 'Personal',
-        status: 'REJECTED'
+      error: (error) => {
+        console.error('Error fetching leave requests:', error);
+        this.loading = false;
       }
-    ];
+    });
   }
 
   setFilter(filter: string): void {
@@ -86,6 +81,31 @@ export class LeaveRequestsComponent implements OnInit {
   }
 
   openNewRequest(): void {
-    // Add logic to open new request form
+    // Refresh the data
+    this.fetchLeaveRequests();
+  }
+
+  updateStatus(id: number, status: 'approved' | 'rejected'): void {
+    this.leaveRequestService.updateStatus(id, status).subscribe({
+      next: () => {
+        this.fetchLeaveRequests(); // Refresh the list after status update
+      },
+      error: (error) => {
+        console.error('Error updating leave request status:', error);
+      }
+    });
+  }
+
+  deleteRequest(id: number): void {
+    if (confirm('Are you sure you want to delete this leave request?')) {
+      this.leaveRequestService.delete(id).subscribe({
+        next: () => {
+          this.fetchLeaveRequests(); // Refresh the list after deletion
+        },
+        error: (error) => {
+          console.error('Error deleting leave request:', error);
+        }
+      });
+    }
   }
 }

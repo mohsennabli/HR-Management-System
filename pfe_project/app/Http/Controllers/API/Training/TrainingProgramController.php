@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\HR;
+namespace App\Http\Controllers\API\Training;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrainingProgram;

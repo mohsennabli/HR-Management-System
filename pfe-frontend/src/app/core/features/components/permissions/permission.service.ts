@@ -8,7 +8,7 @@ import { ApiResponse } from "src/app/models/employee.model";
   providedIn: 'root'
 })
 export class PermissionService {
-  private endpoint = 'admin/permissions';
+  private endpoint = 'permissions';
 
   constructor(private api: ApiService) { }
 

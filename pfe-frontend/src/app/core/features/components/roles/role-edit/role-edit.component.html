@@ -4,7 +4,7 @@
     <form (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label>Role Name</label>
-        <!-- <input type="text" [(ngModel)]="name" name="name" required> -->
+        <input type="text" [(ngModel)]="name" name="name" required>
       </div>
   
       <div class="form-group">
@@ -24,7 +24,7 @@
       <div *ngIf="error" class="error">{{ error }}</div>
   
       <div class="form-actions">
-        <button type="button" class="btn-cancel" routerLink="/admin/roles">Cancel</button>
+        <button type="button" class="btn-cancel" routerLink="/roles">Cancel</button>
         <button type="submit" [disabled]="loading" class="btn-submit">
           {{ loading ? 'Updating...' : 'Update Role' }}
         </button>

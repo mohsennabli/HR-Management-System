@@ -145,4 +145,31 @@
         </button>
       </div>
     </form>
+
+
+    <div class="participants-section">
+      <h3>Assigned Employees</h3>
+      
+      <div class="add-participant">
+        <select [(ngModel)]="newEmployeeId" class="form-control">
+          <option [value]="null">Select Employee to Add</option>
+          <option *ngFor="let emp of availableEmployees" [value]="emp.id">
+            {{ emp.first_name }} {{ emp.last_name }}
+          </option>
+        </select>
+        <button type="button" class="btn btn-secondary" (click)="addParticipant()">Add Employee</button>
+      </div>
+    
+      <table class="participants-table text-black">
+        <tr *ngFor="let participant of participants">
+          <td>{{ participant.employee.first_name }} {{ participant.employee.last_name }}</td>
+          <td>{{ participant.status }}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" (click)="removeParticipant(participant.id)">
+              Remove
+            </button>
+          </td>
+        </tr>
+      </table>
+    </div>
   </div>

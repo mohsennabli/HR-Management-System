@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
+import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
+import { TrainingParticipantService } from '../training-participant.service';
 @Component({
   selector: 'app-training-create',
   template: `
@@ -109,6 +111,20 @@ import { TrainingProgramService } from 'src/app/core/features/components/trainin
             Location is required
           </div>
         </div>
+        <div class="form-group">
+          <label>Assign Employees</label>
+          <div class="employee-select">
+            <div *ngIf="isLoadingEmployees">Loading employees...</div>
+            <div *ngFor="let employee of employees" class="employee-checkbox">
+              <label>
+                <input type="checkbox" 
+                      [value]="employee.id"
+                      (change)="onEmployeeSelect($event, employee.id)">
+                {{ employee.first_name }} {{ employee.last_name }}
+              </label>
+            </div>
+          </div>
+        </div>
 
         <div class="form-actions">
           <button type="submit" class="btn-primary" [disabled]="!trainingForm.valid">Create Training Program</button>
@@ -201,12 +217,23 @@ import { TrainingProgramService } from 'src/app/core/features/components/trainin
   `]
 })
 export class TrainingCreateComponent implements OnInit {
+onEmployeeSelect($event: Event,arg1: any) {
+throw new Error('Method not implemented.');
+}
   trainingForm: FormGroup;
+  employees: any[] = [];
+  selectedEmployees: number[] = [];
+  isLoadingEmployees = false;
+  trainingId: any;
+
+
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private trainingService: TrainingProgramService // <-- Injecté ici
+    private trainingService: TrainingProgramService,
+    private employeeService: EmployeeService,
+    private participantService: TrainingParticipantService
   ) {
     this.trainingForm = this.fb.group({
       programName: ['', Validators.required],
@@ -217,9 +244,28 @@ export class TrainingCreateComponent implements OnInit {
       instructor: ['', Validators.required],
       location: ['', Validators.required]
     });
+
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.loadEmployees();
+
+  }
+
+
+  loadEmployees(): void {
+    this.isLoadingEmployees = true;
+    this.employeeService.getAll().subscribe({
+      next: (response) => {
+        this.employees = response.data;
+        this.isLoadingEmployees = false;
+      },
+      error: (error) => {
+        console.error('Error loading employees:', error);
+        this.isLoadingEmployees = false;
+      }
+    });
+  }
 
   onSubmit(): void {
     if (this.trainingForm.valid) {
@@ -233,21 +279,37 @@ export class TrainingCreateComponent implements OnInit {
         location: this.trainingForm.value.location,
         status: 'upcoming' // valeur par défaut d’après ta BDD
       };
+      const operation = this.trainingId 
+      ? this.trainingService.update(this.trainingId, formData)
+      : this.trainingService.create(formData);
+
+      operation.subscribe({
+        next: (createdProgram) => {
+          // Assign selected employees after program creation
+          const programId = createdProgram.id;
+          this.selectedEmployees.forEach(employeeId => {
+            this.participantService.create(programId, { employee_id: employeeId }).subscribe();
+          });
+          this.router.navigate(['/hr/training']);
+        },
+      });
+
 
       this.trainingService.create(formData).subscribe({
         next: (res) => {
           console.log('Training program created:', res);
-          this.router.navigate(['/hr/training']);
+          this.router.navigate(['/training']);
         },
         error: (err) => {
           console.error('Error creating training program:', err);
-          // ici tu peux afficher un message d'erreur à l'utilisateur
         }
       });
     }
+    
+    
   }
 
   onCancel(): void {
-    this.router.navigate(['/hr/training']);
+    this.router.navigate(['/training']);
   }
 }

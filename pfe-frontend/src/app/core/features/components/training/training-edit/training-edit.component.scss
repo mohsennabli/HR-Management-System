@@ -132,3 +132,41 @@
       background-color: #7f8c8d;
     }
   }
+  .participants-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  
+    h3 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+  
+    .add-participant {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+  
+      select {
+        flex: 1;
+        max-width: 300px;
+      }
+    }
+  
+    .participants-table {
+      width: 100%;
+      border-collapse: collapse;
+  
+      tr {
+        &:nth-child(even) {
+          background-color: #fff;
+        }
+  
+        td {
+          padding: 0.8rem;
+          border-bottom: 1px solid #eee;
+        }
+      }
+    }
+  }

@@ -56,7 +56,7 @@ export class RoleEditComponent implements OnInit {
       name: this.name,
       permissions: this.selectedPermissions
     }).subscribe({
-      next: () => this.router.navigate(['/admin/roles']),
+      next: () => this.router.navigate(['/roles']),
       error: (error) => {
         this.error = 'Update failed';
         this.loading = false;

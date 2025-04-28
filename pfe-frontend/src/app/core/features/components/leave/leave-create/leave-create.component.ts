@@ -76,6 +76,6 @@ export class LeaveCreateComponent {
   }
 
   onCancel(): void {
-    this.router.navigate(['/hr/leave']); // Updated to HR path
+    this.router.navigate(['/leave']); 
   }
 }

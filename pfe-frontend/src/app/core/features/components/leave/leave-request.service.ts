@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class LeaveRequestService {
-  private endpoint = 'hr/leave-requests';
+  private endpoint = 'leave-requests';
 
   constructor(private api: ApiService) { }
 

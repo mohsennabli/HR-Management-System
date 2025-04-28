@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\HR;
+namespace App\Http\Controllers\API\Training;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrainingParticipant;
@@ -27,41 +27,49 @@ class TrainingParticipantController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $programId)
     {
         $validator = Validator::make($request->all(), [
-            'training_program_id' => 'required|exists:training_programs,id',
             'employee_id' => 'required|exists:employees,id'
         ]);
-
+    
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Check if the program has reached its capacity
-        $program = TrainingProgram::findOrFail($request->training_program_id);
-        $currentParticipants = $program->participants()->count();
-
-        if ($currentParticipants >= $program->capacity) {
             return response()->json([
-                'error' => 'Training program has reached its maximum capacity'
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
             ], 422);
         }
-
-        // Check if employee is already enrolled
-        $existingEnrollment = TrainingParticipant::where([
-            'training_program_id' => $request->training_program_id,
+    
+        // Check capacity
+        $program = TrainingProgram::findOrFail($programId);
+        if ($program->participants()->count() >= $program->capacity) {
+            return response()->json([
+                'message' => 'Training program has reached maximum capacity'
+            ], 422);
+        }
+    
+        // Check duplicate enrollment
+        $exists = TrainingParticipant::where([
+            'training_program_id' => $programId,
             'employee_id' => $request->employee_id
-        ])->first();
-
-        if ($existingEnrollment) {
+        ])->exists();
+    
+        if ($exists) {
             return response()->json([
-                'error' => 'Employee is already enrolled in this training program'
+                'message' => 'Employee is already enrolled in this program'
             ], 422);
         }
-
-        $participant = TrainingParticipant::create($request->all());
-        return response()->json(['data' => $participant], 201);
+    
+        $participant = TrainingParticipant::create([
+            'training_program_id' => $programId,
+            'employee_id' => $request->employee_id,
+            'status' => 'enrolled'
+        ]);
+    
+        return response()->json([
+            'message' => 'Employee added successfully',
+            'data' => $participant
+        ], 201);
     }
 
     /**

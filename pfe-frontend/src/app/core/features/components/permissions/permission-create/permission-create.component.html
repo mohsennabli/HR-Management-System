@@ -10,7 +10,7 @@
       <div *ngIf="error" class="error">{{ error }}</div>
   
       <div class="form-actions">
-        <button type="button" class="btn-cancel" routerLink="/admin/permissions">Cancel</button>
+        <button type="button" class="btn-cancel" routerLink="/permissions">Cancel</button>
         <button type="submit" [disabled]="loading" class="btn-submit">
           {{ loading ? 'Creating...' : 'Create Permission' }}
         </button>

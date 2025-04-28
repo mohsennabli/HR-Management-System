@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../../../services/api.service';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators'; // Add this import
+import { map } from 'rxjs/operators'; 
 
 @Injectable({
   providedIn: 'root'
 })
 export class TrainingProgramService {
-  private endpoint = 'hr/training-programs';
+  private endpoint = 'training-programs';
 
   constructor(private api: ApiService) { }
 

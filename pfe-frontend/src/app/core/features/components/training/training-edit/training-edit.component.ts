@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
-
+import { TrainingParticipantService } from '../training-participant.service';
+import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
 @Component({
   selector: 'app-training-edit',
   templateUrl: './training-edit.component.html',
@@ -14,12 +15,19 @@ export class TrainingEditComponent implements OnInit {
   loading = false;
   errorMessage: string | null = null;
   statusOptions = ['Draft', 'Published', 'Completed', 'Cancelled'];
+  participants: any[] = [];
+  availableEmployees: any[] = [];
+  newEmployeeId: number | null = null;
+
+
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private trainingService: TrainingProgramService
+    private trainingService: TrainingProgramService,
+    private participantService: TrainingParticipantService,
+    private employeeService: EmployeeService
   ) {
     this.trainingForm = this.fb.group({
       programName: ['', Validators.required],
@@ -38,6 +46,22 @@ export class TrainingEditComponent implements OnInit {
     if (this.trainingId) {
       this.loadTrainingProgram();
     }
+    this.loadParticipants();
+    this.employeeService.getAll().subscribe({
+      next: (response) => {
+        this.availableEmployees = response.data;
+      }
+    });
+
+  }
+
+
+  loadParticipants() {
+    this.participantService.getAllForProgram(this.trainingId).subscribe({
+      next: (response) => {
+        this.participants = response.data;
+      }
+    });
   }
 
   loadTrainingProgram(): void {
@@ -119,8 +143,32 @@ export class TrainingEditComponent implements OnInit {
       }
     });
   }
+  addParticipant(): void {
+    if (this.newEmployeeId) {
+      this.participantService.create(this.trainingId, { 
+        employee_id: this.newEmployeeId 
+      }).subscribe({
+        next: () => {
+          this.loadParticipants();
+          this.newEmployeeId = null;
+        },
+        error: (err) => {
+          console.error('Error adding participant:', err);
+          alert(err.error?.message || 'Failed to add employee');
+        }
+      });
+    }
+  }
+  removeParticipant(participantId: number): void {
+    if (confirm('Remove this employee from the training?')) {
+      this.participantService.delete(this.trainingId, participantId)
+        .subscribe({
+          next: () => this.loadParticipants()
+        });
+    }
+  }
 
   onCancel(): void {
-    this.router.navigate(['/hr/training']);
+    this.router.navigate(['/training']);
   }
 }

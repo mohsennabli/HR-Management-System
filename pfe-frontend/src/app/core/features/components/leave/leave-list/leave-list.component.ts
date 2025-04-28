@@ -99,6 +99,6 @@ sortAsc: any;
     this.router.navigate(['/leave/edit', id]);
   }
   navigateToEdit(id: number): void {
-    this.router.navigate(['/hr/leave/edit', id]);
+    this.router.navigate(['/leave/edit', id]);
   }
 }

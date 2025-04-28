@@ -2,16 +2,15 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\Admin\UserController;
-use App\Http\Controllers\API\Admin\RoleController;
-use App\Http\Controllers\API\Admin\PermissionController;
-use App\Http\Controllers\API\Admin\EmployeeController as AdminEmployeeController;
-use App\Http\Controllers\API\HR\EmployeeController;
-use App\Http\Controllers\API\HR\LeaveTypeController;
-use App\Http\Controllers\API\HR\LeaveRequestController;
-use App\Http\Controllers\API\HR\TrainingProgramController;
-use App\Http\Controllers\API\HR\TrainingParticipantController;
-use App\Http\Controllers\API\HR\DisciplinaryActionController;
+use App\Http\Controllers\API\User\UserController;
+use App\Http\Controllers\API\Role\RoleController;
+use App\Http\Controllers\API\Permission\PermissionController;
+use App\Http\Controllers\API\Employee\EmployeeController;
+use App\Http\Controllers\API\Leave\LeaveTypeController;
+use App\Http\Controllers\API\Leave\LeaveRequestController;
+use App\Http\Controllers\API\Training\TrainingProgramController;
+use App\Http\Controllers\API\Training\TrainingParticipantController;
+use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,45 +23,38 @@ use App\Http\Controllers\API\HR\DisciplinaryActionController;
 |
 */
 
-Route::prefix('admin')->group(function () {
-    // User Management
-    Route::apiResource('users', UserController::class);
-    
-    // Role/Permission Management
-    Route::apiResource('roles', RoleController::class);
-    Route::apiResource('permissions', PermissionController::class);
-    
-    // Employee Management (Admin Perspective)
-    Route::apiResource('employees', AdminEmployeeController::class);
-    
-   
-});
-
 // Authentication
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// HR Management Routes
-Route::prefix('hr')->group(function () {
-    // Employee Management (HR Perspective)
-    Route::apiResource('employees', EmployeeController::class);
+// User Management
+Route::apiResource('users', UserController::class);
 
-    // Leave Management
-    Route::apiResource('leave-types', LeaveTypeController::class);
-    Route::apiResource('leave-requests', LeaveRequestController::class);
-    Route::patch('leave-requests/{leaveRequest}/status', [LeaveRequestController::class, 'updateStatus']);
+// Role/Permission Management
+Route::apiResource('roles', RoleController::class);
+Route::apiResource('permissions', PermissionController::class);
 
-    // Training Management
-    Route::apiResource('training-programs', TrainingProgramController::class);
-    Route::apiResource('training-participants', TrainingParticipantController::class);
-    Route::patch('training-participants/{trainingParticipant}/status', [TrainingParticipantController::class, 'updateStatus']);
+// Employee Management
+Route::apiResource('employees', EmployeeController::class);
 
-    // Disciplinary Actions
-    Route::prefix('discipline')->group(function () {
-        Route::get('/actions', [DisciplinaryActionController::class, 'index']);
-        Route::get('/employees', [DisciplinaryActionController::class, 'getEmployees']);
-        Route::post('/actions', [DisciplinaryActionController::class, 'store']);
-        Route::delete('/actions/{id}', [DisciplinaryActionController::class, 'destroy']);
-    });
+// Leave Management
+Route::apiResource('leave-types', LeaveTypeController::class);
+Route::apiResource('leave-requests', LeaveRequestController::class);
+Route::get('leave-requests/employee/{employeeId}', [LeaveRequestController::class, 'employeeLeaveRequests']);
+Route::patch('leave-requests/{id}/status', [LeaveRequestController::class, 'updateStatus']);
+
+// Training Management
+Route::apiResource('training-programs', TrainingProgramController::class);
+Route::prefix('training-programs/{programId}')->group(function () {
+    Route::get('participants', [TrainingParticipantController::class, 'index']);
+    Route::post('participants', [TrainingParticipantController::class, 'store']);
+    Route::get('participants/{participantId}', [TrainingParticipantController::class, 'show']);
+    Route::put('participants/{participantId}', [TrainingParticipantController::class, 'update']);
+    Route::delete('participants/{participantId}', [TrainingParticipantController::class, 'destroy']);
 });
+Route::patch('training-participants/{id}/status', [TrainingParticipantController::class, 'updateStatus']);
+
+// Discipline Management
+Route::get('discipline/employees', [DisciplinaryActionController::class, 'getEmployees']);
+Route::apiResource('disciplinary-actions', DisciplinaryActionController::class);

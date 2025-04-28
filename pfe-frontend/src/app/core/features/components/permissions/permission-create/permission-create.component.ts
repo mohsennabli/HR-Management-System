@@ -20,7 +20,7 @@ export class PermissionCreateComponent {
   onSubmit(): void {
     this.loading = true;
     this.permissionService.createPermission({ name: this.name }).subscribe({
-      next: () => this.router.navigate(['/admin/permissions']),
+      next: () => this.router.navigate(['/permissions']),
       error: (error) => {
         this.error = 'Creation failed';
         this.loading = false;

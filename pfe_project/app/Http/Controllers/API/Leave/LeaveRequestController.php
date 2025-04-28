@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\HR;
+namespace App\Http\Controllers\API\Leave;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveRequest;

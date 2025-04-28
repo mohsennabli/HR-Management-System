@@ -1,15 +1,16 @@
-<div class="container">
-  <h2 class="text-white mb-4">Users List</h2>
-  <button class="btn btn-primary mb-3 text-white" routerLink="/admin/users/create">Add User</button>
-  <table class="table table-striped">
+<div class="user-list-container">
+  <h2 class="text-white">Users List</h2>
+  <a routerLink="/users/create" class="add-button">Add User</a>
+  
+  <table class="user-table text-black bg-white shadow-md rounded-lg overflow-hidden">
     <thead>
       <tr>
         <th>ID</th>
         <th>Name</th>
         <th>Email</th>
         <th>Roles</th>
-        <th>Status</th>
         <th>Actions</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -17,14 +18,22 @@
         <td>{{ user.id }}</td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
-        <td>
-          <span *ngFor="let role of user.roles" class="role-badge">
+        <td class="roles">
+          <span *ngFor="let role of user.roles" class="role-tag">
             {{ role.name }}
           </span>
         </td>
-        <td>{{ user.status }}</td>
-        <td>
-          <!-- Actions -->
+        
+        <td class="actions">
+          <div class="action-buttons">
+           
+            <button class="action-button edit" [routerLink]="['/users/edit', user.id]">
+              Edit
+            </button>
+            <button class="action-button delete" (click)="deleteUser(user.id)">
+              Delete
+            </button>
+          </div>
         </td>
       </tr>
     </tbody>

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API\Admin;
+namespace App\Http\Controllers\API\Role;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;

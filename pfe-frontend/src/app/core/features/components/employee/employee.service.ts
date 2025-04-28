@@ -2,45 +2,32 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../../../../services/api.service';
 import { Observable } from 'rxjs';
 import { Employee, ApiResponse } from 'src/app/models/employee.model';
-import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
-  private endpointPrefix = '';
+  private endpoint = 'employees';
 
-  constructor(
-    private api: ApiService,
-    private router: Router
-  ) {
-    // Determine endpoint based on current route
-    this.endpointPrefix = this.router.url.includes('/hr/') ? 'hr' : 'admin';
-
-  }
-  
-
-  private getFullEndpoint(path: string): string {
-    return `${this.endpointPrefix}/employees${path}`;
-  }
+  constructor(private api: ApiService) {}
 
   getAll(params?: any): Observable<any> {
-    return this.api.get(this.getFullEndpoint(''), params);
-}
+    return this.api.get(this.endpoint, params);
+  }
 
   getById(id: number): Observable<any> {
-    return this.api.get(this.getFullEndpoint(`/${id}`));
+    return this.api.get(`${this.endpoint}/${id}`);
   }
 
   create(data: any): Observable<any> {
-    return this.api.post(this.getFullEndpoint(''), data);
+    return this.api.post(this.endpoint, data);
   }
 
   update(id: number, data: any): Observable<any> {
-    return this.api.put(this.getFullEndpoint(`/${id}`), data);
+    return this.api.put(`${this.endpoint}/${id}`, data);
   }
 
   delete(id: number): Observable<any> {
-    return this.api.delete(this.getFullEndpoint(`/${id}`));
+    return this.api.delete(`${this.endpoint}/${id}`);
   }
 }

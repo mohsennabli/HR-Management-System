@@ -7,7 +7,7 @@ import { User } from 'src/app/models/user.model';
   providedIn: 'root'
 })
 export class UserService {
-  private endpoint = 'admin/users'; // Matches Laravel API route
+  private endpoint = 'users';
 
   constructor(private api: ApiService) { }
 
@@ -33,7 +33,7 @@ export class UserService {
       name: user.name,
       email: user.email,
       password: user.password,
-      roles: user.roles // Send array of role IDs
+      roles: user.roles 
     });
   }
 

@@ -8,7 +8,6 @@ import { TrainingRoutingModule } from 'src/app/core/features/components/training
 
 import { TrainingListComponent } from 'src/app/core/features/components/training/training-list/training-list.component';
 import { TrainingCreateComponent } from 'src/app/core/features/components/training/training-create/training-create.component';
-import { TrainingViewComponent } from 'src/app/core/features/components/training/training-view/training-view.component';
 import { TrainingEditComponent } from 'src/app/core/features/components/training/training-edit/training-edit.component';
 
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
@@ -18,7 +17,6 @@ import { TrainingParticipantService } from 'src/app/core/features/components/tra
   declarations: [
     TrainingListComponent,
     TrainingCreateComponent,
-    TrainingViewComponent,
     TrainingEditComponent
   ],
   imports: [

@@ -6,28 +6,31 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class TrainingParticipantService {
-  private endpoint = 'hr/training-participants';
+  private endpoint = 'training-participants';
+  private programEndpoint = 'training-programs';
 
   constructor(private api: ApiService) { }
 
-  getAll(): Observable<any> {
-    return this.api.get(this.endpoint);
+  getAllForProgram(programId: number): Observable<any> {
+    return this.api.get(`${this.programEndpoint}/${programId}/participants`);
   }
 
-  getById(id: number): Observable<any> {
-    return this.api.get(`${this.endpoint}/${id}`);
+  getById(programId: number, participantId: number): Observable<any> {
+    return this.api.get(`${this.programEndpoint}/${programId}/participants/${participantId}`);
   }
 
-  create(data: any): Observable<any> {
-    return this.api.post(this.endpoint, data);
+  create(programId: number, data: any): Observable<any> {
+    return this.api.post(`${this.programEndpoint}/${programId}/participants`, {
+      employee_id: data.employee_id // Send only employee_id
+    });
   }
 
-  update(id: number, data: any): Observable<any> {
-    return this.api.put(`${this.endpoint}/${id}`, data);
+  update(programId: number, participantId: number, data: any): Observable<any> {
+    return this.api.put(`${this.programEndpoint}/${programId}/participants/${participantId}`, data);
   }
 
-  delete(id: number): Observable<any> {
-    return this.api.delete(`${this.endpoint}/${id}`);
+  delete(programId: number, participantId: number): Observable<any> {
+    return this.api.delete(`${this.programEndpoint}/${programId}/participants/${participantId}`);
   }
 
   updateStatus(id: number, status: string): Observable<any> {
