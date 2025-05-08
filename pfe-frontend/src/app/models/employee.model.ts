@@ -8,12 +8,11 @@ export interface Employee {
   position: string;
   hire_date: string | Date;
   salary: number;
-  status: 'active' | 'inactive';
 }
   
-  export interface ApiResponse<T> {
-    name: string;
-    success: boolean;
-    message: string;
-    data: T;
-  }
+export interface ApiResponse<T> {
+  name: string;
+  success: boolean;
+  message: string;
+  data: T;
+}

@@ -86,19 +86,6 @@
         </div>
       </div>
 
-      <div class="form-row">
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select id="status" formControlName="status" class="form-control">
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-          <div class="error-message" *ngIf="employeeForm.get('status')?.invalid && employeeForm.get('status')?.touched">
-            Status is required
-          </div>
-        </div>
-      </div>
-      
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
         <button type="submit" class="btn-primary" [disabled]="employeeForm.invalid || loading">Update Employee</button>

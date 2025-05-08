@@ -83,19 +83,6 @@ import { Employee } from 'src/app/models/employee.model';
                 Hire date is required
               </div>
             </div>
-
-            <div class="form-row">
-            <div class="form-group">
-              <label for="status">Status</label>
-              <select id="status" formControlName="status" class="form-control">
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
-              <div class="error-message" *ngIf="employeeForm.get('status')?.invalid && employeeForm.get('status')?.touched">
-                Status is required
-              </div>
-            </div>
-          </div>
             
             <div class="form-group">
               <label for="salary">Salary</label>
@@ -187,14 +174,8 @@ export class EmployeeCreateComponent implements OnInit {
       department: ['', Validators.required],
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
-      salary: ['', [Validators.required, Validators.min(0)]],
-      status: ['active', Validators.required],
-      
-      
+      salary: ['', [Validators.required, Validators.min(0)]]
     });
-
-
-
   }
 
   ngOnInit(): void {
@@ -206,7 +187,6 @@ export class EmployeeCreateComponent implements OnInit {
       // Map form values to match backend API expectations
       const employeeData: Employee = {
         id: 0,
-        status: this.employeeForm.value.status,
         first_name: this.employeeForm.value.firstName,
         last_name: this.employeeForm.value.lastName,
         email: this.employeeForm.value.email,

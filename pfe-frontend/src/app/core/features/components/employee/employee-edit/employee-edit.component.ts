@@ -31,8 +31,7 @@ export class EmployeeEditComponent implements OnInit {
       department: ['', Validators.required],
       position: ['', Validators.required],
       hire_date: ['', Validators.required],
-      salary: ['', [Validators.required, Validators.min(0)]],
-      status: ['', Validators.required] // Add status control
+      salary: ['', [Validators.required, Validators.min(0)]]
     });
   }
 
@@ -62,8 +61,7 @@ export class EmployeeEditComponent implements OnInit {
           department: employee.department,
           position: employee.position,
           hire_date: employee.hire_date,
-          salary: employee.salary,
-          status: employee.status
+          salary: employee.salary
         });
         this.loading = false;
       },
