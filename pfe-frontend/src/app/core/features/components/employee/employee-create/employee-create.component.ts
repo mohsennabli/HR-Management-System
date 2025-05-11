@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
+import { RoleService } from 'src/app/core/features/components/roles/role.service';
 import { Employee } from 'src/app/models/employee.model';
 
 @Component({
-  selector: 'app-employee-create', // Updated selector
+  selector: 'app-employee-create',
   template: `
-    <div class="employee-create"> <!-- Updated class name -->
+    <div class="employee-create">
       <div class="page-header">
         <h2>Add New Employee</h2>
       </div>
@@ -33,15 +34,6 @@ import { Employee } from 'src/app/models/employee.model';
           </div>
           
           <div class="form-row">
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" formControlName="email" class="form-control">
-            <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
-              <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
-              <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
-            </div>
-          </div>
-            
             <div class="form-group">
               <label for="phone">Phone</label>
               <input type="text" id="phone" formControlName="phone" class="form-control">
@@ -49,9 +41,7 @@ import { Employee } from 'src/app/models/employee.model';
                 Phone number is required
               </div>
             </div>
-          </div>
-          
-          <div class="form-row">
+            
             <div class="form-group">
               <label for="department">Department</label>
               <select id="department" formControlName="department" class="form-control">
@@ -65,7 +55,9 @@ import { Employee } from 'src/app/models/employee.model';
                 Department is required
               </div>
             </div>
-            
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label for="position">Position</label>
               <input type="text" id="position" formControlName="position" class="form-control">
@@ -73,9 +65,7 @@ import { Employee } from 'src/app/models/employee.model';
                 Position is required
               </div>
             </div>
-          </div>
-          
-          <div class="form-row">
+            
             <div class="form-group">
               <label for="hireDate">Hire Date</label>
               <input type="date" id="hireDate" formControlName="hireDate" class="form-control">
@@ -83,7 +73,9 @@ import { Employee } from 'src/app/models/employee.model';
                 Hire date is required
               </div>
             </div>
-            
+          </div>
+          
+          <div class="form-row">
             <div class="form-group">
               <label for="salary">Salary</label>
               <input type="number" id="salary" formControlName="salary" class="form-control">
@@ -92,9 +84,55 @@ import { Employee } from 'src/app/models/employee.model';
               </div>
             </div>
           </div>
+
+          <div class="user-section">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="switch-label">
+                  <input type="checkbox" formControlName="isUser" (change)="onUserSwitchChange($event)">
+                  Create User Account
+                </label>
+              </div>
+            </div>
+
+            <div class="user-fields" *ngIf="employeeForm.get('isUser')?.value">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" formControlName="email" class="form-control">
+                  <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+                    <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
+                    <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="password" id="password" formControlName="password" class="form-control">
+                  <div class="error-message" *ngIf="employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched">
+                    <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
+                    <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="role">Role</label>
+                  <select id="role" formControlName="roleId" class="form-control">
+                    <option value="">Select Role</option>
+                    <option *ngFor="let role of roles" [value]="role.id">{{role.name}}</option>
+                  </select>
+                  <div class="error-message" *ngIf="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched">
+                    Role is required
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           
           <div class="form-actions">
-          <button type="button" class="btn-secondary" routerLink="../">Cancel</button> <!-- Updated navigation -->
+            <button type="button" class="btn-secondary" routerLink="../">Cancel</button>
             <button type="submit" class="btn-primary" [disabled]="employeeForm.invalid">Save Employee</button>
           </div>
         </form>
@@ -102,7 +140,7 @@ import { Employee } from 'src/app/models/employee.model';
     </div>
   `,
   styles: [`
-    .employee-create { /* Updated class name */
+    .employee-create {
       padding: 20px;
     }
     .page-header {
@@ -155,43 +193,98 @@ import { Employee } from 'src/app/models/employee.model';
       border-radius: 4px;
       cursor: pointer;
     }
+    .user-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+    }
+    .switch-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    .user-fields {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 4px;
+    }
   `]
 })
 export class EmployeeCreateComponent implements OnInit {
   employeeForm: FormGroup;
-  route: ActivatedRoute | null | undefined;
+  roles: any[] = [];
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private roleService: RoleService,
+    private route: ActivatedRoute
   ) {
     this.employeeForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
       department: ['', Validators.required],
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
-      salary: ['', [Validators.required, Validators.min(0)]]
+      salary: ['', [Validators.required, Validators.min(0)]],
+      isUser: [false],
+      email: ['', [Validators.email]],
+      password: ['', [Validators.minLength(6)]],
+      roleId: ['']
     });
   }
 
   ngOnInit(): void {
-    // Initialize component
+    this.roleService.getRoles().subscribe({
+      next: (response) => {
+        this.roles = response.data;
+      },
+      error: (error) => {
+        console.error('Error loading roles:', error);
+      }
+    });
+  }
+
+  onUserSwitchChange(event: any): void {
+    const isUser = event.target.checked;
+    const emailControl = this.employeeForm.get('email');
+    const passwordControl = this.employeeForm.get('password');
+    const roleControl = this.employeeForm.get('roleId');
+
+    if (isUser) {
+      emailControl?.setValidators([Validators.required, Validators.email]);
+      passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
+      roleControl?.setValidators([Validators.required]);
+    } else {
+      emailControl?.clearValidators();
+      passwordControl?.clearValidators();
+      roleControl?.clearValidators();
+    }
+
+    emailControl?.updateValueAndValidity();
+    passwordControl?.updateValueAndValidity();
+    roleControl?.updateValueAndValidity();
   }
 
   onSubmit(): void {
     if (this.employeeForm.valid) {
+      const formValue = this.employeeForm.value;
       const employeeData = {
-        first_name: this.employeeForm.value.firstName,
-        last_name: this.employeeForm.value.lastName,
-        phone: this.employeeForm.value.phone,
-        department: this.employeeForm.value.department,
-        position: this.employeeForm.value.position,
-        hire_date: this.employeeForm.value.hireDate,
-        salary: this.employeeForm.value.salary,
+        first_name: formValue.firstName,
+        last_name: formValue.lastName,
+        phone: formValue.phone,
+        department: formValue.department,
+        position: formValue.position,
+        hire_date: formValue.hireDate,
+        salary: formValue.salary,
+        is_user: formValue.isUser,
+        email: formValue.email,
+        password: formValue.password,
+        role_id: formValue.roleId
       };
   
       console.log('Payload being sent:', employeeData);

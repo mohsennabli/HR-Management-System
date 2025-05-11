@@ -12,7 +12,7 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Employee::query();
+        $query = Employee::with('user');
 
         // Filter by search term
         if ($request->has('search') && !empty($request->search)) {
@@ -29,7 +29,13 @@ class EmployeeController extends Controller
             $query->where('department', $request->department);
         }
 
-        return response()->json(['data' => $query->get()], 200);
+        $employees = $query->get()->map(function ($employee) {
+            $employeeData = $employee->toArray();
+            $employeeData['email'] = $employee->user ? $employee->user->email : null;
+            return $employeeData;
+        });
+
+        return response()->json(['data' => $employees], 200);
     }
 
     public function store(Request $request)
@@ -45,10 +51,13 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
+            'is_user' => 'boolean',
+            'email' => 'required_if:is_user,true|email|unique:users,email',
+            'password' => 'required_if:is_user,true|min:6',
+            'role_id' => 'required_if:is_user,true|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
-            // Return validation errors
             Log::error('Validation failed:', $validator->errors()->toArray());
             return response()->json(['errors' => $validator->errors()], 422);
         }
@@ -57,6 +66,17 @@ class EmployeeController extends Controller
             // Create the employee record
             $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department', 'position', 'hire_date', 'salary']);
             $employee = Employee::create($employeeData);
+
+            // If is_user is true, create a user account
+            if ($request->is_user) {
+                $user = \App\Models\User::create([
+                    'name' => $employee->first_name . ' ' . $employee->last_name,
+                    'email' => $request->email,
+                    'password' => bcrypt($request->password),
+                    'employee_id' => $employee->id,
+                    'role_id' => $request->role_id
+                ]);
+            }
 
             return response()->json(['data' => $employee], 201);
 
@@ -116,5 +136,11 @@ class EmployeeController extends Controller
             Log::error('Employee deletion failed: ' . $e->getMessage());
             return response()->json(['error' => 'Deletion failed'], 500);
         }
+    }
+
+    public function getRoles()
+    {
+        $roles = \App\Models\Role::all();
+        return response()->json(['data' => $roles], 200);
     }
 }

@@ -37,6 +37,7 @@ Route::apiResource('permissions', PermissionController::class);
 
 // Employee Management
 Route::apiResource('employees', EmployeeController::class);
+Route::get('/employees/roles', [EmployeeController::class, 'getRoles']);
 
 // Leave Management
 Route::apiResource('leave-types', LeaveTypeController::class);
