@@ -11,6 +11,7 @@ use App\Http\Controllers\API\Leave\LeaveRequestController;
 use App\Http\Controllers\API\Training\TrainingProgramController;
 use App\Http\Controllers\API\Training\TrainingParticipantController;
 use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
+use App\Http\Controllers\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,19 @@ use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+// Public routes
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+
+// Protected routes
+Route::middleware('auth:api')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/me', [AuthController::class, 'me']);
+    
+    // Add your other protected routes here
+});
 
 // Authentication
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
