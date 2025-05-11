@@ -52,9 +52,9 @@ class EmployeeController extends Controller
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
             'is_user' => 'boolean',
-            'email' => 'required_if:is_user,true|email|unique:users,email',
-            'password' => 'required_if:is_user,true|min:6',
-            'role_id' => 'required_if:is_user,true|exists:roles,id'
+            'email' => 'nullable|email|unique:users,email',
+            'password' => 'nullable|min:6',
+            'role_id' => 'nullable|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +69,10 @@ class EmployeeController extends Controller
 
             // If is_user is true, create a user account
             if ($request->is_user) {
+                if (!$request->email || !$request->password || !$request->role_id) {
+                    return response()->json(['error' => 'Email, password, and role are required when creating a user account'], 422);
+                }
+                
                 $user = \App\Models\User::create([
                     'name' => $employee->first_name . ' ' . $employee->last_name,
                     'email' => $request->email,
@@ -78,7 +82,7 @@ class EmployeeController extends Controller
                 ]);
             }
 
-            return response()->json(['data' => $employee], 201);
+            return response()->json(['data' => $employee->fresh(['user'])], 201);
 
         } catch (\Exception $e) {
             Log::error('Employee creation failed: ' . $e->getMessage());
@@ -94,7 +98,7 @@ class EmployeeController extends Controller
 
     public function update(Request $request, $id)
     {
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::with('user')->findOrFail($id);
 
         // Validate the request
         $validator = Validator::make($request->all(), [
@@ -105,6 +109,9 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
+            'email' => 'nullable|email|unique:users,email,' . ($employee->user ? $employee->user->id : 'NULL') . ',id',
+            'password' => 'nullable|min:6',
+            'role_id' => 'nullable|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
@@ -113,9 +120,37 @@ class EmployeeController extends Controller
 
         try {
             // Update the employee data
-            $employee->update($request->all());
+            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department', 'position', 'hire_date', 'salary']);
+            $employee->update($employeeData);
 
-            return response()->json(['data' => $employee->refresh()], 200);
+            // Handle user account update
+            if ($request->has('email')) {
+                if ($employee->user) {
+                    // Update existing user
+                    $userData = [
+                        'name' => $employee->first_name . ' ' . $employee->last_name,
+                        'email' => $request->email
+                    ];
+                    if ($request->has('password')) {
+                        $userData['password'] = bcrypt($request->password);
+                    }
+                    if ($request->has('role_id')) {
+                        $userData['role_id'] = $request->role_id;
+                    }
+                    $employee->user->update($userData);
+                } else {
+                    // Create new user account
+                    $user = \App\Models\User::create([
+                        'name' => $employee->first_name . ' ' . $employee->last_name,
+                        'email' => $request->email,
+                        'password' => bcrypt($request->password ?? 'password'),
+                        'employee_id' => $employee->id,
+                        'role_id' => $request->role_id
+                    ]);
+                }
+            }
+
+            return response()->json(['data' => $employee->fresh(['user'])], 200);
 
         } catch (\Exception $e) {
             Log::error('Employee update failed: ' . $e->getMessage());

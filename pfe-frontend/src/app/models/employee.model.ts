@@ -8,6 +8,12 @@ export interface Employee {
   position: string;
   hire_date: string | Date;
   salary: number;
+  role_id?: number;
+  user?: {
+    id: number;
+    email: string;
+    role_id: number;
+  };
 }
   
 export interface ApiResponse<T> {

@@ -28,23 +28,13 @@
       
       <div class="form-row">
         <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" formControlName="email" class="form-control">
-          <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
-            Please enter a valid email
-          </div>
-        </div>
-        
-        <div class="form-group">
           <label for="phone">Phone</label>
           <input type="text" id="phone" formControlName="phone" class="form-control">
           <div class="error-message" *ngIf="employeeForm.get('phone')?.invalid && employeeForm.get('phone')?.touched">
             Phone number is required
           </div>
         </div>
-      </div>
-      
-      <div class="form-row">
+        
         <div class="form-group">
           <label for="department">Department</label>
           <select id="department" formControlName="department" class="form-control">
@@ -58,7 +48,9 @@
             Department is required
           </div>
         </div>
-        
+      </div>
+      
+      <div class="form-row">
         <div class="form-group">
           <label for="position">Position</label>
           <input type="text" id="position" formControlName="position" class="form-control">
@@ -66,9 +58,7 @@
             Position is required
           </div>
         </div>
-      </div>
-      
-      <div class="form-row">
+        
         <div class="form-group">
           <label for="hire_date">Hire Date</label>
           <input type="date" id="hire_date" formControlName="hire_date" class="form-control">
@@ -76,12 +66,51 @@
             Hire date is required
           </div>
         </div>
-        
+      </div>
+      
+      <div class="form-row">
         <div class="form-group">
           <label for="salary">Salary</label>
           <input type="number" id="salary" formControlName="salary" class="form-control">
           <div class="error-message" *ngIf="employeeForm.get('salary')?.invalid && employeeForm.get('salary')?.touched">
             Salary is required
+          </div>
+        </div>
+      </div>
+
+      <!-- User Account Section -->
+      <div class="user-section">
+        <h3>User Account</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email" class="form-control">
+            <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+              <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
+              <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password {{ hasUserAccount ? '(leave blank to keep current)' : '' }}</label>
+            <input type="password" id="password" formControlName="password" class="form-control">
+            <div class="error-message" *ngIf="employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched">
+              <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
+              <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="role_id">Role</label>
+            <select id="role_id" formControlName="role_id" class="form-control">
+              <option value="">Select Role</option>
+              <option *ngFor="let role of roles" [value]="role.id">{{role.name}}</option>
+            </select>
+            <div class="error-message" *ngIf="employeeForm.get('role_id')?.invalid && employeeForm.get('role_id')?.touched">
+              Role is required
+            </div>
           </div>
         </div>
       </div>
