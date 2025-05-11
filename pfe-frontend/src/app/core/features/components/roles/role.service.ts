@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { catchError, Observable } from "rxjs";
+import { catchError, Observable, throwError, forkJoin, map, switchMap } from "rxjs";
 import { ApiResponse } from "src/app/models/employee.model";
 import { Role, RoleResponse} from "src/app/models/role.model";
 import { ApiService } from "src/app/services/api.service";
@@ -14,9 +14,36 @@ export class RoleService {
 
   getRoles(): Observable<ApiResponse<Role[]>> {
     return this.api.get<ApiResponse<Role[]>>(this.endpoint).pipe(
+      switchMap(response => {
+        if (response && Array.isArray(response.data)) {
+          // Create an array of observables to fetch permissions for each role
+          const rolesWithPermissions$ = response.data.map(role => 
+            this.getRole(role.id).pipe(
+              map(roleResponse => ({
+                ...role,
+                permissions: roleResponse.data.permissions || []
+              }))
+            )
+          );
+
+          // Use forkJoin to wait for all permission requests to complete
+          return forkJoin(rolesWithPermissions$).pipe(
+            map(roles => ({
+              name: response.name,
+              success: response.success,
+              message: response.message,
+              data: roles
+            }))
+          );
+        }
+        return new Observable<ApiResponse<Role[]>>(subscriber => {
+          subscriber.next(response);
+          subscriber.complete();
+        });
+      }),
       catchError(error => {
         console.error('Error fetching roles:', error);
-        throw error;
+        return throwError(() => new Error('Failed to fetch roles'));
       })
     );
   }

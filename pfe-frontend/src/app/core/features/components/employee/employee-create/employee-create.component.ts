@@ -184,30 +184,33 @@ export class EmployeeCreateComponent implements OnInit {
 
   onSubmit(): void {
     if (this.employeeForm.valid) {
-      // Map form values to match backend API expectations
-      const employeeData: Employee = {
-        id: 0,
+      const employeeData = {
         first_name: this.employeeForm.value.firstName,
         last_name: this.employeeForm.value.lastName,
-        email: this.employeeForm.value.email,
         phone: this.employeeForm.value.phone,
         department: this.employeeForm.value.department,
         position: this.employeeForm.value.position,
         hire_date: this.employeeForm.value.hireDate,
-        salary: this.employeeForm.value.salary
+        salary: this.employeeForm.value.salary,
       };
-      
-      // Call service to save employee
+  
+      console.log('Payload being sent:', employeeData);
+  
       this.employeeService.create(employeeData).subscribe({
         next: (response) => {
           console.log('Employee created successfully:', response);
-          // Navigate back to employee list
           this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (error) => {
           console.error('Error creating employee:', error);
-          // Handle error (show error message to user)
-        }
+          if (error.error?.errors) {
+            for (const key in error.error.errors) {
+              if (this.employeeForm.controls[key]) {
+                this.employeeForm.controls[key].setErrors({ backend: error.error.errors[key] });
+              }
+            }
+          }
+        },
       });
     }
   }

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserService } from '../user.service';
-import { RoleService } from 'src/app/core/features/components/roles/role.service'; // Add this import
+import { RoleService } from 'src/app/core/features/components/roles/role.service';
 import { User } from 'src/app/models/user.model';
 
 @Component({
@@ -14,9 +14,9 @@ export class UserEditComponent implements OnInit {
     name: '', 
     email: '', 
     password: '', 
-    roles: [] 
+    role_id: null  // Initialize as null instead of undefined
   };
-  selectedRoles: number[] = [];
+  selectedRole: number | null = null;
   loading = false;
   error = '';
   loadingUser = false;
@@ -24,13 +24,13 @@ export class UserEditComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private roleService: RoleService, // Add this
+    private roleService: RoleService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    this.loadRoles(); // Load available roles first
+    this.loadRoles();
     
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -54,37 +54,43 @@ export class UserEditComponent implements OnInit {
     this.userService.getUser(id).subscribe({
       next: (response: any) => {
         this.user = response.data;
-        // Map the user's roles to selectedRoles
-        this.selectedRoles = this.user.roles.map(role => role.id);
+        this.selectedRole = this.user.role_id ?? null; // Pre-select role
         this.loadingUser = false;
       },
       error: (error: any) => {
         this.loadingUser = false;
-        this.error = error.error?.errors ? 
-          Object.values(error.error.errors).flat().join(', ') : 
-          'Failed to load user. Please try again.';
+        this.error = error.error?.errors
+          ? Object.values(error.error.errors).flat().join(', ')
+          : 'Failed to load user. Please try again.';
       }
     });
   }
 
   onSubmit(): void {
     if (this.loading || !this.user.id) return;
-    
+  
     this.loading = true;
     this.error = '';
-
-    // Update user's roles with selectedRoles
-    this.user.roles = this.selectedRoles.map(roleId => ({ id: roleId, name: '' }));
-
-    this.userService.updateUser(this.user.id, this.user).subscribe({
+  
+    const userData: any = {
+      name: this.user.name,
+      email: this.user.email,
+      role_id: this.selectedRole, // Send only selected role
+    };
+  
+    if (this.user.password) {
+      userData.password = this.user.password; // Include password only if provided
+    }
+  
+    this.userService.updateUser(this.user.id, userData).subscribe({
       next: () => {
         this.router.navigate(['/users']);
       },
       error: (error: any) => {
         this.loading = false;
-        this.error = error.error?.errors ? 
-          Object.values(error.error.errors).flat().join(', ') : 
-          'Failed to update user. Please try again.';
+        this.error = error.error?.errors
+          ? Object.values(error.error.errors).flat().join(', ')
+          : 'Failed to update user. Please try again.';
       }
     });
   }

@@ -46,6 +46,40 @@
   gap: 0.4rem;
 }
 
+.roles-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+.role-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: #e9ecef;
+  }
+
+  input[type="radio"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: #007bff;
+    cursor: pointer;
+  }
+
+  label {
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #495057;
+  }
+}
+
 .error-message {
   color: #c0392b;
   font-weight: bold;

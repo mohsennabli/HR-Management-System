@@ -15,10 +15,10 @@ export class UserCreateComponent implements OnInit {
     name: '', 
     email: '', 
     password: '', 
-    roles: [] 
+    role_id: null
   };
   availableRoles: Role[] = [];
-  selectedRoles: number[] = [];
+  selectedRole: number | null = null;
   loading = false;
   error = '';
   showPassword = false;
@@ -36,7 +36,11 @@ export class UserCreateComponent implements OnInit {
   loadRoles(): void {
     this.roleService.getRoles().subscribe({
       next: (response) => {
+        console.log('Loaded roles:', response.data);
         this.availableRoles = response.data;
+        if (!this.availableRoles.length) {
+          this.error = 'No roles found. Please contact the administrator.';
+        }
       },
       error: (error) => {
         console.error('Error loading roles:', error);
@@ -45,39 +49,41 @@ export class UserCreateComponent implements OnInit {
     });
   }
 
-  onRoleChange(event: any, roleId: number): void {
-    if (event.target.checked) {
-      this.selectedRoles.push(roleId);
-    } else {
-      this.selectedRoles = this.selectedRoles.filter(id => id !== roleId);
-    }
+  onRoleChange(roleId: number): void {
+    console.log('Role selected:', roleId);
+    this.selectedRole = roleId;
+    this.user.role_id = roleId;
+    console.log('Updated user object:', this.user); // Debug log
   }
 
   onSubmit(): void {
     if (this.loading) return;
-    
+  
     this.loading = true;
     this.error = '';
-
-    const userData : any= {
-      name: this.user.name,
-      email: this.user.email,
-      password: this.user.password,
-      roles: this.selectedRoles
-    };
-
-    this.userService.createUser(userData).subscribe({
-      next: () => {
-        this.router.navigate(['/admin/users']);
+  
+    // Ensure a role is selected
+    if (!this.selectedRole) {
+      this.error = 'Please select a role';
+      this.loading = false;
+      return;
+    }
+  
+    // Update the user object with the selected role
+    this.user.role_id = this.selectedRole;
+    console.log('Submitting user with role_id:', this.user.role_id); // Debug log
+  
+    this.userService.createUser(this.user).subscribe({
+      next: (response) => {
+        console.log('User created successfully:', response);
+        this.router.navigate(['/users']);
       },
       error: (error) => {
         this.loading = false;
-        if (error.error?.errors) {
-          this.error = Object.values(error.error.errors).flat().join(', ');
-        } else {
-          this.error = 'Failed to create user. Please try again.';
-        }
         console.error('Error creating user:', error);
+        this.error = error.error?.errors
+          ? Object.values(error.error.errors).flat().join(', ')
+          : 'Failed to create user. Please try again.';
       }
     });
   }

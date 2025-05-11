@@ -14,24 +14,17 @@ class RoleController extends Controller
      */
     public function index()
 {
-    \Log::info('Fetching roles...');
-    try {
-        $roles = Role::all();
-        $roles = Role::with('permissions')->get();
+    $roles = Role::all(); // Ensure all roles are returned
 
-        \Log::info('Roles fetched:', $roles->toArray()); // Debug
-        
+    if ($roles->isEmpty()) {
         return response()->json([
-            'success' => true,
-            'data' => $roles,
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Role fetch failed: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Server error: ' . $e->getMessage()
-        ], 500);
+            'message' => 'No roles found.'
+        ], 404);
     }
+
+    return response()->json([
+        'data' => $roles
+    ], 200);
 }
     /**
      * Store a newly created role.

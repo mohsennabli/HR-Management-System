@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RoleService } from '../role.service';
-import { Role, RolesResponse } from 'src/app/models/role.model';
+import { Role } from 'src/app/models/role.model';
 import { Router } from '@angular/router';
 
 @Component({
@@ -28,25 +28,41 @@ export class RoleListComponent implements OnInit {
     
     this.roleService.getRoles().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.roles = response.data;
+        console.log('Roles API Response:', response); // Log full response for debugging
+        
+        // Check if the response contains data
+        if (response && Array.isArray(response.data)) {
+          this.roles = response.data.map(role => {
+            console.log('Processing role:', role); // Log each role being processed
+            console.log('Role permissions:', role.permissions); // Log permissions for each role
+            return {
+              ...role,
+              permissions: role.permissions || [] // Default permissions to an empty array
+            };
+          });
+          console.log('Final processed Roles:', this.roles); // Log final processed roles
         } else {
-          this.error = response.message || 'Failed to load roles';
+          console.warn('Invalid response structure:', response);
+          this.error = 'Failed to load roles';
         }
         this.loading = false;
       },
       error: (error) => {
+        console.error('Failed to load roles:', error);
         this.error = 'Server error - please try again later';
         this.loading = false;
-        console.error('API Error:', error);
       }
     });
   }
+
   deleteRole(id: number): void {
     if (confirm('Are you sure?')) {
       this.roleService.deleteRole(id).subscribe({
         next: () => this.loadRoles(),
-        error: (error) => this.error = 'Delete failed'
+        error: (error) => {
+          console.error('Failed to delete role:', error);
+          this.error = 'Delete failed';
+        }
       });
     }
   }

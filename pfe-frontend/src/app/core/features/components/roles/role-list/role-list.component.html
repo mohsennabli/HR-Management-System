@@ -6,9 +6,12 @@
     </button>
   </div>
 
+  <!-- Loading spinner -->
   <div *ngIf="loading" class="loading">Loading...</div>
+  <!-- Error message -->
   <div *ngIf="error" class="error">{{ error }}</div>
 
+  <!-- Roles table -->
   <table *ngIf="!loading && roles.length > 0">
     <thead class="text-black">
       <tr>
@@ -19,16 +22,16 @@
     </thead>
     <tbody class="text-black">
       <tr *ngFor="let role of roles">
-        <!-- Nom du rôle -->
+        <!-- Role name -->
         <td>{{ role.name }}</td>
 
-        <!-- Compteur + liste des permissions -->
+        <!-- Permissions -->
         <td>
           <div class="permission-count">
-            {{ role.permissions?.length || 0 }}
-            {{ (role.permissions?.length || 0) === 1 ? 'Permission' : 'Permissions' }}
+            {{ role.permissions.length || 0 }}
+            {{ (role.permissions.length || 0) === 1 ? 'Permission' : 'Permissions' }}
           </div>
-          <ng-container *ngIf="role.permissions?.length">
+          <ng-container *ngIf="role.permissions.length > 0; else noPermissions">
             <span
               class="permission-badge"
               *ngFor="let perm of role.permissions"
@@ -36,9 +39,12 @@
               {{ perm.name }}
             </span>
           </ng-container>
+          <ng-template #noPermissions>
+            <span class="no-permissions">No permissions assigned</span>
+          </ng-template>
         </td>
 
-        <!-- Boutons d'action -->
+        <!-- Actions: Edit and Delete -->
         <td class="actions">
           <button (click)="editRole(role.id)" class="btn-edit">
             Edit
@@ -51,6 +57,7 @@
     </tbody>
   </table>
 
+  <!-- No data message -->
   <div *ngIf="!loading && roles.length === 0" class="no-data">
     No roles found
   </div>

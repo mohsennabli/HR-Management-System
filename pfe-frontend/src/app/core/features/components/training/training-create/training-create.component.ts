@@ -277,36 +277,35 @@ throw new Error('Method not implemented.');
         capacity: this.trainingForm.value.capacity,
         instructor: this.trainingForm.value.instructor,
         location: this.trainingForm.value.location,
-        status: 'upcoming' // valeur par défaut d’après ta BDD
+        status: 'upcoming', // Default status
       };
-      const operation = this.trainingId 
-      ? this.trainingService.update(this.trainingId, formData)
-      : this.trainingService.create(formData);
-
+  
+      // Determine whether to create or update based on trainingId
+      const operation = this.trainingId
+        ? this.trainingService.update(this.trainingId, formData)
+        : this.trainingService.create(formData);
+  
       operation.subscribe({
         next: (createdProgram) => {
-          // Assign selected employees after program creation
+          console.log('Training program created/updated:', createdProgram);
+  
+          // Assign selected employees to the program
           const programId = createdProgram.id;
-          this.selectedEmployees.forEach(employeeId => {
-            this.participantService.create(programId, { employee_id: employeeId }).subscribe();
+          this.selectedEmployees.forEach((employeeId) => {
+            this.participantService.create(programId, { employee_id: employeeId }).subscribe({
+              next: () => console.log(`Employee ${employeeId} assigned to program ${programId}`),
+              error: (err) => console.error(`Error assigning employee ${employeeId}:`, err),
+            });
           });
-          this.router.navigate(['/hr/training']);
-        },
-      });
-
-
-      this.trainingService.create(formData).subscribe({
-        next: (res) => {
-          console.log('Training program created:', res);
+  
+          // Navigate back to the training list
           this.router.navigate(['/training']);
         },
         error: (err) => {
-          console.error('Error creating training program:', err);
-        }
+          console.error('Error creating/updating training program:', err);
+        },
       });
     }
-    
-    
   }
 
   onCancel(): void {

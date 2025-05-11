@@ -20,21 +20,25 @@ export class UserService {
   }
 
   createUser(user: User): Observable<any> {
-    return this.api.post(this.endpoint, {
+    console.log('Creating user with data:', user); // Debug log
+    const userData = {
       name: user.name,
       email: user.email,
       password: user.password,
-      roles: user.roles // Send array of role IDs
-    });
+      role_id: user.role_id
+    };
+    console.log('Sending to API:', userData); // Debug log
+    return this.api.post(this.endpoint, userData);
   }
 
   updateUser(id: number, user: User): Observable<any> {
-    return this.api.put(`${this.endpoint}/${id}`, {
+    const userData = {
       name: user.name,
       email: user.email,
       password: user.password,
-      roles: user.roles 
-    });
+      role_id: user.role_id
+    };
+    return this.api.put(`${this.endpoint}/${id}`, userData);
   }
 
   deleteUser(id: number): Observable<any> {
