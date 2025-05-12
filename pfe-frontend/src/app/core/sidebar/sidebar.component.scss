@@ -150,3 +150,38 @@
     }
   }
 }
+.user-info {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 1rem;
+  border-radius: 0 0 8px 8px;
+  color: #e2e8f0;
+
+  .name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .email {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-bottom: 0.75rem;
+  }
+
+  button {
+    background: linear-gradient(90deg, #e53e3e 0%, #c53030 100%);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: linear-gradient(90deg, #c53030 0%, #9b2c2c 100%);
+    }
+  }
+}
