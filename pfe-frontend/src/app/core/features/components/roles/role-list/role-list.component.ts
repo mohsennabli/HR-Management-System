@@ -68,6 +68,6 @@ export class RoleListComponent implements OnInit {
   }
 
   editRole(id: number): void {
-    this.router.navigate([`/roles/edit/${id}`]);
+    this.router.navigate([`/dashboard/roles/edit/${id}`]);
   }
 }

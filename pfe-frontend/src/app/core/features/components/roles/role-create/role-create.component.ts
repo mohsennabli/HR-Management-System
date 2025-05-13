@@ -39,7 +39,7 @@ export class RoleCreateComponent {
       name: this.name,
       permissions: this.selectedPermissions
     }).subscribe({
-      next: () => this.router.navigate(['/admin/roles']),
+      next: () => this.router.navigate(['/dashboard/roles']),
       error: (error) => {
         this.error = 'Creation failed';
         this.loading = false;

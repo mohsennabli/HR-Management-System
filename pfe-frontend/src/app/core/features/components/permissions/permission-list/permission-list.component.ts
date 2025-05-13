@@ -45,6 +45,6 @@ export class PermissionListComponent implements OnInit {
   }
 
   editPermission(id: number): void {
-    this.router.navigate([`/admin/permissions/edit/${id}`]);
+    this.router.navigate([`/dashboard/permissions/edit/${id}`]);
   }
 }

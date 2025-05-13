@@ -96,9 +96,9 @@ sortAsc: any;
   }
 
   editLeaveType(id: number): void {
-    this.router.navigate(['/leave/edit', id]);
+    this.router.navigate(['/dashboard/leave/edit', id]);
   }
   navigateToEdit(id: number): void {
-    this.router.navigate(['/leave/edit', id]);
+    this.router.navigate(['/dashboard/leave/edit', id]);
   }
 }

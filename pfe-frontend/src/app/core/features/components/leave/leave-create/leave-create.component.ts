@@ -54,7 +54,7 @@ export class LeaveCreateComponent {
 
     this.leaveTypeService.create(leaveTypeData).subscribe({
       next: () => {
-        this.router.navigate(['/leave']); // Updated to HR path
+        this.router.navigate(['/dashboard/leave']); // Updated to HR path
       },
       error: (error) => {
         this.isSubmitting = false;
@@ -76,6 +76,6 @@ export class LeaveCreateComponent {
   }
 
   onCancel(): void {
-    this.router.navigate(['/leave']); 
+    this.router.navigate(['/dashboard/leave']); 
   }
 }

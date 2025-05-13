@@ -299,7 +299,7 @@ throw new Error('Method not implemented.');
           });
   
           // Navigate back to the training list
-          this.router.navigate(['/training']);
+          this.router.navigate(['/dashboard/training']);
         },
         error: (err) => {
           console.error('Error creating/updating training program:', err);
@@ -309,6 +309,6 @@ throw new Error('Method not implemented.');
   }
 
   onCancel(): void {
-    this.router.navigate(['/training']);
+    this.router.navigate(['/dashboard/training']);
   }
 }

@@ -134,7 +134,7 @@ export class TrainingEditComponent implements OnInit {
 
     operation.subscribe({
       next: () => {
-        this.router.navigate(['/hr/training']);
+        this.router.navigate(['/dashboard/training']);
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to save training program';
@@ -169,6 +169,6 @@ export class TrainingEditComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/training']);
+    this.router.navigate(['/dashboard/training']);
   }
 }

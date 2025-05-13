@@ -98,7 +98,7 @@ export class LeaveEditComponent implements OnInit {
 
     this.leaveTypeService.update(this.leaveId, leaveTypeData).subscribe({
       next: () => {
-        this.router.navigate(['/leave']);
+        this.router.navigate(['/dashboard/leave']);
       },
       error: (error) => {
         console.error('Update error:', error);
@@ -109,7 +109,7 @@ export class LeaveEditComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/leave']);
+    this.router.navigate(['/dashboard/leave']);
   }
   private convertToBoolean(value: any): boolean {
     return value === true || value === 1 || value === '1' || value === 'true';
