@@ -1,0 +1,24 @@
+<form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
+  <label>Leave Type</label>
+  <select formControlName="leave_type_id">
+    <option *ngFor="let type of leaveTypes" [value]="type.id">{{ type.name }}</option>
+  </select>
+
+  <label>Start Date</label>
+  <input type="date" formControlName="start_date">
+
+  <label>End Date</label>
+  <input type="date" formControlName="end_date">
+  <div *ngIf="leaveRequestForm.get('end_date')?.hasError('invalidRange')">
+    End date must be after start date.
+  </div>
+
+  <label>Days</label>
+  <input type="number" formControlName="days" readonly>
+
+  <label>Reason</label>
+  <textarea formControlName="reason"></textarea>
+
+  <button type="submit" [disabled]="isSubmitting || leaveRequestForm.invalid">Submit</button>
+  <button type="button" (click)="onCancel()">Cancel</button>
+</form>

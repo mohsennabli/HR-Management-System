@@ -56,7 +56,25 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  isLoggedIn(): boolean {
-    return !!this.getToken();
+   isLoggedIn(): boolean {
+    const token = this.getToken();
+    if (!token) return false;
+    // Check token expiration
+    const decoded = this.decodeToken(token);
+    const expirationDate = decoded.exp * 1000;
+    return Date.now() < expirationDate;
   }
+   getLoggedInUser(): Observable<any> {
+    if (this.isLoggedIn()) {
+      return this.me();  // Fetch user data if logged in
+    } else {
+      throw new Error('User not logged in');
+    }
+  }
+
+  private decodeToken(token: string): any {
+    const payload = token.split('.')[1];
+    return JSON.parse(atob(payload));
+  }
+
 }

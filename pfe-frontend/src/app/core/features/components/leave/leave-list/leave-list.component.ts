@@ -48,30 +48,31 @@ sortAsc: any;
   
 
   loadLeaveTypes(): void {
-    this.loading = true;
-    this.error = '';
-    this.successMessage = '';
-    
-    this.leaveTypeService.getAll().subscribe({
-      next: (response) => {
-        // Map API response to match our model if needed
-        this.leaveTypes = response.data.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          days_allowed: item.days_allowed, // Using snake_case to match API
-          is_paid: item.is_paid, // Using snake_case to match API
-          carry_over: item.carry_over,
-          max_carry_over: item.max_carry_over
-        }));
-        this.loading = false;
-      },
-      error: (error) => {
-        this.error = 'Failed to load leave types';
-        this.loading = false;
-      }
-    });
-  }
+  this.loading = true;
+  this.error = '';
+  this.successMessage = '';
+
+  this.leaveTypeService.getAll().subscribe({
+    next: (leaveTypes) => {
+      // Already an array, just map if you need to adjust fields
+     this.leaveTypes = leaveTypes.map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        daysAllowed: item.days_allowed, // ✔️ map to camelCase
+        isPaid: item.is_paid,            // ✔️ map to camelCase
+        carryOver: item.carry_over,      // ✔️ map to camelCase
+        maxCarryOver: item.max_carry_over // ✔️ map to camelCase
+      }));
+      this.loading = false;
+    },
+    error: (error) => {
+      this.error = 'Failed to load leave types';
+      this.loading = false;
+    }
+  });
+}
+
 
   confirmDelete(leaveType: LeaveType): void {
     if (confirm(`Are you sure you want to delete "${leaveType.name}"?`)) {

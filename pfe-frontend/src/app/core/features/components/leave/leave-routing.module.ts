@@ -4,12 +4,15 @@ import { LeaveListComponent } from 'src/app/core/features/components/leave/leave
 import { LeaveCreateComponent } from './leave-create/leave-create.component';
 import { LeaveEditComponent } from './leave-edit/leave-edit.component';
 import { LeaveRequestsComponent } from './leave-requests/leave-requests.component';
+import { EmployeeLeaveRequestFormComponent } from './employee-leave-form/employee-leave-request-form.component';
 
 const routes: Routes = [
   { path: '', component: LeaveListComponent },
   { path: 'create', component: LeaveCreateComponent },
   { path: 'edit/:id', component: LeaveEditComponent },
-  { path: 'requests', component: LeaveRequestsComponent }
+  { path: 'requests', component: LeaveRequestsComponent },
+  { path: 'request', component: EmployeeLeaveRequestFormComponent }
+
 ];
 
 @NgModule({

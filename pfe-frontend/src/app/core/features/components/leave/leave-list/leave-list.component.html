@@ -33,8 +33,8 @@
               <td>{{ leaveType.id }}</td>
               <td>{{ leaveType.name }}</td>
               <td>{{ leaveType.description }}</td>
-              <td>{{ leaveType.days_allowed }}</td>
-              <td>{{ getPaidStatus(leaveType.is_paid) }}</td>
+              <td>{{ leaveType.daysAllowed }}</td> <!-- ✔ changed to camelCase -->
+              <td>{{ getPaidStatus(leaveType.isPaid) }}</td> <!-- ✔ changed to camelCase -->
               <td class="actions">
                 <button class="btn-edit" (click)="navigateToEdit(leaveType.id)">
                   Edit
