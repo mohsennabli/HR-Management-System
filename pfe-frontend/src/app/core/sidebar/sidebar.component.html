@@ -1,63 +1,70 @@
-<div class="sidebar">
-  <div class="sidebar-header">
-    <h2>Dashboard</h2>
+<div class="flex flex-col shadow-md p-4 min-h-screen bg-white w-64">
+  <div class="mb-6 text-center">
+    <h2 class="text-xl font-bold">Dashboard</h2>
   </div>
 
-  <div class="user-info" *ngIf="user">
-    <p class="name">{{ user.name }}</p>
-    <p class="email">{{ user.email }}</p>
-    <button (click)="logout()">Logout</button>
+  <div *ngIf="user" class="mb-6 text-center">
+    <div class="font-semibold mb-1">{{ user.name }}</div>
+    <div class="text-gray-500 mb-3">{{ user.email }}</div>
+    <button pButton type="button" label="Logout" class="p-button-sm p-button-danger w-full" (click)="logout()"></button>
   </div>
 
-  
-  <nav class="sidebar-nav">
-
-    <div class="nav-section">
-    <h3>Statistics</h3>
-    <ul>
-      <li><a routerLink="statistics" routerLinkActive="active">HR Analytics</a></li>
-    </ul>
-  </div>
-
-
-
-    <div class="nav-section">
-      <h3>User Management</h3>
+  <nav class="flex flex-col gap-4">
+    <div>
+      <h3 class="text-gray-500 uppercase text-xs mb-2">Statistics</h3>
       <ul>
-        <li><a routerLink="users" routerLinkActive="active">Manage Users</a></li>
-        <li><a routerLink="employees" routerLinkActive="active">Manage Employees</a></li>
+        <li>
+          <a pRipple routerLink="statistics" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">HR Analytics</a>
+        </li>
       </ul>
     </div>
 
-    <div class="nav-section">
-      <h3>Access Control</h3>
+    <div>
+      <h3 class="text-gray-500 uppercase text-xs mb-2">User Management</h3>
       <ul>
-        <li><a routerLink="roles" routerLinkActive="active">Manage Roles</a></li>
-        <li><a routerLink="permissions" routerLinkActive="active">Manage Permissions</a></li>
+        <li><a pRipple routerLink="users" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Manage Users</a></li>
+        <li><a pRipple routerLink="employees" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Manage Employees</a></li>
       </ul>
     </div>
 
-    <div class="nav-section">
-      <h3>Leave Management</h3>
+    <div>
+      <h3 class="text-gray-500 uppercase text-xs mb-2">Access Control</h3>
       <ul>
-        <li><a routerLink="leave" routerLinkActive="active">Leave Types</a></li>
-        <li><a routerLink="leave/requests" routerLinkActive="active">Leave Requests</a></li>
-        <li><a routerLink="leave/request" routerLinkActive="active">Request a Leave</a></li>
-
+        <li><a pRipple routerLink="roles" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Manage Roles</a></li>
+        <li><a pRipple routerLink="permissions" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Manage Permissions</a></li>
       </ul>
     </div>
 
-    <div class="nav-section">
-      <h3>Training Management</h3>
+    <div>
+      <h3 class="text-gray-500 uppercase text-xs mb-2">Leave Management</h3>
       <ul>
-        <li><a routerLink="training" routerLinkActive="active">Training Programs</a></li>
+        <li><a pRipple routerLink="leave" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Leave Types</a></li>
+        <li><a pRipple routerLink="leave/requests" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Leave Requests</a></li>
+        <li><a pRipple routerLink="leave/request" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Request a Leave</a></li>
       </ul>
     </div>
 
-    <div class="nav-section">
-      <h3>Discipline Management</h3>
+    <div>
+      <h3 class="text-gray-500 uppercase text-xs mb-2">Training Management</h3>
       <ul>
-        <li><a routerLink="discipline" routerLinkActive="active">Disciplinary Actions</a></li>
+        <li><a pRipple routerLink="training" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Training Programs</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="text-gray-500 uppercase text-xs mb-2">Discipline Management</h3>
+      <ul>
+        <li><a pRipple routerLink="discipline" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Disciplinary Actions</a></li>
       </ul>
     </div>
   </nav>

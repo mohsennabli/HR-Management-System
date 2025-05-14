@@ -1,24 +1,44 @@
-<form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()">
-  <label>Leave Type</label>
-  <select formControlName="leave_type_id">
-    <option *ngFor="let type of leaveTypes" [value]="type.id">{{ type.name }}</option>
-  </select>
-
-  <label>Start Date</label>
-  <input type="date" formControlName="start_date">
-
-  <label>End Date</label>
-  <input type="date" formControlName="end_date">
-  <div *ngIf="leaveRequestForm.get('end_date')?.hasError('invalidRange')">
-    End date must be after start date.
+<form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()" class="space-y-4 bg-white p-6 rounded-xl shadow max-w-xl mx-auto">
+  <!-- Leave Type -->
+  <div class="flex flex-col">
+    <label class="font-medium text-gray-700">Leave Type</label>
+    <select formControlName="leave_type_id" class="p-inputtext p-component w-full mt-1">
+      <option *ngFor="let type of leaveTypes" [value]="type.id">{{ type.name }}</option>
+    </select>
   </div>
 
-  <label>Days</label>
-  <input type="number" formControlName="days" readonly>
+  <!-- Start Date -->
+  <div class="flex flex-col">
+    <label class="font-medium text-gray-700">Start Date</label>
+    <input type="date" formControlName="start_date" class="p-inputtext p-component w-full mt-1">
+  </div>
 
-  <label>Reason</label>
-  <textarea formControlName="reason"></textarea>
+  <!-- End Date -->
+  <div class="flex flex-col">
+    <label class="font-medium text-gray-700">End Date</label>
+    <input type="date" formControlName="end_date" class="p-inputtext p-component w-full mt-1">
+    <small *ngIf="leaveRequestForm.get('end_date')?.hasError('invalidRange')" class="text-red-500 mt-1">
+      End date must be after start date.
+    </small>
+  </div>
 
-  <button type="submit" [disabled]="isSubmitting || leaveRequestForm.invalid">Submit</button>
-  <button type="button" (click)="onCancel()">Cancel</button>
+  <!-- Days -->
+  <div class="flex flex-col">
+    <label class="font-medium text-gray-700">Days</label>
+    <input type="number" formControlName="days" class="p-inputtext p-component w-full mt-1 bg-gray-100" readonly>
+  </div>
+
+  <!-- Reason -->
+  <div class="flex flex-col">
+    <label class="font-medium text-gray-700">Reason</label>
+    <textarea formControlName="reason" rows="3" class="p-inputtext p-component w-full mt-1"></textarea>
+  </div>
+
+  <!-- Buttons -->
+  <div class="flex justify-end gap-3 mt-4">
+    <button pButton type="submit" label="Submit" icon="pi pi-check" class="p-button-sm p-button-primary"
+            [disabled]="isSubmitting || leaveRequestForm.invalid"></button>
+    <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-sm p-button-secondary"
+            (click)="onCancel()"></button>
+  </div>
 </form>

@@ -1,52 +1,54 @@
-<div class="container mt-4">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <h3>User List</h3>
-      <!-- <a routerLink="/users/create" class="btn btn-primary">
-        <i class="fas fa-plus"></i> Add New User
-      </a> -->
-    </div>
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
-    <div class="card-body">
-      <!-- Loading Indicator -->
-      <div *ngIf="loading" class="text-center">
-        <div class="spinner-border text-primary" role="status">
-          <span class="sr-only">Loading...</span>
-        </div>
-      </div>
+<div class="card mt-4">
+  <div class="card-header flex justify-content-between align-items-center">
+    <h3>User List</h3>
+    <!-- <button pButton label="Add New User" icon="pi pi-plus" class="p-button-primary"></button> -->
+  </div>
 
-      <!-- Error Message -->
-      <div *ngIf="error" class="alert alert-danger">
-        {{ error }}
-      </div>
+  <div class="card-body">
+    <!-- Loading Indicator -->
+    <p-progressSpinner *ngIf="loading" styleClass="mx-auto d-block"></p-progressSpinner>
 
-      <!-- Users Table -->
-      <table class="table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.id }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ getRoleName(user) }}</td>
-            <td>
-              <a [routerLink]="['/dashboard/users/edit', user.id]" class="btn btn-sm btn-primary">
-                Edit
-              </a>
-              <button (click)="deleteUser(user.id)" class="btn btn-sm btn-danger ml-2">
-                Delete
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Users Table -->
+    <p-table [value]="users" [paginator]="true" [rows]="10" *ngIf="!loading && users.length > 0">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ getRoleName(user) }}</td>
+          <td>
+            <button
+              pButton
+              icon="pi pi-pencil"
+              class="p-button-sm p-button-info"
+              [routerLink]="['/dashboard/users/edit', user.id]"
+              label="Edit">
+            </button>
+            <button
+              pButton
+              icon="pi pi-trash"
+              class="p-button-sm p-button-danger ml-2"
+              (click)="confirmDeleteUser(user.id)"
+              label="Delete">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+
+    <!-- Empty state -->
+    <p-message *ngIf="!loading && users.length === 0" severity="info" text="No users found."></p-message>
   </div>
 </div>

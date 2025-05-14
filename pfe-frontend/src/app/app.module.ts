@@ -14,6 +14,21 @@ import { LoginComponent } from 'src/app/core/features/components/login/login.com
 import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
 import { AuthGuard } from 'src/app/guards/auth.guard';
 
+
+// PrimeNG Modules
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { MenubarModule } from 'primeng/menubar';
+import { ChartModule } from 'primeng/chart';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+
+
+
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -24,7 +39,14 @@ import { AuthGuard } from 'src/app/guards/auth.guard';
     BrowserModule,
     HttpClientModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+     ButtonModule,
+    RippleModule,
+    MenubarModule,
+     ChartModule,
+    ProgressBarModule,
+    InputTextModule,
+    MessageModule
   ],
   providers: [
     DatePipe,

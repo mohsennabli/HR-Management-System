@@ -1,19 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/models/user.model';
 import { UserService } from '../user.service';
-import { Role } from 'src/app/models/role.model';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-user-list',
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.scss']
+  providers: [ConfirmationService, MessageService]
 })
 export class UserListComponent implements OnInit {
   users: User[] = [];
   loading = false;
-  error = '';
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private confirmationService: ConfirmationService,
+    private messageService: MessageService
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -21,50 +24,57 @@ export class UserListComponent implements OnInit {
 
   loadUsers(): void {
     this.loading = true;
-    this.error = '';
-  
+
     this.userService.getUsers().subscribe({
       next: (response: any) => {
-        console.log('Users API Response:', response); // Debug log
         if (response.data) {
           this.users = response.data.map((user: any) => ({
             id: user.id,
             name: user.name,
             email: user.email,
             role_id: user.role_id,
-            role: user.role // Include the entire role object
+            role: user.role
           }));
-          console.log('Processed Users:', this.users); // Debug log
         } else {
-          this.error = 'Unexpected API response';
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Unexpected API response' });
         }
         this.loading = false;
       },
       error: (error: any) => {
         this.loading = false;
-        this.error = 'Failed to load users. Please try again.';
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load users.' });
         console.error('Error fetching users:', error);
       }
     });
   }
 
-  deleteUser(id: number | undefined): void {
+  confirmDeleteUser(id: number | undefined): void {
     if (!id) {
-      this.error = 'Invalid user ID';
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Invalid user ID' });
       return;
     }
-  
-    if (confirm('Are you sure you want to delete this user?')) {
-      this.userService.deleteUser(id).subscribe({
-        next: () => {
-          this.users = this.users.filter(user => user.id !== id);
-        },
-        error: (error: any) => {
-          this.error = 'Failed to delete user. Please try again.';
-          console.error('Error deleting user:', error);
-        }
-      });
-    }
+
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this user?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.deleteUser(id);
+      }
+    });
+  }
+
+  private deleteUser(id: number): void {
+    this.userService.deleteUser(id).subscribe({
+      next: () => {
+        this.users = this.users.filter(user => user.id !== id);
+        this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'User deleted successfully' });
+      },
+      error: (error: any) => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete user.' });
+        console.error('Error deleting user:', error);
+      }
+    });
   }
 
   getRoleName(user: User): string {

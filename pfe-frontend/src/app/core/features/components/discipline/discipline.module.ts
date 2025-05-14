@@ -6,6 +6,18 @@ import { RouterModule } from '@angular/router';
 import { DisciplineRoutingModule } from 'src/app/core/features/components/discipline/discipline-routing.module';
 import { DisciplineListComponent } from 'src/app/core/features/components/discipline/discipline-list/discipline-list.component';
 
+
+
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
+import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
+
+
+
 @NgModule({
   declarations: [
     DisciplineListComponent,
@@ -17,6 +29,14 @@ import { DisciplineListComponent } from 'src/app/core/features/components/discip
     ReactiveFormsModule,
     RouterModule,
     DisciplineRoutingModule,
+    TableModule,
+    ButtonModule,
+    ProgressSpinnerModule,
+    MessageModule,
+    CardModule,
+    DialogModule,
+    DropdownModule,
+
     
   ]
 })

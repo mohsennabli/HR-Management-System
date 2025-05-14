@@ -6,7 +6,6 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-role-list',
   templateUrl: './role-list.component.html',
-  styleUrls: ['./role-list.component.scss']
 })
 export class RoleListComponent implements OnInit {
   roles: Role[] = [];
@@ -70,4 +69,8 @@ export class RoleListComponent implements OnInit {
   editRole(id: number): void {
     this.router.navigate([`/dashboard/roles/edit/${id}`]);
   }
+  getPermissionCountText(count: number): string {
+  return `${count || 0} ${count === 1 ? 'Permission' : 'Permissions'}`;
+}
+
 }

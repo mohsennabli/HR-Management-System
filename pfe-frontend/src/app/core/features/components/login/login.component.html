@@ -1,14 +1,20 @@
-<form (ngSubmit)="onSubmit()" class="login-form">
-  <h2>Login</h2>
-  <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
-  <div class="form-group">
-    <label for="email">Email</label>
-    <input id="email" type="email" [(ngModel)]="email" name="email" required />
+<form (ngSubmit)="onSubmit()" class="flex flex-col gap-4 max-w-sm mx-auto p-6 bg-white shadow rounded">
+  <h2 class="text-2xl font-semibold text-center">Login</h2>
+  <p-message *ngIf="errorMsg" severity="error" [text]="errorMsg"></p-message>
+  
+  <div class="flex flex-col gap-2">
+    <label for="email" class="font-medium">Email</label>
+    <input id="email" type="email" pInputText [(ngModel)]="email" name="email" required class="w-full" />
   </div>
-  <div class="form-group">
-    <label for="password">Password</label>
-    <input id="password" type="password" [(ngModel)]="password" name="password" minlength="6" required />
+  
+  <div class="flex flex-col gap-2">
+    <label for="password" class="font-medium">Password</label>
+    <input id="password" type="password" pInputText [(ngModel)]="password" name="password" minlength="6" required class="w-full" />
   </div>
-  <button type="submit">Login</button>
-  <p>Don't have an account? <a routerLink="/register">Register</a></p>
+  
+  <p-button label="Login" type="submit" class="w-full"></p-button>
+  
+  <p class="text-center">
+    Don't have an account? <a routerLink="/register" class="text-blue-600 hover:underline">Register</a>
+  </p>
 </form>

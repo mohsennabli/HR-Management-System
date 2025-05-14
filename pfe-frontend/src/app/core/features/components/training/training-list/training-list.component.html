@@ -1,0 +1,62 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="training-grid-container p-4">
+  <div class="header-section flex justify-between items-center mb-4">
+    <h2 class="text-xl font-semibold">Training Programs</h2>
+    <button class="create-button bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-700 focus:outline-none" routerLink="create">
+      <i class="fas fa-plus"></i> New Program
+    </button>
+  </div>
+
+  <!-- Grid Layout for Training Programs -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+    <!-- Loop through training programs -->
+    <div *ngFor="let training of trainingPrograms" class="training-card bg-white p-4 rounded-lg shadow-md hover:shadow-lg">
+      <div class="card-header flex justify-between items-center mb-3">
+        <h3 class="text-lg font-medium">{{ training.name | titlecase }}</h3>
+        <span class="status-badge px-2 py-1 text-xs rounded-full" [ngClass]="{
+          'bg-green-500 text-white': training.status === 'ongoing',
+          'bg-yellow-500 text-white': training.status === 'upcoming',
+          'bg-gray-500 text-white': training.status === 'completed'
+        }">
+          {{ training.status | titlecase }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <p class="description text-sm mb-3">{{ training.description }}</p>
+        <div class="details-grid grid grid-cols-2 gap-2">
+          <div class="detail-item flex items-center text-sm">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            <span>{{ training.start_date | date: 'mediumDate' }}</span>
+          </div>
+          <div class="detail-item flex items-center text-sm">
+            <i class="fas fa-calendar-alt mr-2"></i>
+            <span>{{ training.end_date | date: 'mediumDate' }}</span>
+          </div>
+          <div class="detail-item flex items-center text-sm">
+            <i class="fas fa-users mr-2"></i>
+            <span>{{ training.capacity }} Participants</span>
+          </div>
+          <div class="detail-item flex items-center text-sm">
+            <i class="fas fa-map-marker-alt mr-2"></i>
+            <span>{{ training.location || 'TBD' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer flex justify-between mt-4">
+        <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" [routerLink]="'edit/' + training.id">
+          <i class="fas fa-edit"></i> Edit
+        </button>
+        <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" [routerLink]="'edit/' + training.id">
+          <i class="fas fa-user-plus"></i> Add Employees
+        </button>
+        <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" (click)="confirmDelete(training)">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

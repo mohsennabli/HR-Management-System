@@ -1,64 +1,80 @@
-<div class="role-list">
-  <div class="header">
-    <h2>Roles</h2>
-    <button routerLink="/dashboard/roles/create" class="btn-primary">
-      + New Role
-    </button>
+<div class="space-y-4">
+  <!-- Header with Title and Add Role Button -->
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-semibold text-gray-800">Roles</h2>
+    <button
+      pButton
+      type="button"
+      label="New Role"
+      icon="pi pi-plus"
+      class="p-button-sm p-button-primary"
+      [routerLink]="'/dashboard/roles/create'"
+    ></button>
   </div>
 
-  <!-- Loading spinner -->
-  <div *ngIf="loading" class="loading">Loading...</div>
-  <!-- Error message -->
-  <div *ngIf="error" class="error">{{ error }}</div>
+  <!-- Loading -->
+  <p-progressSpinner *ngIf="loading" styleClass="w-8 h-8"></p-progressSpinner>
 
-  <!-- Roles table -->
-  <table *ngIf="!loading && roles.length > 0">
-    <thead class="text-black">
+  <!-- Error -->
+  <p-message *ngIf="error" severity="error" text="{{ error }}"></p-message>
+
+  <!-- Table of Roles -->
+  <p-table
+    *ngIf="!loading && roles.length > 0"
+    [value]="roles"
+    [responsiveLayout]="'scroll'"
+    class="p-datatable-sm"
+  >
+    <ng-template pTemplate="header">
       <tr>
         <th>Name</th>
         <th>Permissions</th>
         <th>Actions</th>
       </tr>
-    </thead>
-    <tbody class="text-black">
-      <tr *ngFor="let role of roles">
-        <!-- Role name -->
-        <td>{{ role.name }}</td>
+    </ng-template>
 
-        <!-- Permissions -->
+    <ng-template pTemplate="body" let-role>
+      <tr>
+        <td>{{ role.name }}</td>
         <td>
-          <div class="permission-count">
-            {{ role.permissions.length || 0 }}
-            {{ (role.permissions.length || 0) === 1 ? 'Permission' : 'Permissions' }}
+          <div>
+            <span class="font-medium">{{ role.permissions.length }}</span>
+            <span class="ml-1">
+              {{ role.permissions.length === 1 ? 'Permission' : 'Permissions' }}
+            </span>
           </div>
-          <ng-container *ngIf="role.permissions.length > 0; else noPermissions">
+          <div class="flex flex-wrap gap-2 mt-1">
             <span
-              class="permission-badge"
               *ngFor="let perm of role.permissions"
+              class="p-tag p-tag-rounded"
             >
               {{ perm.name }}
             </span>
-          </ng-container>
-          <ng-template #noPermissions>
-            <span class="no-permissions">No permissions assigned</span>
-          </ng-template>
+            <span *ngIf="role.permissions.length === 0" class="text-gray-400">
+              No permissions assigned
+            </span>
+          </div>
         </td>
-
-        <!-- Actions: Edit and Delete -->
-        <td class="actions">
-          <button (click)="editRole(role.id)" class="btn-edit">
-            Edit
-          </button>
-          <button (click)="deleteRole(role.id)" class="btn-delete">
-            Delete
-          </button>
+        <td class="flex gap-2">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-sm p-button-text text-blue-600"
+            (click)="editRole(role.id)"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-sm p-button-text text-red-600"
+            (click)="deleteRole(role.id)"
+          ></button>
         </td>
       </tr>
-    </tbody>
-  </table>
+    </ng-template>
+  </p-table>
 
-  <!-- No data message -->
-  <div *ngIf="!loading && roles.length === 0" class="no-data">
-    No roles found
-  </div>
+  <!-- No Data Message -->
+  <p-message *ngIf="!loading && roles.length === 0" severity="info" text="No roles found"></p-message>
 </div>

@@ -1,56 +1,70 @@
-<div class="leave-list-container">
-  <div class="card">
-    <div class="card-header">
-      <h2>Leave Types</h2>
-      <button class="btn-primary" routerLink="create">
-        <span class="icon-plus">+</span>
-        Add New Leave Type
-      </button>
-    </div>
-
-    <div class="card-body">
-      <div *ngIf="loading" class="loading-container">
-        <div class="spinner"></div>
-        <p>Loading leave types...</p>
-      </div>
-
-      <div *ngIf="error" class="alert alert-danger">
-        {{ error }}
-      </div>
-
-      <div *ngIf="!loading && !error" class="table-wrapper">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th *ngFor="let col of cols" (click)="sort(col.field)">
-                {{ col.header }}
-                <span class="sort-icon">{{ currentSortField === col.field ? (sortAsc ? '↑' : '↓') : '' }}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let leaveType of leaveTypes">
-              <td>{{ leaveType.id }}</td>
-              <td>{{ leaveType.name }}</td>
-              <td>{{ leaveType.description }}</td>
-              <td>{{ leaveType.daysAllowed }}</td> <!-- ✔ changed to camelCase -->
-              <td>{{ getPaidStatus(leaveType.isPaid) }}</td> <!-- ✔ changed to camelCase -->
-              <td class="actions">
-                <button class="btn-edit" (click)="navigateToEdit(leaveType.id)">
-                  Edit
-                </button>
-                <button class="btn-delete" (click)="confirmDelete(leaveType)">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div *ngIf="leaveTypes.length === 0" class="empty-message">
-          No leave types found
-        </div>
-      </div>
-    </div>
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-semibold text-gray-800">Leave Types</h2>
+    <button
+      pButton
+      type="button"
+      label="Add New Leave Type"
+      icon="pi pi-plus"
+      class="p-button-sm p-button-primary"
+      [routerLink]="'create'"
+    ></button>
   </div>
+
+  <p-progressSpinner *ngIf="loading" styleClass="w-8 h-8"></p-progressSpinner>
+  <p-message *ngIf="error" severity="error" text="{{ error }}"></p-message>
+
+  <p-table
+    *ngIf="!loading && !error"
+    [value]="leaveTypes"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [responsiveLayout]="'scroll'"
+    [sortMode]="'multiple'"
+    class="p-datatable-sm"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+        <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+        <th pSortableColumn="daysAllowed">Days Allowed <p-sortIcon field="daysAllowed"></p-sortIcon></th>
+        <th pSortableColumn="isPaid">Paid Status <p-sortIcon field="isPaid"></p-sortIcon></th>
+        <th>Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-leaveType>
+      <tr>
+        <td>{{ leaveType.id }}</td>
+        <td>{{ leaveType.name }}</td>
+        <td>{{ leaveType.description }}</td>
+        <td>{{ leaveType.daysAllowed }}</td>
+        <td>{{ getPaidStatus(leaveType.isPaid) }}</td>
+        <td class="flex gap-2">
+          <button
+            pButton
+            type="button"
+            icon="pi pi-pencil"
+            class="p-button-sm p-button-text text-blue-600"
+            (click)="navigateToEdit(leaveType.id)"
+          ></button>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-trash"
+            class="p-button-sm p-button-text text-red-600"
+            (click)="confirmDelete(leaveType)"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-message
+    *ngIf="!loading && leaveTypes.length === 0"
+    severity="info"
+    text="No leave types found"
+  ></p-message>
 </div>

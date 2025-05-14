@@ -6,7 +6,6 @@ import { LeaveType } from 'src/app/models/leave-type.model';
 @Component({
   selector: 'app-leave-list',
   templateUrl: './leave-list.component.html',
-  styleUrls: ['./leave-list.component.scss']
 })
 export class LeaveListComponent implements OnInit {
 

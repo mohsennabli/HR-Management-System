@@ -10,6 +10,17 @@ import { LeaveRequestsComponent } from 'src/app/core/features/components/leave/l
 import { LeaveRoutingModule } from 'src/app/core/features/components/leave/leave-routing.module';
 import { EmployeeLeaveRequestFormComponent } from './employee-leave-form/employee-leave-request-form.component';
 
+
+
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
+import { CalendarModule } from 'primeng/calendar';
+
+
+
+
 @NgModule({
   declarations: [
     LeaveListComponent,
@@ -22,7 +33,12 @@ import { EmployeeLeaveRequestFormComponent } from './employee-leave-form/employe
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    LeaveRoutingModule
+    LeaveRoutingModule,
+    TableModule,
+    ButtonModule,
+    ProgressSpinnerModule,
+    MessageModule,
+    CalendarModule,
   ],
   exports: [
     LeaveListComponent
