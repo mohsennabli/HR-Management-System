@@ -27,6 +27,10 @@ const routes: Routes = [
         path: 'permissions',
         loadChildren: () => import('../features/components/permissions/permission.module').then(m => m.PermissionModule)
       },
+       {
+        path: 'departments',
+        loadChildren: () => import('../features/components/department/department.module').then(m => m.DepartmentsModule)
+      },
       {
         path: 'leave',
         loadChildren: () => import('../features/components/leave/leave.module').then(m => m.LeaveModule)

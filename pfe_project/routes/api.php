@@ -12,7 +12,7 @@ use App\Http\Controllers\API\Training\TrainingProgramController;
 use App\Http\Controllers\API\Training\TrainingParticipantController;
 use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\API\Department\DepartmentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -48,6 +48,11 @@ Route::apiResource('users', UserController::class);
 // Role/Permission Management
 Route::apiResource('roles', RoleController::class);
 Route::apiResource('permissions', PermissionController::class);
+
+Route::apiResource('departments', \App\Http\Controllers\API\Department\DepartmentController::class);
+
+
+
 
 // Employee Management
 Route::apiResource('employees', EmployeeController::class);

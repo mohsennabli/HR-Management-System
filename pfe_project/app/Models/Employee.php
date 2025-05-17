@@ -43,4 +43,8 @@ class Employee extends Model
     {
         return $this->hasMany(DisciplinaryAction::class);
     }
+    public function department()
+{
+    return $this->belongsTo(Department::class);
+}
 }
