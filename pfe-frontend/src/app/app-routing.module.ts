@@ -7,7 +7,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   
   // Make login the first screen on opening localhost
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
   {
     path: 'dashboard',

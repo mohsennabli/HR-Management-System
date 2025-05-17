@@ -18,14 +18,20 @@ export class AuthService {
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password })
       .pipe(
-        tap(res => this.storeToken(res.access_token))
+        tap(res => {
+          this.storeToken(res.access_token);
+          this.storeUser(res.user);  // store user info (including role)
+        })
       );
   }
 
   register(name: string, email: string, password: string, role_id: number) {
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, { name, email, password, role_id })
       .pipe(
-        tap(res => this.storeToken(res.access_token))
+        tap(res => {
+          this.storeToken(res.access_token);
+          this.storeUser(res.user);  // store user info (including role)
+        })
       );
   }
 
@@ -48,33 +54,47 @@ export class AuthService {
     localStorage.setItem('access_token', token);
   }
 
-  private clearStorage() {
-    localStorage.removeItem('access_token');
+  private storeUser(user: any) {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  getUser(): any | null {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  }
+
+  getUserRole(): string | null {
+    const user = this.getUser();
+    return user?.role ?? null;
   }
 
   getToken(): string | null {
     return localStorage.getItem('access_token');
   }
 
-   isLoggedIn(): boolean {
+  isLoggedIn(): boolean {
     const token = this.getToken();
     if (!token) return false;
-    // Check token expiration
     const decoded = this.decodeToken(token);
     const expirationDate = decoded.exp * 1000;
     return Date.now() < expirationDate;
   }
-   getLoggedInUser(): Observable<any> {
+
+  getLoggedInUser(): Observable<any> {
     if (this.isLoggedIn()) {
-      return this.me();  // Fetch user data if logged in
+      return this.me();
     } else {
       throw new Error('User not logged in');
     }
+  }
+
+  private clearStorage() {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
   }
 
   private decodeToken(token: string): any {
     const payload = token.split('.')[1];
     return JSON.parse(atob(payload));
   }
-
 }

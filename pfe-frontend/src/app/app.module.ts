@@ -23,7 +23,7 @@ import { ChartModule } from 'primeng/chart';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
-
+import { PasswordModule } from 'primeng/password';
 
 
 
@@ -46,7 +46,8 @@ import { MessageModule } from 'primeng/message';
      ChartModule,
     ProgressBarModule,
     InputTextModule,
-    MessageModule
+    MessageModule,
+    PasswordModule,
   ],
   providers: [
     DatePipe,
