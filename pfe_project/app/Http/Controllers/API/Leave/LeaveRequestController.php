@@ -42,6 +42,20 @@ class LeaveRequestController extends Controller
         return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
     }
 
+    // Check for overlapping leave requests
+    $hasOverlap = $this->checkOverlappingLeaveRequests(
+        $request->employee_id,
+        $request->start_date,
+        $request->end_date
+    );
+
+    if ($hasOverlap) {
+        return response()->json([
+            'success' => false, 
+            'message' => 'You already have a leave request that overlaps with these dates.'
+        ], 422);
+    }
+
     // Check logique sécurité API
     $start = \Carbon\Carbon::parse($request->start_date);
     $end = \Carbon\Carbon::parse($request->end_date);
@@ -56,6 +70,32 @@ class LeaveRequestController extends Controller
     ]));
 
     return response()->json(['success' => true, 'data' => $leaveRequest], 201);
+}
+
+/**
+ * Check if there are any overlapping leave requests for the given employee and date range
+ *
+ * @param int $employeeId
+ * @param string $startDate
+ * @param string $endDate
+ * @return bool
+ */
+private function checkOverlappingLeaveRequests($employeeId, $startDate, $endDate)
+{
+    return LeaveRequest::where('employee_id', $employeeId)
+        ->where(function ($query) use ($startDate, $endDate) {
+            $query->where(function ($q) use ($startDate, $endDate) {
+                // Check if new request overlaps with existing request
+                $q->whereBetween('start_date', [$startDate, $endDate])
+                    ->orWhereBetween('end_date', [$startDate, $endDate])
+                    ->orWhere(function ($q) use ($startDate, $endDate) {
+                        $q->where('start_date', '<=', $startDate)
+                            ->where('end_date', '>=', $endDate);
+                    });
+            });
+        })
+        ->where('status', '!=', 'rejected') // Don't consider rejected requests
+        ->exists();
 }
 
 

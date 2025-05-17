@@ -4,7 +4,6 @@ namespace App\Http\Controllers\API\Role;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
-use App\Models\Permission;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
@@ -13,19 +12,20 @@ class RoleController extends Controller
      * Display a listing of roles.
      */
     public function index()
-{
-    $roles = Role::all(); // Ensure all roles are returned
+    {
+        $roles = Role::all();
 
-    if ($roles->isEmpty()) {
+        if ($roles->isEmpty()) {
+            return response()->json([
+                'message' => 'No roles found.'
+            ], 404);
+        }
+
         return response()->json([
-            'message' => 'No roles found.'
-        ], 404);
+            'data' => $roles
+        ], 200);
     }
 
-    return response()->json([
-        'data' => $roles
-    ], 200);
-}
     /**
      * Store a newly created role.
      */
@@ -33,21 +33,15 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|unique:roles,name',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id'
         ]);
 
         $role = Role::create([
             'name' => $request->name
         ]);
 
-        if ($request->has('permissions')) {
-            $role->permissions()->attach($request->permissions);
-        }
-
         return response()->json([
             'success' => true,
-            'data' => $role->load('permissions'),
+            'data' => $role,
             'message' => 'Role created successfully'
         ], 201);
     }
@@ -59,7 +53,7 @@ class RoleController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $role->load('permissions'),
+            'data' => $role,
             'message' => 'Role retrieved successfully'
         ]);
     }
@@ -71,21 +65,15 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|unique:roles,name,' . $role->id,
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'exists:permissions,id'
         ]);
 
         $role->update([
             'name' => $request->name
         ]);
 
-        if ($request->has('permissions')) {
-            $role->permissions()->sync($request->permissions);
-        }
-
         return response()->json([
             'success' => true,
-            'data' => $role->fresh()->load('permissions'),
+            'data' => $role->fresh(),
             'message' => 'Role updated successfully'
         ]);
     }

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../../../services/api.service';
 import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +10,9 @@ import { Observable } from 'rxjs';
 export class TrainingParticipantService {
   private endpoint = 'training-participants';
   private programEndpoint = 'training-programs';
+  private apiUrl = 'api/training-participants';
 
-  constructor(private api: ApiService) { }
+  constructor(private api: ApiService, private http: HttpClient) { }
 
   getAllForProgram(programId: number): Observable<any> {
     return this.api.get(`${this.programEndpoint}/${programId}/participants`);
@@ -35,5 +38,11 @@ export class TrainingParticipantService {
 
   updateStatus(id: number, status: string): Observable<any> {
     return this.api.patch(`${this.endpoint}/${id}/status`, { status });
+  }
+
+  getAvailableEmployees(programId: number): Observable<any[]> {
+    return this.http.get<{data: any[]}>(`${this.apiUrl}/available-employees/${programId}`).pipe(
+      map(response => response.data)
+    );
   }
 } 

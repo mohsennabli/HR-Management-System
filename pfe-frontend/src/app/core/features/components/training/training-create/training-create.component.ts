@@ -217,24 +217,26 @@ import { TrainingParticipantService } from '../training-participant.service';
   `]
 })
 export class TrainingCreateComponent implements OnInit {
-onEmployeeSelect($event: Event,arg1: any) {
-throw new Error('Method not implemented.');
-}
-  trainingForm: FormGroup;
+  trainingForm!: FormGroup;
   employees: any[] = [];
-  selectedEmployees: number[] = [];
+  isSubmitting = false;
+  errorMessage: string = '';
   isLoadingEmployees = false;
-  trainingId: any;
-
-
+  selectedEmployees: number[] = [];
 
   constructor(
     private fb: FormBuilder,
-    private router: Router,
     private trainingService: TrainingProgramService,
     private employeeService: EmployeeService,
-    private participantService: TrainingParticipantService
-  ) {
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.setupDateChangeListeners();
+  }
+
+  private initializeForm(): void {
     this.trainingForm = this.fb.group({
       programName: ['', Validators.required],
       description: ['', Validators.required],
@@ -242,73 +244,108 @@ throw new Error('Method not implemented.');
       endDate: ['', Validators.required],
       capacity: ['', [Validators.required, Validators.min(1)]],
       instructor: ['', Validators.required],
-      location: ['', Validators.required]
+      location: ['', Validators.required],
+      status: ['upcoming', Validators.required],
+      selectedEmployees: [[], Validators.required]
+    });
+  }
+
+  private setupDateChangeListeners(): void {
+    // Load available employees when dates change
+    this.trainingForm.get('startDate')?.valueChanges.subscribe(() => {
+      if (this.trainingForm.get('startDate')?.valid && this.trainingForm.get('endDate')?.valid) {
+        this.loadAvailableEmployees();
+      }
     });
 
+    this.trainingForm.get('endDate')?.valueChanges.subscribe(() => {
+      if (this.trainingForm.get('startDate')?.valid && this.trainingForm.get('endDate')?.valid) {
+        this.loadAvailableEmployees();
+      }
+    });
   }
 
-  ngOnInit(): void {
-    this.loadEmployees();
-
+  onEmployeeSelect(event: Event, employeeId: number): void {
+    const checkbox = event.target as HTMLInputElement;
+    if (checkbox.checked) {
+      this.selectedEmployees.push(employeeId);
+    } else {
+      const index = this.selectedEmployees.indexOf(employeeId);
+      if (index > -1) {
+        this.selectedEmployees.splice(index, 1);
+      }
+    }
+    this.trainingForm.patchValue({ selectedEmployees: this.selectedEmployees });
   }
 
+  private loadAvailableEmployees(): void {
+    const startDate = this.trainingForm.get('startDate')?.value;
+    const endDate = this.trainingForm.get('endDate')?.value;
 
-  loadEmployees(): void {
+    if (!startDate || !endDate) {
+      return;
+    }
+
     this.isLoadingEmployees = true;
-    this.employeeService.getAll().subscribe({
-      next: (response) => {
-        this.employees = response.data;
+
+    // Create a temporary training program to get available employees
+    const tempProgram = {
+      start_date: startDate,
+      end_date: endDate
+    };
+
+    this.trainingService.getAvailableEmployees(tempProgram).subscribe({
+      next: (employees) => {
+        this.employees = employees;
         this.isLoadingEmployees = false;
       },
-      error: (error) => {
-        console.error('Error loading employees:', error);
+      error: (err) => {
+        console.error('Failed to load available employees', err);
+        this.errorMessage = 'Failed to load available employees.';
         this.isLoadingEmployees = false;
       }
     });
   }
 
   onSubmit(): void {
-    if (this.trainingForm.valid) {
-      const formData = {
-        name: this.trainingForm.value.programName,
-        description: this.trainingForm.value.description,
-        start_date: this.trainingForm.value.startDate,
-        end_date: this.trainingForm.value.endDate,
-        capacity: this.trainingForm.value.capacity,
-        instructor: this.trainingForm.value.instructor,
-        location: this.trainingForm.value.location,
-        status: 'upcoming', // Default status
-      };
-  
-      // Determine whether to create or update based on trainingId
-      const operation = this.trainingId
-        ? this.trainingService.update(this.trainingId, formData)
-        : this.trainingService.create(formData);
-  
-      operation.subscribe({
-        next: (createdProgram) => {
-          console.log('Training program created/updated:', createdProgram);
-  
-          // Assign selected employees to the program
-          const programId = createdProgram.id;
-          this.selectedEmployees.forEach((employeeId) => {
-            this.participantService.create(programId, { employee_id: employeeId }).subscribe({
-              next: () => console.log(`Employee ${employeeId} assigned to program ${programId}`),
-              error: (err) => console.error(`Error assigning employee ${employeeId}:`, err),
-            });
-          });
-  
-          // Navigate back to the training list
-          this.router.navigate(['/dashboard/training']);
-        },
-        error: (err) => {
-          console.error('Error creating/updating training program:', err);
-        },
-      });
+    if (this.trainingForm.invalid || this.isSubmitting) {
+      this.trainingForm.markAllAsTouched();
+      return;
     }
+
+    this.isSubmitting = true;
+    this.errorMessage = '';
+
+    // Transform form data to match API expectations
+    const formData = {
+      name: this.trainingForm.value.programName,
+      description: this.trainingForm.value.description,
+      start_date: this.trainingForm.value.startDate,
+      end_date: this.trainingForm.value.endDate,
+      capacity: this.trainingForm.value.capacity,
+      instructor: this.trainingForm.value.instructor,
+      location: this.trainingForm.value.location,
+      status: this.trainingForm.value.status,
+      selectedEmployees: this.trainingForm.value.selectedEmployees
+    };
+
+    this.trainingService.create(formData).subscribe({
+      next: (response) => {
+        this.router.navigate(['/dashboard/trainings']);
+      },
+      error: (err) => {
+        console.error('Failed to create training program', err);
+        if (err.error?.message) {
+          this.errorMessage = err.error.message;
+        } else {
+          this.errorMessage = 'An error occurred while creating the training program.';
+        }
+        this.isSubmitting = false;
+      }
+    });
   }
 
   onCancel(): void {
-    this.router.navigate(['/dashboard/training']);
+    this.router.navigate(['/dashboard']);
   }
 }

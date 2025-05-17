@@ -77,7 +77,7 @@ export class EmployeeEditComponent implements OnInit {
           first_name: employee.first_name,
           last_name: employee.last_name,
           phone: employee.phone,
-          department: employee.department,
+          department_id: employee.department_id,
           position: employee.position,
           hire_date: employee.hire_date,
           salary: employee.salary,

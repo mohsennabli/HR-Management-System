@@ -32,4 +32,10 @@ export class TrainingProgramService {
   delete(id: number): Observable<any> {
     return this.api.delete(`${this.endpoint}/${id}`);
   }
+
+  getAvailableEmployees(program: { start_date: string; end_date: string }): Observable<any[]> {
+    return this.api.post<{data: any[]}>(`${this.endpoint}/available-employees`, program).pipe(
+      map(response => response.data)
+    );
+  }
 } 

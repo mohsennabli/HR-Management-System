@@ -16,6 +16,7 @@ export class EmployeeLeaveRequestFormComponent implements OnInit {
   leaveRequestForm!: FormGroup;
   isSubmitting = false;
   leaveTypes: any[] = [];
+  errorMessage: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -84,6 +85,7 @@ export class EmployeeLeaveRequestFormComponent implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.errorMessage = '';
 
     // Enable the days field temporarily to get its value
     const daysControl = this.leaveRequestForm.get('days');
@@ -110,12 +112,18 @@ export class EmployeeLeaveRequestFormComponent implements OnInit {
           },
           error: (err) => {
             console.error('Failed to create leave request', err);
+            if (err.error?.message) {
+              this.errorMessage = err.error.message;
+            } else {
+              this.errorMessage = 'An error occurred while creating the leave request.';
+            }
           }
         });
       },
       error: (err) => {
         console.error('Failed to get employee ID', err);
         this.isSubmitting = false;
+        this.errorMessage = 'Failed to get employee information.';
       }
     });
   }

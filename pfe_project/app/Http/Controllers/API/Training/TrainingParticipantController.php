@@ -59,6 +59,19 @@ class TrainingParticipantController extends Controller
                 'message' => 'Employee is already enrolled in this program'
             ], 422);
         }
+
+        // Check for overlapping training enrollments
+        $hasOverlap = $this->checkOverlappingTrainingEnrollments(
+            $request->employee_id,
+            $program->start_date,
+            $program->end_date
+        );
+
+        if ($hasOverlap) {
+            return response()->json([
+                'message' => 'Employee is already enrolled in another training program during this period'
+            ], 422);
+        }
     
         $participant = TrainingParticipant::create([
             'training_program_id' => $programId,
@@ -70,6 +83,60 @@ class TrainingParticipantController extends Controller
             'message' => 'Employee added successfully',
             'data' => $participant
         ], 201);
+    }
+
+    /**
+     * Check if an employee has any overlapping training enrollments
+     *
+     * @param int $employeeId
+     * @param string $startDate
+     * @param string $endDate
+     * @return bool
+     */
+    private function checkOverlappingTrainingEnrollments($employeeId, $startDate, $endDate)
+    {
+        return TrainingParticipant::where('employee_id', $employeeId)
+            ->whereHas('trainingProgram', function ($query) use ($startDate, $endDate) {
+                $query->where(function ($q) use ($startDate, $endDate) {
+                    // Check if new training overlaps with existing training
+                    $q->whereBetween('start_date', [$startDate, $endDate])
+                        ->orWhereBetween('end_date', [$startDate, $endDate])
+                        ->orWhere(function ($q) use ($startDate, $endDate) {
+                            $q->where('start_date', '<=', $startDate)
+                                ->where('end_date', '>=', $endDate);
+                        });
+                });
+            })
+            ->where('status', '!=', 'dropped') // Don't consider dropped enrollments
+            ->exists();
+    }
+
+    /**
+     * Get available employees for a training program
+     *
+     * @param int $programId
+     * @return \Illuminate\Http\Response
+     */
+    public function getAvailableEmployees($programId)
+    {
+        $program = TrainingProgram::findOrFail($programId);
+        
+        // Get all employees who are not enrolled in any overlapping training
+        $availableEmployees = \App\Models\Employee::whereDoesntHave('trainingParticipants', function ($query) use ($program) {
+            $query->whereHas('trainingProgram', function ($q) use ($program) {
+                $q->where(function ($q) use ($program) {
+                    $q->whereBetween('start_date', [$program->start_date, $program->end_date])
+                        ->orWhereBetween('end_date', [$program->start_date, $program->end_date])
+                        ->orWhere(function ($q) use ($program) {
+                            $q->where('start_date', '<=', $program->start_date)
+                                ->where('end_date', '>=', $program->end_date);
+                        });
+                });
+            })
+            ->where('status', '!=', 'dropped');
+        })->get();
+
+        return response()->json(['data' => $availableEmployees], 200);
     }
 
     /**

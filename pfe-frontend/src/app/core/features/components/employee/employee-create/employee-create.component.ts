@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
 import { RoleService } from 'src/app/core/features/components/roles/role.service';
 import { Employee } from 'src/app/models/employee.model';
+import { DepartmentService } from '../../department/department.service';
 
 @Component({
   selector: 'app-employee-create',
@@ -42,20 +43,11 @@ import { Employee } from 'src/app/models/employee.model';
               </div>
             </div>
             
-            <div class="form-group">
-              <label for="department">Department</label>
-              <select id="department" formControlName="department" class="form-control">
-                <option value="">Select Department</option>
-                <option value="it">IT</option>
-                <option value="hr">HR</option>
-                <option value="finance">Finance</option>
-                <option value="marketing">Marketing</option>
-              </select>
-              <div class="error-message" *ngIf="employeeForm.get('department')?.invalid && employeeForm.get('department')?.touched">
-                Department is required
-              </div>
-            </div>
-          </div>
+            <select id="department" formControlName="departmentId" class="form-control">
+            <option value="">Select Department</option>
+            <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
+          </select>
+
           
           <div class="form-row">
             <div class="form-group">
@@ -135,9 +127,8 @@ import { Employee } from 'src/app/models/employee.model';
             <button type="button" class="btn-secondary" routerLink="../">Cancel</button>
             <button type="submit" class="btn-primary" [disabled]="employeeForm.invalid">Save Employee</button>
           </div>
-        </form>
+        
       </div>
-    </div>
   `,
   styles: [`
     .employee-create {
@@ -215,19 +206,21 @@ import { Employee } from 'src/app/models/employee.model';
 export class EmployeeCreateComponent implements OnInit {
   employeeForm: FormGroup;
   roles: any[] = [];
+departments: any;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private employeeService: EmployeeService,
     private roleService: RoleService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private departmentService: DepartmentService
   ) {
     this.employeeForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       phone: ['', Validators.required],
-      department: ['', Validators.required],
+      departmentId: ['', Validators.required],
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
       salary: ['', [Validators.required, Validators.min(0)]],
@@ -239,6 +232,14 @@ export class EmployeeCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.departmentService.getDepartments().subscribe({
+      next: (res) => {
+        this.departments = res.data; // Adjust based on API response structure
+      },
+      error: (err) => {
+        console.error('Error fetching departments', err);
+      }
+    });
     this.roleService.getRoles().subscribe({
       next: (response) => {
         this.roles = response.data;
@@ -277,7 +278,7 @@ export class EmployeeCreateComponent implements OnInit {
         first_name: formValue.firstName,
         last_name: formValue.lastName,
         phone: formValue.phone,
-        department: formValue.department,
+        department_id: formValue.departmentId,
         position: formValue.position,
         hire_date: formValue.hireDate,
         salary: formValue.salary,

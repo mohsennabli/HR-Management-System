@@ -25,13 +25,16 @@ class EmployeeController extends Controller
         }
 
         // Filter by department
-        if ($request->has('department')) {
-            $query->where('department', $request->department);
+        if ($request->has('department_id')) {
+            $query->where('department_id', $request->department_id);
         }
+        
 
         $employees = $query->get()->map(function ($employee) {
             $employeeData = $employee->toArray();
             $employeeData['email'] = $employee->user ? $employee->user->email : null;
+            $employeeData['department'] = $employee->department ? $employee->department->name : null;
+
             return $employeeData;
         });
 
@@ -47,7 +50,7 @@ class EmployeeController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
-            'department' => 'required|string|max:255',
+            'department_id' => 'required|exists:departments,id',
             'position' => 'required|string|max:255',
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
@@ -64,7 +67,7 @@ class EmployeeController extends Controller
 
         try {
             // Create the employee record
-            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department', 'position', 'hire_date', 'salary']);
+            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department_id', 'position', 'hire_date', 'salary']);
             $employee = Employee::create($employeeData);
 
             // If is_user is true, create a user account
@@ -105,7 +108,7 @@ class EmployeeController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
-            'department' => 'required|string|max:255',
+            'department_id' => 'required|exists:departments,id',
             'position' => 'required|string|max:255',
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
@@ -120,7 +123,7 @@ class EmployeeController extends Controller
 
         try {
             // Update the employee data
-            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department', 'position', 'hire_date', 'salary']);
+            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department_id', 'position', 'hire_date', 'salary']);
             $employee->update($employeeData);
 
             // Handle user account update

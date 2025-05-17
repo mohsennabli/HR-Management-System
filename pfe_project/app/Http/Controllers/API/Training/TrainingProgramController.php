@@ -101,4 +101,39 @@ class TrainingProgramController extends Controller
         $program->delete();
         return response()->json(null, 204);
     }
+
+    /**
+     * Get available employees for a training program
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getAvailableEmployees(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Get all employees who are not enrolled in any overlapping training
+        $availableEmployees = \App\Models\Employee::whereDoesntHave('trainingParticipants', function ($query) use ($request) {
+            $query->whereHas('trainingProgram', function ($q) use ($request) {
+                $q->where(function ($q) use ($request) {
+                    $q->whereBetween('start_date', [$request->start_date, $request->end_date])
+                        ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
+                        ->orWhere(function ($q) use ($request) {
+                            $q->where('start_date', '<=', $request->start_date)
+                                ->where('end_date', '>=', $request->end_date);
+                        });
+                });
+            })
+            ->where('status', '!=', 'dropped');
+        })->get();
+
+        return response()->json(['data' => $availableEmployees], 200);
+    }
 }
