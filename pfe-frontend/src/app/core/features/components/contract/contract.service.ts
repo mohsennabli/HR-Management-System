@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, throwError } from 'rxjs';
 import { Contract, SIVPContract, MedysisContract } from './contract.interface';
 import { environment } from 'src/environments/environment';
 
@@ -13,23 +13,55 @@ export class ContractService {
   constructor(private http: HttpClient) { }
 
   getAllContracts(): Observable<Contract[]> {
-    return this.http.get<Contract[]>(this.apiUrl);
+    console.log('Fetching all contracts from:', this.apiUrl);
+    return this.http.get<any>(this.apiUrl).pipe(
+      map(response => {
+        console.log('Raw API response:', response);
+        if (response && response.data) {
+          return response.data;
+        }
+        return [];
+      }),
+      catchError(error => {
+        console.error('Error fetching contracts:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   getContractById(id: number): Observable<Contract> {
-    return this.http.get<Contract>(`${this.apiUrl}/${id}`);
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map(response => response.data)
+    );
   }
 
-  createSIVPContract(contract: SIVPContract): Observable<SIVPContract> {
-    return this.http.post<SIVPContract>(`${this.apiUrl}/sivp`, contract);
+  createSIVPContract(contract: SIVPContract): Observable<Contract> {
+    return this.http.post<any>(`${this.apiUrl}/sivp`, contract).pipe(
+      map(response => response.data)
+    );
   }
 
-  createMedysisContract(contract: MedysisContract): Observable<MedysisContract> {
-    return this.http.post<MedysisContract>(`${this.apiUrl}/medysis`, contract);
-  }
+  createMedysisContract(contract: MedysisContract): Observable<Contract> {
+    // Ensure dates are formatted correctly
+    const formattedContract = {
+        ...contract,
+        start_date: new Date(contract.start_date).toISOString().split('T')[0],
+        end_date: new Date(contract.end_date).toISOString().split('T')[0]
+    };
+    
+    return this.http.post<any>(`${this.apiUrl}/medysis`, formattedContract).pipe(
+        map(response => response.data),
+        catchError(error => {
+            console.error('Medysis contract creation error:', error);
+            return throwError(() => error);
+        })
+    );
+}
 
   updateContract(id: number, contract: Contract): Observable<Contract> {
-    return this.http.put<Contract>(`${this.apiUrl}/${id}`, contract);
+    return this.http.put<any>(`${this.apiUrl}/${id}`, contract).pipe(
+      map(response => response.data)
+    );
   }
 
   deleteContract(id: number): Observable<void> {
@@ -37,6 +69,8 @@ export class ContractService {
   }
 
   getEmployeeContracts(employeeId: number): Observable<Contract[]> {
-    return this.http.get<Contract[]>(`${this.apiUrl}/employee/${employeeId}`);
+    return this.http.get<any>(`${this.apiUrl}/employee/${employeeId}`).pipe(
+      map(response => response.data || [])
+    );
   }
 } 

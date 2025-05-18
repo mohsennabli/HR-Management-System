@@ -24,26 +24,25 @@ export class ContractDetailsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.loadContract(+params['id']);
-      }
-    });
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadContract(Number(id));
+    }
   }
 
   loadContract(id: number): void {
     this.loading = true;
     this.contractService.getContractById(id).subscribe({
-      next: (contract) => {
-        this.contract = contract;
-        this.loadEmployee(contract.employee_id);
+      next: (data) => {
+        this.contract = data;
+        this.loadEmployee(data.employee_id);
         this.loading = false;
       },
       error: (error) => {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Failed to load contract'
+          detail: 'Failed to load contract details'
         });
         this.loading = false;
       }
@@ -52,8 +51,8 @@ export class ContractDetailsComponent implements OnInit {
 
   loadEmployee(id: number): void {
     this.employeeService.getById(id).subscribe({
-      next: (employee) => {
-        this.employee = employee;
+      next: (response) => {
+        this.employee = response.data;
       },
       error: (error) => {
         this.messageService.add({
@@ -66,7 +65,7 @@ export class ContractDetailsComponent implements OnInit {
   }
 
   onEdit(): void {
-    if (this.contract?.id) {
+    if (this.contract) {
       this.router.navigate(['/dashboard/contracts/edit', this.contract.id]);
     }
   }
@@ -76,6 +75,10 @@ export class ContractDetailsComponent implements OnInit {
   }
 
   isSIVPContract(contract: Contract): contract is SIVPContract {
-    return !('type' in contract);
+    return 'duration' in contract && 'sign' in contract && 'breakup' in contract;
+  }
+
+  isMedysisContract(contract: Contract): contract is MedysisContract {
+    return 'type' in contract;
   }
 } 

@@ -8,6 +8,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ChartModule } from 'primeng/chart';
 import { ProgressBarModule } from 'primeng/progressbar';
 
+
+import { KnobModule } from 'primeng/knob';
+import { RippleModule } from 'primeng/ripple';
+
+
 @NgModule({
   declarations: [
     StatisticsBoardComponent
@@ -21,7 +26,9 @@ import { ProgressBarModule } from 'primeng/progressbar';
     ButtonModule,
     TooltipModule,
     ChartModule,
-    ProgressBarModule
+    ProgressBarModule,
+    KnobModule,
+    RippleModule
   ]
 })
 export class StatisticsBoardModule { }

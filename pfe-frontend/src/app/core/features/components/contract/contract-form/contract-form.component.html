@@ -1,79 +1,139 @@
 <div class="card">
     <p-toast></p-toast>
 
-    <h2>{{isEditMode ? 'Edit' : 'Create'}} Contract</h2>
-
-    <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="p-fluid">
-        <div class="field">
-            <label for="contractType">Contract Type</label>
+    <div class="flex justify-content-between align-items-center mb-4">
+        <h2>{{isEditMode ? 'Edit' : 'New'}} Contract</h2>
+        <div class="flex gap-2">
             <p-selectButton [options]="[
                 {label: 'SIVP', value: 'sivp'},
                 {label: 'Medysis', value: 'medysis'}
-            ]" [(ngModel)]="contractType" [ngModelOptions]="{standalone: true}"
-            (onChange)="onTypeChange($event)"></p-selectButton>
+            ]" [(ngModel)]="contractType" (onChange)="updateFormValidation()"
+            [disabled]="isEditMode"></p-selectButton>
         </div>
+    </div>
 
-        <div class="field">
-            <label for="employee">Employee</label>
-            <p-dropdown id="employee" formControlName="employee_id" [options]="employees"
-                       optionLabel="name" optionValue="id" placeholder="Select an employee"
-                       [filter]="true">
-            </p-dropdown>
-        </div>
+    <form [formGroup]="contractForm" (ngSubmit)="onSubmit()" class="grid">
+        <div class="col-12 md:col-6">
+            <div class="card">
+                <h3>Basic Information</h3>
+                <div class="grid">
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="employee">Employee</label>
+                            <p-dropdown id="employee" formControlName="employee_id" [options]="employees"
+                                optionLabel="first_name" [showClear]="true" placeholder="Select an employee"
+                                [filter]="true" filterBy="first_name,last_name" optionValue="id">
+                                <ng-template let-employee pTemplate="item">
+                                    <div>{{employee.first_name}} {{employee.last_name}}</div>
+                                </ng-template>
+                            </p-dropdown>
+                            <small class="p-error" *ngIf="contractForm.get('employee_id')?.invalid && contractForm.get('employee_id')?.touched">
+                                Employee is required
+                            </small>
+                        </div>
+                    </div>
 
-        <div class="field">
-            <label for="startDate">Start Date</label>
-            <p-calendar id="startDate" formControlName="start_date" [showIcon]="true"
-                       dateFormat="dd/mm/yy"></p-calendar>
-        </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="start_date">Start Date</label>
+                            <p-calendar id="start_date" formControlName="start_date" [showIcon]="true"
+                                dateFormat="dd/mm/yy" [showButtonBar]="true"></p-calendar>
+                            <small class="p-error" *ngIf="contractForm.get('start_date')?.invalid && contractForm.get('start_date')?.touched">
+                                Start date is required
+                            </small>
+                        </div>
+                    </div>
 
-        <div class="field">
-            <label for="endDate">End Date</label>
-            <p-calendar id="endDate" formControlName="end_date" [showIcon]="true"
-                       dateFormat="dd/mm/yy"></p-calendar>
-        </div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label for="end_date">End Date</label>
+                            <p-calendar id="end_date" formControlName="end_date" [showIcon]="true"
+                                dateFormat="dd/mm/yy" [showButtonBar]="true"></p-calendar>
+                            <small class="p-error" *ngIf="contractForm.get('end_date')?.invalid && contractForm.get('end_date')?.touched">
+                                End date is required
+                            </small>
+                        </div>
+                    </div>
 
-        <div class="field">
-            <label for="pattern">Pattern</label>
-            <p-dropdown id="pattern" formControlName="pattern" [options]="[
-                {label: 'Full Time', value: 'full_time'},
-                {label: 'Part Time', value: 'part_time'}
-            ]" placeholder="Select a pattern"></p-dropdown>
-        </div>
-
-        <ng-container *ngIf="contractType === 'sivp'">
-            <div class="field">
-                <label for="duration">Duration (months)</label>
-                <p-inputNumber id="duration" formControlName="duration" [min]="1"></p-inputNumber>
+                    <div class="col-12">
+                        <div class="field">
+                            <label for="pattern">Pattern</label>
+                            <p-dropdown id="pattern" formControlName="pattern" [options]="[
+                                {label: 'Full Time', value: 'full-time'},
+                                {label: 'Part Time', value: 'part-time'}
+                            ]" placeholder="Select a pattern"></p-dropdown>
+                            <small class="p-error" *ngIf="contractForm.get('pattern')?.invalid && contractForm.get('pattern')?.touched">
+                                Pattern is required
+                            </small>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </div>
 
-            <div class="field">
-                <label for="sign">Sign</label>
-                <input pInputText id="sign" formControlName="sign" type="text">
+        <div class="col-12 md:col-6">
+            <div class="card">
+                <h3>Contract Type Specific Information</h3>
+                <div class="grid">
+                    <!-- SIVP Contract Fields -->
+                    <ng-container *ngIf="contractType === 'sivp'">
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="duration">Duration (months)</label>
+                                <p-inputNumber id="duration" formControlName="duration" [min]="1"></p-inputNumber>
+                                <small class="p-error" *ngIf="contractForm.get('duration')?.invalid && contractForm.get('duration')?.touched">
+                                    Duration is required
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label for="sign">Sign</label>
+                                <input pInputText id="sign" formControlName="sign" />
+                                <small class="p-error" *ngIf="contractForm.get('sign')?.invalid && contractForm.get('sign')?.touched">
+                                    Sign is required
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="field">
+                                <label for="breakup">Breakup</label>
+                                <input pInputText id="breakup" formControlName="breakup" />
+                                <small class="p-error" *ngIf="contractForm.get('breakup')?.invalid && contractForm.get('breakup')?.touched">
+                                    Breakup is required
+                                </small>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <!-- Medysis Contract Fields -->
+                    <ng-container *ngIf="contractType === 'medysis'">
+                        <div class="col-12">
+                            <div class="field">
+                                <label for="type">Contract Type</label>
+                                <p-dropdown id="type" formControlName="type" [options]="[
+                                    {label: 'Permanent', value: 'permanent'},
+                                    {label: 'Temporary', value: 'temporary'},
+                                    {label: 'Internship', value: 'internship'}
+                                ]" optionLabel="label" optionValue="value" placeholder="Select Contract Type">
+                                </p-dropdown>
+                                <small class="p-error" *ngIf="contractForm.get('type')?.invalid && contractForm.get('type')?.touched">
+                                    Contract type is required
+                                </small>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
             </div>
+        </div>
 
-            <div class="field">
-                <label for="breakup">Breakup</label>
-                <input pInputText id="breakup" formControlName="breakup" type="text">
+        <div class="col-12">
+            <div class="flex justify-content-end gap-2">
+                <button pButton type="button" label="Cancel" class="p-button-secondary" (click)="onCancel()"></button>
+                <button pButton type="submit" label="Save" [loading]="loading"></button>
             </div>
-        </ng-container>
-
-        <ng-container *ngIf="contractType === 'medysis'">
-            <div class="field">
-                <label for="type">Type</label>
-                <p-dropdown id="type" formControlName="type" [options]="[
-                    {label: 'Permanent', value: 'permanent'},
-                    {label: 'Temporary', value: 'temporary'},
-                    {label: 'Internship', value: 'internship'}
-                ]" placeholder="Select a type"></p-dropdown>
-            </div>
-        </ng-container>
-
-        <div class="flex justify-content-end gap-2 mt-4">
-            <button pButton type="button" label="Cancel" class="p-button-secondary"
-                    (click)="router.navigate(['/dashboard/contracts'])"></button>
-            <button pButton type="submit" label="{{isEditMode ? 'Update' : 'Create'}}"
-                    [disabled]="!contractForm.valid || loading"></button>
         </div>
     </form>
 </div> 

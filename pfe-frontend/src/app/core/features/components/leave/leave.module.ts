@@ -17,8 +17,9 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageModule } from 'primeng/message';
 import { CalendarModule } from 'primeng/calendar';
-
-
+import { ToastModule } from 'primeng/toast';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 
 @NgModule({
@@ -39,6 +40,9 @@ import { CalendarModule } from 'primeng/calendar';
     ProgressSpinnerModule,
     MessageModule,
     CalendarModule,
+    ToastModule,
+    DropdownModule,
+    InputNumberModule,
   ],
   exports: [
     LeaveListComponent

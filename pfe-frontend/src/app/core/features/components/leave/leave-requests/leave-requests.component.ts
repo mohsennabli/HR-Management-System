@@ -44,92 +44,52 @@ export class LeaveRequestsComponent implements OnInit {
     this.fetchLeaveRequests();
   }
 
- fetchLeaveRequests(): void {
-  this.loading = true;
-  this.error = null;
-  
-  this.leaveRequestService.getAll().subscribe({
-    next: (response) => {
-      if (!response || !Array.isArray(response)) {
-        this.requests = [];
+  fetchLeaveRequests(): void {
+    this.loading = true;
+    this.error = null;
+    
+    this.leaveRequestService.getAll().subscribe({
+      next: (response) => {
+        if (!response || !Array.isArray(response)) {
+          this.requests = [];
+          this.filterRequests();
+          this.loading = false;
+          return;
+        }
+
+        // If response is empty, set empty arrays and return
+        if (response.length === 0) {
+          this.requests = [];
+          this.filteredRequests = [];
+          this.loading = false;
+          return;
+        }
+
+        this.requests = response.map((request: any) => {
+          return {
+            id: request.id,
+            employee_id: request.employee_id,
+            employeeName: request.employee?.first_name && request.employee?.last_name 
+              ? `${request.employee.first_name} ${request.employee.last_name}` 
+              : 'Unknown Employee',
+            leave_type_id: request.leave_type_id,
+            startDate: request.start_date,
+            endDate: request.end_date,
+            days: request.days,
+            type: request.leave_type?.name || 'Unknown Type',
+            status: request.status,
+            reason: request.reason
+          };
+        });
         this.filterRequests();
         this.loading = false;
-        return;
-      }
-
-      // If response is empty, set empty arrays and return
-      if (response.length === 0) {
-        this.requests = [];
-        this.filteredRequests = [];
+      },
+      error: (error) => {
+        this.error = error;
         this.loading = false;
-        return;
       }
-
-      // const requestsWithEmployeeNames = response.map((request: any) => {
-      //   return this.employeeService.getById(request.employee_id).toPromise()
-      //     .then((employee: any) => {
-      //       // Handle both wrapped and unwrapped employee responses
-      //       const employeeData = employee?.data || employee;
-            
-      //       return {
-      //         id: request.id,
-      //         employee_id: request.employee_id,
-      //         employeeName: employeeData?.first_name && employeeData?.last_name 
-      //           ? `${employeeData.first_name} ${employeeData.last_name}` 
-      //           : 'Unknown Employee',
-      //         leave_type_id: request.leave_type_id,
-      //         startDate: request.start_date,
-      //         endDate: request.end_date,
-      //         days: request.days,
-      //         type: request.leave_type?.name || 'Unknown Type',
-      //         status: request.status,
-      //         reason: request.reason
-      //       };
-      //     })
-      //     .catch(() => {
-      //       // Return request with default employee name if employee fetch fails
-      //       return {
-      //         ...request,
-      //         employeeName: 'Unknown Employee',
-      //         startDate: request.start_date,
-      //         endDate: request.end_date,
-      //         type: request.leave_type?.name || 'Unknown Type'
-      //       };
-      //     });
-      // });
-
-      // Promise.all(response).then((resolvedRequests) => {
-      //   this.requests = resolvedRequests;
-       
-      // });
-      this.requests=response.map((request: any) => {
-        return {
-          id: request.id,
-          employee_id: request.employee_id,
-          employeeName: request.employee?.first_name && request.employee?.last_name 
-            ? `${request.employee.first_name} ${request.employee.last_name}` 
-            : 'Unknown Employee',
-          leave_type_id: request.leave_type_id,
-          startDate: request.start_date,
-          endDate: request.end_date,
-          days: request.days,
-          type: request.leave_type?.name || 'Unknown Type',
-          status: request.status,
-          reason: request.reason
-        };
-        })
-       this.filterRequests();
-        this.loading = false;
-    },
-    error: (error) => {
-      console.error('Error fetching leave requests:', error);
-      this.error = error;
-      this.requests = [];
-      this.filteredRequests = [];
-      this.loading = false;
-    }
-  });
-}
+    });
+  }
 
   setFilter(filter: string): void {
     this.activeFilter = filter;

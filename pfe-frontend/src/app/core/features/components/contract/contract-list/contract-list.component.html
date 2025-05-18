@@ -12,7 +12,7 @@
              [rowsPerPageOptions]="[10,25,50]">
         <ng-template pTemplate="header">
             <tr>
-                <th>Employee ID</th>
+                <th>Employee</th>
                 <th>Type</th>
                 <th>Start Date</th>
                 <th>End Date</th>
@@ -20,10 +20,11 @@
                 <th>Actions</th>
             </tr>
         </ng-template>
+        
         <ng-template pTemplate="body" let-contract>
             <tr>
-                <td>{{contract.employee_id}}</td>
-                <td>{{contract.contract_type === 'medysis' ? 'Medysis' : 'SIVP'}}</td>
+                <td>{{contract.employee?.first_name}} {{contract.employee?.last_name}}</td>
+                <td>{{getContractType(contract)}}</td>
                 <td>{{contract.start_date | date}}</td>
                 <td>{{contract.end_date | date}}</td>
                 <td>{{contract.pattern}}</td>

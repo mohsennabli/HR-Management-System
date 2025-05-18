@@ -11,23 +11,23 @@ export class EmployeeService {
 
   constructor(private api: ApiService) {}
 
-  getAll(params?: any): Observable<any> {
-    return this.api.get(this.endpoint, params);
+  getAll(params?: any): Observable<ApiResponse<Employee[]>> {
+    return this.api.get<ApiResponse<Employee[]>>(this.endpoint, params);
   }
 
-  getById(id: number): Observable<any> {
-    return this.api.get(`${this.endpoint}/${id}`);
+  getById(id: number): Observable<ApiResponse<Employee>> {
+    return this.api.get<ApiResponse<Employee>>(`${this.endpoint}/${id}`);
   }
 
-  create(data: any): Observable<any> {
-    return this.api.post(this.endpoint, data);
+  create(data: any): Observable<ApiResponse<Employee>> {
+    return this.api.post<ApiResponse<Employee>>(this.endpoint, data);
   }
 
-  update(id: number, data: any): Observable<any> {
-    return this.api.put(`${this.endpoint}/${id}`, data);
+  update(id: number, data: any): Observable<ApiResponse<Employee>> {
+    return this.api.put<ApiResponse<Employee>>(`${this.endpoint}/${id}`, data);
   }
 
-  delete(id: number): Observable<any> {
-    return this.api.delete(`${this.endpoint}/${id}`);
+  delete(id: number): Observable<ApiResponse<void>> {
+    return this.api.delete<ApiResponse<void>>(`${this.endpoint}/${id}`);
   }
 }

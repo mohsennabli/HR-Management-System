@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
 
@@ -7,6 +7,8 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './sidebar.component.html',
 })
 export class DashboardSidebarComponent implements OnInit {
+   @Input() collapsed: boolean | undefined;
+  @Output() toggleSidebar = new EventEmitter<void>();
   user: any = null;
 role_id:number=0;
 employe_id:number=0;

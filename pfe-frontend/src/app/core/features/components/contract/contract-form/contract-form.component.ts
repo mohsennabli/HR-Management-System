@@ -2,10 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContractService } from '../contract.service';
+import { EmployeeService } from '../../employee/employee.service';
 import { MessageService } from 'primeng/api';
 import { Contract, SIVPContract, MedysisContract } from '../contract.interface';
-import { EmployeeService } from '../../employee/employee.service';
-import { SelectButtonChangeEvent } from 'primeng/selectbutton';
 
 @Component({
   selector: 'app-contract-form',
@@ -14,25 +13,25 @@ import { SelectButtonChangeEvent } from 'primeng/selectbutton';
 })
 export class ContractFormComponent implements OnInit {
   contractForm: FormGroup;
-  isEditMode = false;
+  employees: any[] = [];
+  loading: boolean = false;
+  isEditMode: boolean = false;
   contractId: number | null = null;
   contractType: 'sivp' | 'medysis' = 'sivp';
-  employees: any[] = [];
-  loading = false;
 
   constructor(
     private fb: FormBuilder,
     private contractService: ContractService,
     private employeeService: EmployeeService,
     private messageService: MessageService,
-    public router: Router,
+    private router: Router,
     private route: ActivatedRoute
   ) {
     this.contractForm = this.fb.group({
       employee_id: ['', Validators.required],
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],
-      pattern: ['', Validators.required],
+      pattern: ['full-time', Validators.required],
       // SIVP specific fields
       duration: [null],
       sign: [''],
@@ -44,21 +43,44 @@ export class ContractFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadEmployees();
-    this.route.params.subscribe(params => {
-      if (params['id']) {
-        this.isEditMode = true;
-        this.contractId = +params['id'];
-        this.loadContract(this.contractId);
-      }
+    this.contractId = Number(this.route.snapshot.paramMap.get('id'));
+    this.isEditMode = !!this.contractId;
+
+    if (this.isEditMode) {
+      this.loadContract();
+    }
+
+    // Subscribe to contract type changes
+    this.route.queryParams.subscribe(params => {
+      this.contractType = params['type'] || 'sivp';
+      this.updateFormValidation();
     });
   }
 
+  updateFormValidation(): void {
+    if (this.contractType === 'sivp') {
+      this.contractForm.get('duration')?.setValidators([Validators.required]);
+      this.contractForm.get('sign')?.setValidators([Validators.required]);
+      this.contractForm.get('breakup')?.setValidators([Validators.required]);
+      this.contractForm.get('type')?.clearValidators();
+    } else {
+      this.contractForm.get('type')?.setValidators([Validators.required]);
+      this.contractForm.get('duration')?.clearValidators();
+      this.contractForm.get('sign')?.clearValidators();
+      this.contractForm.get('breakup')?.clearValidators();
+    }
+
+    // Update validation status
+    this.contractForm.get('duration')?.updateValueAndValidity();
+    this.contractForm.get('sign')?.updateValueAndValidity();
+    this.contractForm.get('breakup')?.updateValueAndValidity();
+    this.contractForm.get('type')?.updateValueAndValidity();
+  }
+
   loadEmployees(): void {
-    this.loading = true;
     this.employeeService.getAll().subscribe({
-      next: (data) => {
-        this.employees = Array.isArray(data) ? data : [];
-        this.loading = false;
+      next: (response) => {
+        this.employees = response.data;
       },
       error: (error) => {
         this.messageService.add({
@@ -66,129 +88,122 @@ export class ContractFormComponent implements OnInit {
           summary: 'Error',
           detail: 'Failed to load employees'
         });
-        this.loading = false;
       }
     });
   }
 
-  loadContract(id: number): void {
-    this.loading = true;
-    this.contractService.getContractById(id).subscribe({
-      next: (contract) => {
-        this.contractType = 'type' in contract ? 'medysis' : 'sivp';
-        const formData = {
-          ...contract,
-          start_date: new Date(contract.start_date),
-          end_date: new Date(contract.end_date)
-        };
-        this.contractForm.patchValue(formData);
-        this.loading = false;
-      },
-      error: (error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to load contract'
-        });
-        this.loading = false;
-      }
-    });
+  loadContract(): void {
+    if (this.contractId) {
+      this.loading = true;
+      this.contractService.getContractById(this.contractId).subscribe({
+        next: (data) => {
+          this.contractForm.patchValue(data);
+          this.loading = false;
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to load contract'
+          });
+          this.loading = false;
+        }
+      });
+    }
   }
 
   onSubmit(): void {
     if (this.contractForm.valid) {
-      const formValue = this.contractForm.value;
-      
-      if (this.contractType === 'sivp') {
-        const sivpContract: SIVPContract = {
-          employee_id: formValue.employee_id,
-          start_date: formValue.start_date,
-          end_date: formValue.end_date,
-          pattern: formValue.pattern,
-          duration: formValue.duration,
-          sign: formValue.sign,
-          breakup: formValue.breakup
-        };
+      this.loading = true;
+      const formData = { ...this.contractForm.value };
 
-        if (this.isEditMode && this.contractId) {
-          this.contractService.updateContract(this.contractId, sivpContract).subscribe({
-            next: () => this.handleSuccess('Contract updated successfully'),
-            error: () => this.handleError('Failed to update contract')
-          });
-        } else {
-          this.contractService.createSIVPContract(sivpContract).subscribe({
-            next: () => this.handleSuccess('Contract created successfully'),
-            error: () => this.handleError('Failed to create contract')
-          });
-        }
-      } else {
-        const medysisContract: MedysisContract = {
-          employee_id: formValue.employee_id,
-          start_date: formValue.start_date,
-          end_date: formValue.end_date,
-          pattern: formValue.pattern,
-          type: formValue.type
-        };
-
-        if (this.isEditMode && this.contractId) {
-          this.contractService.updateContract(this.contractId, medysisContract).subscribe({
-            next: () => this.handleSuccess('Contract updated successfully'),
-            error: () => this.handleError('Failed to update contract')
-          });
-        } else {
-          this.contractService.createMedysisContract(medysisContract).subscribe({
-            next: () => this.handleSuccess('Contract created successfully'),
-            error: () => this.handleError('Failed to create contract')
-          });
-        }
+      // Extract employee_id if it's an object
+      if (formData.employee_id && typeof formData.employee_id === 'object') {
+        formData.employee_id = formData.employee_id.id;
       }
-    }
-  }
 
-  private handleSuccess(message: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: message
-    });
-    this.router.navigate(['/dashboard/contracts']);
-  }
+      // Format dates to ISO string
+      formData.start_date = new Date(formData.start_date).toISOString();
+      formData.end_date = new Date(formData.end_date).toISOString();
 
-  private handleError(message: string): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: message
-    });
-  }
+      // Remove any undefined or null values
+      Object.keys(formData).forEach(key => {
+        if (formData[key] === undefined || formData[key] === null) {
+          delete formData[key];
+        }
+      });
 
-  onTypeChange(event: SelectButtonChangeEvent): void {
-    const type = event.value as 'sivp' | 'medysis';
-    this.contractType = type;
-    
-    // Reset form controls
-    this.contractForm.patchValue({
-      duration: null,
-      sign: '',
-      breakup: '',
-      type: ''
-    });
+      console.log('Submitting contract data:', formData);
 
-    if (type === 'sivp') {
-      this.contractForm.get('type')?.clearValidators();
-      this.contractForm.get('duration')?.setValidators([Validators.required]);
-      this.contractForm.get('sign')?.setValidators([Validators.required]);
-      this.contractForm.get('breakup')?.setValidators([Validators.required]);
+      let request$;
+      if (this.contractType === 'sivp') {
+        request$ = this.isEditMode
+          ? this.contractService.updateContract(this.contractId!, formData)
+          : this.contractService.createSIVPContract(formData);
+      } else {
+        // For Medysis contracts, ensure type is a string
+        if (formData.type) {
+          // If type is an object (from PrimeNG dropdown), extract the value
+          if (typeof formData.type === 'object' && formData.type !== null) {
+            formData.type = formData.type.value || formData.type.name;
+          }
+          // Ensure type is one of the valid values
+          if (!['permanent', 'temporary', 'internship'].includes(formData.type)) {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Invalid contract type'
+            });
+            this.loading = false;
+            return;
+          }
+        }
+
+        // Ensure pattern is one of the valid values
+        if (!['full-time', 'part-time'].includes(formData.pattern)) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Invalid pattern value'
+          });
+          this.loading = false;
+          return;
+        }
+
+        request$ = this.isEditMode
+          ? this.contractService.updateContract(this.contractId!, formData)
+          : this.contractService.createMedysisContract(formData);
+      }
+
+      request$.subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Contract ${this.isEditMode ? 'updated' : 'created'} successfully`
+          });
+          this.router.navigate(['/dashboard/contracts']);
+        },
+        error: (error) => {
+          console.error('Contract submission error:', error);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.error?.message || 'Failed to save contract'
+          });
+          this.loading = false;
+        }
+      });
     } else {
-      this.contractForm.get('duration')?.clearValidators();
-      this.contractForm.get('sign')?.clearValidators();
-      this.contractForm.get('breakup')?.clearValidators();
-      this.contractForm.get('type')?.setValidators([Validators.required]);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Please fill in all required fields'
+      });
     }
+  }
 
-    this.contractForm.get('duration')?.updateValueAndValidity();
-    this.contractForm.get('sign')?.updateValueAndValidity();
-    this.contractForm.get('breakup')?.updateValueAndValidity();
-    this.contractForm.get('type')?.updateValueAndValidity();
+  onCancel(): void {
+    this.router.navigate(['/dashboard/contracts']);
   }
 } 

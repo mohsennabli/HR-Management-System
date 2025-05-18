@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ContractService } from '../contract.service';
-import { Contract } from '../contract.interface';
+import { Contract, SIVPContract, MedysisContract } from '../contract.interface';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Router } from '@angular/router';
 
@@ -26,20 +26,39 @@ export class ContractListComponent implements OnInit {
 
   loadContracts(): void {
     this.loading = true;
+    console.log('Loading contracts...');
     this.contractService.getAllContracts().subscribe({
       next: (data) => {
-        this.contracts = data;
+        console.log('Received data:', data);
+        if (Array.isArray(data)) {
+          this.contracts = data;
+          console.log('Contracts loaded:', this.contracts);
+        } else {
+          this.contracts = [];
+          console.error('Expected array of contracts but got:', data);
+        }
         this.loading = false;
       },
       error: (error) => {
+        console.error('Error loading contracts:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Failed to load contracts'
         });
         this.loading = false;
+        this.contracts = [];
       }
     });
+  }
+
+  getContractType(contract: Contract): string {
+    if ('type' in contract) {
+      return 'Medysis';
+    } else if ('duration' in contract) {
+      return 'SIVP';
+    }
+    return 'Base';
   }
 
   onDelete(id: number): void {

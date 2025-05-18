@@ -25,6 +25,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { SidebarModule } from 'primeng/sidebar';
+import { StepsModule } from 'primeng/steps';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { SidebarModule } from 'primeng/sidebar';
     ToastModule,
     ConfirmDialogModule,
     DialogModule,
-    SidebarModule
+    SidebarModule,
+    StepsModule
   ],
   providers: [EmployeeService],
   exports: [

@@ -4,7 +4,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\User\UserController;
 use App\Http\Controllers\API\Role\RoleController;
-use App\Http\Controllers\API\Permission\PermissionController;
 use App\Http\Controllers\API\Employee\EmployeeController;
 use App\Http\Controllers\API\Leave\LeaveTypeController;
 use App\Http\Controllers\API\Leave\LeaveRequestController;
@@ -48,7 +47,6 @@ Route::apiResource('users', UserController::class);
 
 // Role/Permission Management
 Route::apiResource('roles', RoleController::class);
-Route::apiResource('permissions', PermissionController::class);
 
 Route::apiResource('departments', \App\Http\Controllers\API\Department\DepartmentController::class);
 
@@ -83,3 +81,5 @@ Route::apiResource('disciplinary-actions', DisciplinaryActionController::class);
 // Contract Routes
 Route::apiResource('contracts', ContractController::class);
 Route::get('contracts/employee/{employeeId}', [ContractController::class, 'getEmployeeContracts']);
+Route::post('contracts/sivp', [ContractController::class, 'storeSIVP']);
+Route::post('contracts/medysis', [ContractController::class, 'storeMedysis']);

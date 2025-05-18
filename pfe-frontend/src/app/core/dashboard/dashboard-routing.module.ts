@@ -23,10 +23,7 @@ const routes: Routes = [
         path: 'roles',
         loadChildren: () => import('../features/components/roles/role.module').then(m => m.RoleModule)
       },
-      {
-        path: 'permissions',
-        loadChildren: () => import('../features/components/permissions/permission.module').then(m => m.PermissionModule)
-      },
+     
        {
         path: 'departments',
         loadChildren: () => import('../features/components/department/department.module').then(m => m.DepartmentsModule)

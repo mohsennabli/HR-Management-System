@@ -73,18 +73,17 @@ export class EmployeeListComponent implements OnInit {
     this.loadEmployees();
   }
 
- onView(id: number) {
-  this.employeeService.getById(id).subscribe({
-    next: (data) => {
-      this.selectedEmployee = data;
-      this.isSidebarOpen = true;
-    },
-    error: (err) => {
-      console.error('Failed to load employee details', err);
-    }
-  });
-}
-
+  onView(id: number) {
+    this.employeeService.getById(id).subscribe({
+      next: (response) => {
+        this.selectedEmployee = response.data;
+        this.isSidebarOpen = true;
+      },
+      error: (err) => {
+        console.error('Failed to load employee details', err);
+      }
+    });
+  }
 
   closeModal(): void {
     this.isModalOpen = false;

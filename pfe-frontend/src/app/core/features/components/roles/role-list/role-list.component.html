@@ -28,7 +28,6 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Name</th>
-        <th>Permissions</th>
         <th>Actions</th>
       </tr>
     </ng-template>
@@ -36,25 +35,6 @@
     <ng-template pTemplate="body" let-role>
       <tr>
         <td>{{ role.name }}</td>
-        <td>
-          <div>
-            <span class="font-medium">{{ role.permissions.length }}</span>
-            <span class="ml-1">
-              {{ role.permissions.length === 1 ? 'Permission' : 'Permissions' }}
-            </span>
-          </div>
-          <div class="flex flex-wrap gap-2 mt-1">
-            <span
-              *ngFor="let perm of role.permissions"
-              class="p-tag p-tag-rounded"
-            >
-              {{ perm.name }}
-            </span>
-            <span *ngIf="role.permissions.length === 0" class="text-gray-400">
-              No permissions assigned
-            </span>
-          </div>
-        </td>
         <td class="flex gap-2">
           <button
             pButton

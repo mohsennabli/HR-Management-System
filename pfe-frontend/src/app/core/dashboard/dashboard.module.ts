@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardRoutingModule } from 'src/app/core/dashboard/dashboard-routing.module';
 import { CoreModule } from '../core.module';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 @NgModule({
   declarations: [
@@ -13,7 +14,8 @@ import { CoreModule } from '../core.module';
     CommonModule,
     RouterModule,
     DashboardRoutingModule,
-    CoreModule
+    CoreModule,
+    BreadcrumbModule
   ],
   exports: [DashboardComponent]
 })

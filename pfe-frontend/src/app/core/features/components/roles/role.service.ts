@@ -13,40 +13,26 @@ export class RoleService {
   constructor(private api: ApiService) { }
 
   getRoles(): Observable<ApiResponse<Role[]>> {
-    return this.api.get<ApiResponse<Role[]>>(this.endpoint).pipe(
-      switchMap(response => {
-        if (response && Array.isArray(response.data)) {
-          // Create an array of observables to fetch permissions for each role
-          const rolesWithPermissions$ = response.data.map(role => 
-            this.getRole(role.id).pipe(
-              map(roleResponse => ({
-                ...role,
-                permissions: roleResponse.data.permissions || []
-              }))
-            )
-          );
+  return this.api.get<ApiResponse<Role[]>>(this.endpoint).pipe(
+    map(response => {
+      if (response && Array.isArray(response.data)) {
+        // Simply return the response as is, without fetching permissions
+        return {
+          name: response.name,
+          success: response.success,
+          message: response.message,
+          data: response.data
+        };
+      }
+      return response;
+    }),
+    catchError(error => {
+      console.error('Error fetching roles:', error);
+      return throwError(() => new Error('Failed to fetch roles'));
+    })
+  );
+}
 
-          // Use forkJoin to wait for all permission requests to complete
-          return forkJoin(rolesWithPermissions$).pipe(
-            map(roles => ({
-              name: response.name,
-              success: response.success,
-              message: response.message,
-              data: roles
-            }))
-          );
-        }
-        return new Observable<ApiResponse<Role[]>>(subscriber => {
-          subscriber.next(response);
-          subscriber.complete();
-        });
-      }),
-      catchError(error => {
-        console.error('Error fetching roles:', error);
-        return throwError(() => new Error('Failed to fetch roles'));
-      })
-    );
-  }
 
   getRole(id: number): Observable<RoleResponse> {
     return this.api.get<RoleResponse>(`${this.endpoint}/${id}`);

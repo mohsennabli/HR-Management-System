@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
 import { TrainingParticipantService } from '../training-participant.service';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
+import { MessageService } from 'primeng/api';
+
 @Component({
   selector: 'app-training-edit',
   templateUrl: './training-edit.component.html',
@@ -19,15 +21,14 @@ export class TrainingEditComponent implements OnInit {
   availableEmployees: any[] = [];
   newEmployeeId: number | null = null;
 
-
-
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private trainingService: TrainingProgramService,
     private participantService: TrainingParticipantService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private messageService: MessageService
   ) {
     this.trainingForm = this.fb.group({
       programName: ['', Validators.required],
@@ -50,11 +51,13 @@ export class TrainingEditComponent implements OnInit {
     this.employeeService.getAll().subscribe({
       next: (response) => {
         this.availableEmployees = response.data;
+      },
+      error: (error) => {
+        console.error('Error loading employees:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load employees' });
       }
     });
-
   }
-
 
   loadParticipants() {
     this.participantService.getAllForProgram(this.trainingId).subscribe({

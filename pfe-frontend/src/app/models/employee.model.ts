@@ -21,6 +21,7 @@ export interface Employee {
   cnss_number?: string;
   bank_agency?: string;
   bank_rib?: string;
+  is_user?: boolean;
   user?: {
     id: number;
     email: string;

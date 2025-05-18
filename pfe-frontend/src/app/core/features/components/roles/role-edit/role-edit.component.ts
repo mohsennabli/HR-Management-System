@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoleService } from '../role.service';
-import { PermissionService } from '../../permissions/permission.service';
 import { RoleResponse } from 'src/app/models/role.model';
 import { PermissionsResponse } from 'src/app/models/permission.model';
 
@@ -13,7 +12,6 @@ import { PermissionsResponse } from 'src/app/models/permission.model';
 export class RoleEditComponent implements OnInit {
   roleId!: number;
   name = '';
-  permissions: any[] = [];
   selectedPermissions: number[] = [];
   loading = false;
   error = '';
@@ -21,14 +19,12 @@ export class RoleEditComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private roleService: RoleService,
-    private permissionService: PermissionService
+    private roleService: RoleService
   ) {}
 
   ngOnInit(): void {
     this.roleId = +this.route.snapshot.params['id'];
     this.loadRole();
-    this.loadPermissions();
   }
 
   loadRole(): void {
@@ -41,14 +37,6 @@ export class RoleEditComponent implements OnInit {
     });
   }
 
-  loadPermissions(): void {
-    this.permissionService.getPermissions().subscribe({
-      next: (response: PermissionsResponse) => {
-        this.permissions = response.data;
-      },
-      error: (error) => this.error = 'Failed to load permissions'
-    });
-  }
 
   onSubmit(): void {
     this.loading = true;

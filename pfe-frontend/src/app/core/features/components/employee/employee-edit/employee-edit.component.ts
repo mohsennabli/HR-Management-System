@@ -290,16 +290,16 @@ export class EmployeeEditComponent implements OnInit {
           phone: employee.phone,
           departmentId: employee.department_id,
           position: employee.position,
-          hireDate: employee.hire_date,
+          hireDate: new Date(employee.hire_date),
           salary: employee.salary,
-          birthDate: employee.birth_date,
+          birthDate: employee.birth_date ? new Date(employee.birth_date) : null,
           birthLocation: employee.birth_location,
           maritalStatus: employee.marital_status,
           hasDisabledChild: employee.has_disabled_child,
           address: employee.address,
           diploma: employee.diploma,
           cinNumber: employee.cin_number,
-          cinIssueDate: employee.cin_issue_date,
+          cinIssueDate: employee.cin_issue_date ? new Date(employee.cin_issue_date) : null,
           cinIssueLocation: employee.cin_issue_location,
           cnssNumber: employee.cnss_number,
           bankAgency: employee.bank_agency,
@@ -311,7 +311,7 @@ export class EmployeeEditComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading employee:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load employee data' });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load employee details' });
       }
     });
   }

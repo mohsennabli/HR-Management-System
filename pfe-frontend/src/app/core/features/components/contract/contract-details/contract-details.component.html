@@ -4,71 +4,81 @@
     <div class="flex justify-content-between align-items-center mb-4">
         <h2>Contract Details</h2>
         <div class="flex gap-2">
-            <button pButton label="Back" icon="pi pi-arrow-left" class="p-button-secondary"
-                    (click)="onBack()"></button>
-            <button pButton label="Edit" icon="pi pi-pencil" (click)="onEdit()"></button>
+            <button pButton label="Edit" icon="pi pi-pencil" class="p-button-warning" (click)="onEdit()"></button>
+            <button pButton label="Back" icon="pi pi-arrow-left" class="p-button-secondary" (click)="onBack()"></button>
         </div>
     </div>
 
-    <p-card *ngIf="contract && !loading">
-        <div class="grid">
-            <div class="col-12 md:col-6">
-                <h3>Employee Information</h3>
-                <div class="field">
-                    <label>Name:</label>
-                    <div>{{employee?.name}}</div>
-                </div>
-                <div class="field">
-                    <label>ID:</label>
-                    <div>{{employee?.id}}</div>
-                </div>
-            </div>
-
-            <div class="col-12 md:col-6">
-                <h3>Contract Information</h3>
-                <div class="field">
-                    <label>Type:</label>
-                    <div>{{isSIVPContract(contract) ? 'SIVP' : 'Medysis'}}</div>
-                </div>
-                <div class="field">
-                    <label>Start Date:</label>
-                    <div>{{contract.start_date | date}}</div>
-                </div>
-                <div class="field">
-                    <label>End Date:</label>
-                    <div>{{contract.end_date | date}}</div>
-                </div>
-                <div class="field">
-                    <label>Pattern:</label>
-                    <div>{{contract.pattern}}</div>
-                </div>
-
-                <ng-container *ngIf="isSIVPContract(contract)">
-                    <div class="field">
-                        <label>Duration:</label>
-                        <div>{{contract.duration}} months</div>
+    <div *ngIf="contract" class="grid">
+        <div class="col-12 md:col-6">
+            <div class="card">
+                <h3>Basic Information</h3>
+                <div class="grid">
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label>Employee</label>
+                            <div>{{contract.employee?.first_name}} {{contract.employee?.last_name}}</div>
+                        </div>
                     </div>
-                    <div class="field">
-                        <label>Sign:</label>
-                        <div>{{contract.sign}}</div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label>Pattern</label>
+                            <div>{{contract.pattern}}</div>
+                        </div>
                     </div>
-                    <div class="field">
-                        <label>Breakup:</label>
-                        <div>{{contract.breakup}}</div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label>Start Date</label>
+                            <div>{{contract.start_date | date}}</div>
+                        </div>
                     </div>
-                </ng-container>
-
-                <ng-container *ngIf="!isSIVPContract(contract)">
-                    <div class="field">
-                        <label>Type:</label>
-                        <div>{{contract.type}}</div>
+                    <div class="col-12 md:col-6">
+                        <div class="field">
+                            <label>End Date</label>
+                            <div>{{contract.end_date | date}}</div>
+                        </div>
                     </div>
-                </ng-container>
+                </div>
             </div>
         </div>
-    </p-card>
 
-    <div *ngIf="loading" class="flex justify-content-center">
-        <p-progressSpinner></p-progressSpinner>
+        <div class="col-12 md:col-6">
+            <div class="card">
+                <h3>Contract Type Specific Information</h3>
+                <div class="grid">
+                    <!-- SIVP Contract Fields -->
+                    <ng-container *ngIf="isSIVPContract(contract)">
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label>Duration</label>
+                                <div>{{contract.duration}}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 md:col-6">
+                            <div class="field">
+                                <label>Sign</label>
+                                <div>{{contract.sign}}</div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="field">
+                                <label>Breakup</label>
+                                <div>{{contract.breakup}}</div>
+                            </div>
+                        </div>
+                    </ng-container>
+
+                    <!-- Medysis Contract Fields -->
+                    <ng-container *ngIf="isMedysisContract(contract)">
+                        <div class="col-12">
+                            <div class="field">
+                                <label>Type</label>
+                                <div>{{contract.type}}</div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </div>
     </div>
 </div> 
