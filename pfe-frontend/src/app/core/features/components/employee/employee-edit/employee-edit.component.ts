@@ -3,123 +3,384 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
 import { RoleService } from 'src/app/core/features/components/roles/role.service';
-import { ApiResponse, Employee } from 'src/app/models/employee.model';
+import { Employee } from 'src/app/models/employee.model';
+import { DepartmentService } from '../../department/department.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-employee-edit',
-  templateUrl: './employee-edit.component.html',
-  styleUrls: ['./employee-edit.component.scss'] 
+  template: `
+    <div class="min-h-screen bg-gray-50 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900">Edit Employee</h2>
+            <p-button label="Back to List" icon="pi pi-arrow-left" (onClick)="router.navigate(['../'])"></p-button>
+          </div>
+
+          <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <!-- Basic Information -->
+            <p-card header="Basic Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <input pInputText id="firstName" formControlName="firstName" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched">
+                    First name is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input pInputText id="lastName" formControlName="lastName" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched">
+                    Last name is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input pInputText id="phone" formControlName="phone" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('phone')?.invalid && employeeForm.get('phone')?.touched">
+                    Phone number is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                  <p-dropdown id="department" formControlName="departmentId" [options]="departments" 
+                    optionLabel="name" optionValue="id" placeholder="Select Department" class="w-full">
+                  </p-dropdown>
+                  <small class="text-red-500" *ngIf="employeeForm.get('departmentId')?.invalid && employeeForm.get('departmentId')?.touched">
+                    Department is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                  <input pInputText id="position" formControlName="position" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched">
+                    Position is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="hireDate" class="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
+                  <p-calendar id="hireDate" formControlName="hireDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                  <small class="text-red-500" *ngIf="employeeForm.get('hireDate')?.invalid && employeeForm.get('hireDate')?.touched">
+                    Hire date is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="salary" class="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                  <p-inputNumber id="salary" formControlName="salary" mode="currency" currency="USD" locale="en-US" class="w-full"></p-inputNumber>
+                  <small class="text-red-500" *ngIf="employeeForm.get('salary')?.invalid && employeeForm.get('salary')?.touched">
+                    Salary is required
+                  </small>
+                </div>
+              </div>
+            </p-card>
+
+            <!-- Personal Information -->
+            <p-card header="Personal Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                  <p-calendar id="birthDate" formControlName="birthDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                </div>
+
+                <div class="field">
+                  <label for="birthLocation" class="block text-sm font-medium text-gray-700 mb-1">Birth Location</label>
+                  <input pInputText id="birthLocation" formControlName="birthLocation" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="maritalStatus" class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
+                  <p-dropdown id="maritalStatus" formControlName="maritalStatus" 
+                    [options]="maritalStatuses" placeholder="Select Status" class="w-full">
+                  </p-dropdown>
+                </div>
+
+                <div class="field flex items-center">
+                  <p-checkbox id="hasDisabledChild" formControlName="hasDisabledChild" [binary]="true"></p-checkbox>
+                  <label for="hasDisabledChild" class="ml-2 text-sm font-medium text-gray-700">Has Disabled Child</label>
+                </div>
+
+                <div class="field md:col-span-2">
+                  <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <textarea pInputTextarea id="address" formControlName="address" rows="3" class="w-full"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="diploma" class="block text-sm font-medium text-gray-700 mb-1">Diploma</label>
+                  <input pInputText id="diploma" formControlName="diploma" class="w-full" />
+                </div>
+              </div>
+            </p-card>
+
+            <!-- CIN Information -->
+            <p-card header="CIN Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="cinNumber" class="block text-sm font-medium text-gray-700 mb-1">CIN Number</label>
+                  <input pInputText id="cinNumber" formControlName="cinNumber" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="cinIssueDate" class="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
+                  <p-calendar id="cinIssueDate" formControlName="cinIssueDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                </div>
+
+                <div class="field">
+                  <label for="cinIssueLocation" class="block text-sm font-medium text-gray-700 mb-1">Issue Location</label>
+                  <input pInputText id="cinIssueLocation" formControlName="cinIssueLocation" class="w-full" />
+                </div>
+              </div>
+            </p-card>
+
+            <!-- CNSS and Bank Information -->
+            <p-card header="CNSS and Bank Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="cnssNumber" class="block text-sm font-medium text-gray-700 mb-1">CNSS Registration Number</label>
+                  <input pInputText id="cnssNumber" formControlName="cnssNumber" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="bankAgency" class="block text-sm font-medium text-gray-700 mb-1">Bank Agency</label>
+                  <input pInputText id="bankAgency" formControlName="bankAgency" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="bankRib" class="block text-sm font-medium text-gray-700 mb-1">Bank RIB/RIP</label>
+                  <input pInputText id="bankRib" formControlName="bankRib" class="w-full" />
+                </div>
+              </div>
+            </p-card>
+
+            <!-- User Account Section -->
+            <p-card header="User Account" styleClass="shadow-none border">
+              <div class="space-y-6">
+                <div class="flex items-center">
+                  <p-checkbox id="isUser" formControlName="isUser" [binary]="true" (onChange)="onUserSwitchChange($event)"></p-checkbox>
+                  <label for="isUser" class="ml-2 text-sm font-medium text-gray-700">Create User Account</label>
+                </div>
+
+                <div *ngIf="employeeForm.get('isUser')?.value" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="field">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input pInputText id="email" formControlName="email" class="w-full" />
+                    <small class="text-red-500" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+                      <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
+                      <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
+                    </small>
+                  </div>
+
+                  <div class="field">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input pInputText type="password" id="password" formControlName="password" class="w-full" />
+                    <small class="text-red-500" *ngIf="employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched">
+                      <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
+                      <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
+                    </small>
+                  </div>
+
+                  <div class="field">
+                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <p-dropdown id="role" formControlName="roleId" [options]="roles" 
+                      optionLabel="name" optionValue="id" placeholder="Select Role" class="w-full">
+                    </p-dropdown>
+                    <small class="text-red-500" *ngIf="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched">
+                      Role is required
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </p-card>
+
+            <div class="flex justify-end space-x-4">
+              <p-button label="Cancel" icon="pi pi-times" (onClick)="router.navigate(['../'])" styleClass="p-button-secondary"></p-button>
+              <p-button label="Update Employee" icon="pi pi-check" type="submit" [disabled]="employeeForm.invalid"></p-button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  `,
+  providers: [MessageService]
 })
 export class EmployeeEditComponent implements OnInit {
-  currentDashboard: string | undefined;
   employeeForm: FormGroup;
-  loading = false;
-  error = '';
-  employeeId = 0;
   roles: any[] = [];
-  hasUserAccount = false;
+  departments: any;
+  employeeId!: number;
+  maritalStatuses = [
+    { label: 'Single', value: 'single' },
+    { label: 'Married', value: 'married' },
+    { label: 'Divorced', value: 'divorced' },
+    { label: 'Widowed', value: 'widowed' }
+  ];
 
   constructor(
     private fb: FormBuilder,
+    public router: Router,
     private employeeService: EmployeeService,
     private roleService: RoleService,
     private route: ActivatedRoute,
-    private router: Router
+    private departmentService: DepartmentService,
+    private messageService: MessageService
   ) {
     this.employeeForm = this.fb.group({
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
       phone: ['', Validators.required],
-      department: ['', Validators.required],
+      departmentId: ['', Validators.required],
       position: ['', Validators.required],
-      hire_date: ['', Validators.required],
+      hireDate: ['', Validators.required],
       salary: ['', [Validators.required, Validators.min(0)]],
+      birthDate: [''],
+      birthLocation: [''],
+      maritalStatus: [''],
+      hasDisabledChild: [false],
+      address: [''],
+      diploma: [''],
+      cinNumber: [''],
+      cinIssueDate: [''],
+      cinIssueLocation: [''],
+      cnssNumber: [''],
+      bankAgency: [''],
+      bankRib: [''],
+      isUser: [false],
       email: ['', [Validators.email]],
       password: ['', [Validators.minLength(6)]],
-      role_id: ['']
+      roleId: ['']
     });
   }
 
   ngOnInit(): void {
-    const urlSegments = this.router.url.split('/');
-    this.currentDashboard = urlSegments[1] || 'admin';
-    
-    this.route.paramMap.subscribe(params => {
-      this.employeeId = +params.get('id')!;
-      this.loadEmployee();
-      this.loadRoles();
-    });
-  }
+    this.employeeId = Number(this.route.snapshot.paramMap.get('id'));
 
-  loadRoles(): void {
+    this.departmentService.getDepartments().subscribe({
+      next: (res) => {
+        this.departments = res.data;
+      },
+      error: (err) => {
+        console.error('Error fetching departments', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load departments' });
+      }
+    });
+
     this.roleService.getRoles().subscribe({
       next: (response) => {
         this.roles = response.data;
       },
       error: (error) => {
         console.error('Error loading roles:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load roles' });
       }
     });
-  }
 
-  onCancel() {
-    this.router.navigate([`/${this.currentDashboard}/employees`]);
-  }
-
-  loadEmployee(): void {
-    this.loading = true;
     this.employeeService.getById(this.employeeId).subscribe({
-      next: (response: ApiResponse<Employee>) => {
+      next: (response) => {
         const employee = response.data;
-        this.hasUserAccount = !!employee.user;
-        
         this.employeeForm.patchValue({
-          first_name: employee.first_name,
-          last_name: employee.last_name,
+          firstName: employee.first_name,
+          lastName: employee.last_name,
           phone: employee.phone,
-          department_id: employee.department_id,
+          departmentId: employee.department_id,
           position: employee.position,
-          hire_date: employee.hire_date,
+          hireDate: employee.hire_date,
           salary: employee.salary,
-          email: employee.user?.email || '',
-          role_id: employee.user?.role_id || ''
+          birthDate: employee.birth_date,
+          birthLocation: employee.birth_location,
+          maritalStatus: employee.marital_status,
+          hasDisabledChild: employee.has_disabled_child,
+          address: employee.address,
+          diploma: employee.diploma,
+          cinNumber: employee.cin_number,
+          cinIssueDate: employee.cin_issue_date,
+          cinIssueLocation: employee.cin_issue_location,
+          cnssNumber: employee.cnss_number,
+          bankAgency: employee.bank_agency,
+          bankRib: employee.bank_rib,
+          isUser: employee.is_user,
+          email: employee.email,
+          roleId: employee.role_id
         });
-
-        // Only require password if creating new user account
-        if (!this.hasUserAccount) {
-          this.employeeForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
-        }
-
-        this.loading = false;
       },
-      error: (error: any) => {
-        this.error = 'Failed to load employee';
-        this.loading = false;
+      error: (error) => {
         console.error('Error loading employee:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load employee data' });
       }
     });
+  }
+
+  onUserSwitchChange(event: any): void {
+    const isUser = event.checked;
+    const emailControl = this.employeeForm.get('email');
+    const passwordControl = this.employeeForm.get('password');
+    const roleControl = this.employeeForm.get('roleId');
+
+    if (isUser) {
+      emailControl?.setValidators([Validators.required, Validators.email]);
+      passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
+      roleControl?.setValidators([Validators.required]);
+    } else {
+      emailControl?.clearValidators();
+      passwordControl?.clearValidators();
+      roleControl?.clearValidators();
+    }
+
+    emailControl?.updateValueAndValidity();
+    passwordControl?.updateValueAndValidity();
+    roleControl?.updateValueAndValidity();
   }
 
   onSubmit(): void {
     if (this.employeeForm.valid) {
-      this.loading = true;
-      const formData = this.employeeForm.value;
-      
-      // Only include user-related fields if they have values
-      if (!formData.email) {
-        delete formData.email;
-        delete formData.password;
-        delete formData.role_id;
-      }
+      const formValue = this.employeeForm.value;
+      const employeeData = {
+        first_name: formValue.firstName,
+        last_name: formValue.lastName,
+        phone: formValue.phone,
+        department_id: formValue.departmentId,
+        position: formValue.position,
+        hire_date: formValue.hireDate,
+        salary: formValue.salary,
+        birth_date: formValue.birthDate,
+        birth_location: formValue.birthLocation,
+        marital_status: formValue.maritalStatus,
+        has_disabled_child: formValue.hasDisabledChild,
+        address: formValue.address,
+        diploma: formValue.diploma,
+        cin_number: formValue.cinNumber,
+        cin_issue_date: formValue.cinIssueDate,
+        cin_issue_location: formValue.cinIssueLocation,
+        cnss_number: formValue.cnssNumber,
+        bank_agency: formValue.bankAgency,
+        bank_rib: formValue.bankRib,
+        is_user: formValue.isUser,
+        email: formValue.email,
+        password: formValue.password,
+        role_id: formValue.roleId
+      };
 
-      this.employeeService.update(this.employeeId, formData).subscribe({
-        next: (response: ApiResponse<Employee>) => {
+      this.employeeService.update(this.employeeId, employeeData).subscribe({
+        next: (response) => {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee updated successfully' });
           this.router.navigate(['../'], { relativeTo: this.route });
         },
-        error: (error: any) => {
-          this.error = 'Failed to update employee';
-          this.loading = false;
+        error: (error) => {
           console.error('Error updating employee:', error);
+          if (error.error?.errors) {
+            for (const key in error.error.errors) {
+              if (this.employeeForm.controls[key]) {
+                this.employeeForm.controls[key].setErrors({ backend: error.error.errors[key] });
+              }
+            }
+          }
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update employee' });
         }
       });
     }

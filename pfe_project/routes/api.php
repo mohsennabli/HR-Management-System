@@ -13,6 +13,7 @@ use App\Http\Controllers\API\Training\TrainingParticipantController;
 use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\API\Department\DepartmentController;
+use App\Http\Controllers\API\Contract\ContractController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -78,3 +79,7 @@ Route::patch('training-participants/{id}/status', [TrainingParticipantController
 // Discipline Management
 Route::get('discipline/employees', [DisciplinaryActionController::class, 'getEmployees']);
 Route::apiResource('disciplinary-actions', DisciplinaryActionController::class);
+
+// Contract Routes
+Route::apiResource('contracts', ContractController::class);
+Route::get('contracts/employee/{employeeId}', [ContractController::class, 'getEmployeeContracts']);

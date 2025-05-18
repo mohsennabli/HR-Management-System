@@ -65,6 +65,33 @@
       <p><strong>Position:</strong> {{ selectedEmployee.position }}</p>
       <p><strong>Hire Date:</strong> {{ selectedEmployee.hire_date }}</p>
       <p><strong>Salary:</strong> ${{ selectedEmployee.salary }}</p>
+      
+      <!-- Personal Information -->
+      <div class="mt-4">
+        <h4 class="font-semibold mb-2">Personal Information</h4>
+        <p><strong>Birth Date:</strong> {{ selectedEmployee.birth_date | date }}</p>
+        <p><strong>Birth Location:</strong> {{ selectedEmployee.birth_location }}</p>
+        <p><strong>Marital Status:</strong> {{ selectedEmployee.marital_status }}</p>
+        <p><strong>Has Disabled Child:</strong> {{ selectedEmployee.has_disabled_child ? 'Yes' : 'No' }}</p>
+        <p><strong>Address:</strong> {{ selectedEmployee.address }}</p>
+        <p><strong>Diploma:</strong> {{ selectedEmployee.diploma }}</p>
+      </div>
+
+      <!-- CIN Information -->
+      <div class="mt-4">
+        <h4 class="font-semibold mb-2">CIN Information</h4>
+        <p><strong>CIN Number:</strong> {{ selectedEmployee.cin_number }}</p>
+        <p><strong>Issue Date:</strong> {{ selectedEmployee.cin_issue_date | date }}</p>
+        <p><strong>Issue Location:</strong> {{ selectedEmployee.cin_issue_location }}</p>
+      </div>
+
+      <!-- CNSS and Bank Information -->
+      <div class="mt-4">
+        <h4 class="font-semibold mb-2">CNSS and Bank Information</h4>
+        <p><strong>CNSS Number:</strong> {{ selectedEmployee.cnss_number }}</p>
+        <p><strong>Bank Agency:</strong> {{ selectedEmployee.bank_agency }}</p>
+        <p><strong>Bank RIB/RIP:</strong> {{ selectedEmployee.bank_rib }}</p>
+      </div>
     </div>
   </p-sidebar>
 </div>

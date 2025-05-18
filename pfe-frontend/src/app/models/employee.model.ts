@@ -9,6 +9,18 @@ export interface Employee {
   hire_date: string | Date;
   salary: number;
   role_id?: number;
+  birth_date?: string | Date;
+  birth_location?: string;
+  marital_status?: string;
+  has_disabled_child?: boolean;
+  address?: string;
+  diploma?: string;
+  cin_number?: string;
+  cin_issue_date?: string | Date;
+  cin_issue_location?: string;
+  cnss_number?: string;
+  bank_agency?: string;
+  bank_rib?: string;
   user?: {
     id: number;
     email: string;

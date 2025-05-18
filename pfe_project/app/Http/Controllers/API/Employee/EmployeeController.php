@@ -54,6 +54,18 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
+            'birth_date' => 'nullable|date',
+            'birth_location' => 'nullable|string|max:255',
+            'marital_status' => 'nullable|string|in:single,married,divorced,widowed',
+            'has_disabled_child' => 'nullable|boolean',
+            'address' => 'nullable|string',
+            'diploma' => 'nullable|string|max:255',
+            'cin_number' => 'nullable|string|max:255',
+            'cin_issue_date' => 'nullable|date',
+            'cin_issue_location' => 'nullable|string|max:255',
+            'cnss_number' => 'nullable|string|max:255',
+            'bank_agency' => 'nullable|string|max:255',
+            'bank_rib' => 'nullable|string|max:255',
             'is_user' => 'boolean',
             'email' => 'nullable|email|unique:users,email',
             'password' => 'nullable|min:6',
@@ -67,7 +79,12 @@ class EmployeeController extends Controller
 
         try {
             // Create the employee record
-            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department_id', 'position', 'hire_date', 'salary']);
+            $employeeData = $request->only([
+                'first_name', 'last_name', 'phone', 'department_id', 'position', 
+                'hire_date', 'salary', 'birth_date', 'birth_location', 'marital_status',
+                'has_disabled_child', 'address', 'diploma', 'cin_number', 'cin_issue_date',
+                'cin_issue_location', 'cnss_number', 'bank_agency', 'bank_rib'
+            ]);
             $employee = Employee::create($employeeData);
 
             // If is_user is true, create a user account
@@ -112,6 +129,18 @@ class EmployeeController extends Controller
             'position' => 'required|string|max:255',
             'hire_date' => 'required|date',
             'salary' => 'required|numeric|min:0',
+            'birth_date' => 'nullable|date',
+            'birth_location' => 'nullable|string|max:255',
+            'marital_status' => 'nullable|string|in:single,married,divorced,widowed',
+            'has_disabled_child' => 'nullable|boolean',
+            'address' => 'nullable|string',
+            'diploma' => 'nullable|string|max:255',
+            'cin_number' => 'nullable|string|max:255',
+            'cin_issue_date' => 'nullable|date',
+            'cin_issue_location' => 'nullable|string|max:255',
+            'cnss_number' => 'nullable|string|max:255',
+            'bank_agency' => 'nullable|string|max:255',
+            'bank_rib' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email,' . ($employee->user ? $employee->user->id : 'NULL') . ',id',
             'password' => 'nullable|min:6',
             'role_id' => 'nullable|exists:roles,id'
@@ -123,7 +152,12 @@ class EmployeeController extends Controller
 
         try {
             // Update the employee data
-            $employeeData = $request->only(['first_name', 'last_name', 'phone', 'department_id', 'position', 'hire_date', 'salary']);
+            $employeeData = $request->only([
+                'first_name', 'last_name', 'phone', 'department_id', 'position', 
+                'hire_date', 'salary', 'birth_date', 'birth_location', 'marital_status',
+                'has_disabled_child', 'address', 'diploma', 'cin_number', 'cin_issue_date',
+                'cin_issue_location', 'cnss_number', 'bank_agency', 'bank_rib'
+            ]);
             $employee->update($employeeData);
 
             // Handle user account update

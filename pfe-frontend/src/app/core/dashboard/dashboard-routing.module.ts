@@ -43,6 +43,10 @@ const routes: Routes = [
         path: 'discipline',
         loadChildren: () => import('../features/components/discipline/discipline.module').then(m => m.DisciplineModule)
       },
+      {
+        path: 'contracts',
+        loadChildren: () => import('../features/components/contract/contract.module').then(m => m.ContractModule)
+      },
       //{ path: '', redirectTo: 'employees', pathMatch: 'full' }
     ]
   }

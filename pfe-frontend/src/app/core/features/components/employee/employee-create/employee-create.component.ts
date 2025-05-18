@@ -5,216 +5,230 @@ import { EmployeeService } from 'src/app/core/features/components/employee/emplo
 import { RoleService } from 'src/app/core/features/components/roles/role.service';
 import { Employee } from 'src/app/models/employee.model';
 import { DepartmentService } from '../../department/department.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-employee-create',
   template: `
-    <div class="employee-create">
-      <div class="page-header">
-        <h2>Add New Employee</h2>
+    <div class="min-h-screen bg-gray-50 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-semibold text-gray-900">Add New Employee</h2>
+            <p-button label="Back to List" icon="pi pi-arrow-left" (onClick)="router.navigate(['../'])"></p-button>
+          </div>
+
+          <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <!-- Basic Information -->
+            <p-card header="Basic Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <input pInputText id="firstName" formControlName="firstName" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched">
+                    First name is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input pInputText id="lastName" formControlName="lastName" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched">
+                    Last name is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                  <input pInputText id="phone" formControlName="phone" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('phone')?.invalid && employeeForm.get('phone')?.touched">
+                    Phone number is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="department" class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                  <p-dropdown id="department" formControlName="departmentId" [options]="departments" 
+                    optionLabel="name" optionValue="id" placeholder="Select Department" class="w-full">
+                  </p-dropdown>
+                  <small class="text-red-500" *ngIf="employeeForm.get('departmentId')?.invalid && employeeForm.get('departmentId')?.touched">
+                    Department is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="position" class="block text-sm font-medium text-gray-700 mb-1">Position</label>
+                  <input pInputText id="position" formControlName="position" class="w-full" />
+                  <small class="text-red-500" *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched">
+                    Position is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="hireDate" class="block text-sm font-medium text-gray-700 mb-1">Hire Date</label>
+                  <p-calendar id="hireDate" formControlName="hireDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                  <small class="text-red-500" *ngIf="employeeForm.get('hireDate')?.invalid && employeeForm.get('hireDate')?.touched">
+                    Hire date is required
+                  </small>
+                </div>
+
+                <div class="field">
+                  <label for="salary" class="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                  <p-inputNumber id="salary" formControlName="salary" mode="currency" currency="USD" locale="en-US" class="w-full"></p-inputNumber>
+                  <small class="text-red-500" *ngIf="employeeForm.get('salary')?.invalid && employeeForm.get('salary')?.touched">
+                    Salary is required
+                  </small>
+                </div>
+              </div>
+            </p-card>
+
+            <!-- Personal Information -->
+            <p-card header="Personal Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                  <p-calendar id="birthDate" formControlName="birthDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                </div>
+
+                <div class="field">
+                  <label for="birthLocation" class="block text-sm font-medium text-gray-700 mb-1">Birth Location</label>
+                  <input pInputText id="birthLocation" formControlName="birthLocation" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="maritalStatus" class="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
+                  <p-dropdown id="maritalStatus" formControlName="maritalStatus" 
+                    [options]="maritalStatuses" placeholder="Select Status" class="w-full">
+                  </p-dropdown>
+                </div>
+
+                <div class="field flex items-center">
+                  <p-checkbox id="hasDisabledChild" formControlName="hasDisabledChild" [binary]="true"></p-checkbox>
+                  <label for="hasDisabledChild" class="ml-2 text-sm font-medium text-gray-700">Has Disabled Child</label>
+                </div>
+
+                <div class="field md:col-span-2">
+                  <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <textarea pInputTextarea id="address" formControlName="address" rows="3" class="w-full"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="diploma" class="block text-sm font-medium text-gray-700 mb-1">Diploma</label>
+                  <input pInputText id="diploma" formControlName="diploma" class="w-full" />
+                </div>
+              </div>
+            </p-card>
+
+            <!-- CIN Information -->
+            <p-card header="CIN Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="cinNumber" class="block text-sm font-medium text-gray-700 mb-1">CIN Number</label>
+                  <input pInputText id="cinNumber" formControlName="cinNumber" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="cinIssueDate" class="block text-sm font-medium text-gray-700 mb-1">Issue Date</label>
+                  <p-calendar id="cinIssueDate" formControlName="cinIssueDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                </div>
+
+                <div class="field">
+                  <label for="cinIssueLocation" class="block text-sm font-medium text-gray-700 mb-1">Issue Location</label>
+                  <input pInputText id="cinIssueLocation" formControlName="cinIssueLocation" class="w-full" />
+                </div>
+              </div>
+            </p-card>
+
+            <!-- CNSS and Bank Information -->
+            <p-card header="CNSS and Bank Information" styleClass="shadow-none border">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="field">
+                  <label for="cnssNumber" class="block text-sm font-medium text-gray-700 mb-1">CNSS Registration Number</label>
+                  <input pInputText id="cnssNumber" formControlName="cnssNumber" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="bankAgency" class="block text-sm font-medium text-gray-700 mb-1">Bank Agency</label>
+                  <input pInputText id="bankAgency" formControlName="bankAgency" class="w-full" />
+                </div>
+
+                <div class="field">
+                  <label for="bankRib" class="block text-sm font-medium text-gray-700 mb-1">Bank RIB/RIP</label>
+                  <input pInputText id="bankRib" formControlName="bankRib" class="w-full" />
+                </div>
+              </div>
+            </p-card>
+
+            <!-- User Account Section -->
+            <p-card header="User Account" styleClass="shadow-none border">
+              <div class="space-y-6">
+                <div class="flex items-center">
+                  <p-checkbox id="isUser" formControlName="isUser" [binary]="true" (onChange)="onUserSwitchChange($event)"></p-checkbox>
+                  <label for="isUser" class="ml-2 text-sm font-medium text-gray-700">Create User Account</label>
+                </div>
+
+                <div *ngIf="employeeForm.get('isUser')?.value" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="field">
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input pInputText id="email" formControlName="email" class="w-full" />
+                    <small class="text-red-500" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
+                      <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
+                      <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
+                    </small>
+                  </div>
+
+                  <div class="field">
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input pInputText type="password" id="password" formControlName="password" class="w-full" />
+                    <small class="text-red-500" *ngIf="employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched">
+                      <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
+                      <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
+                    </small>
+                  </div>
+
+                  <div class="field">
+                    <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                    <p-dropdown id="role" formControlName="roleId" [options]="roles" 
+                      optionLabel="name" optionValue="id" placeholder="Select Role" class="w-full">
+                    </p-dropdown>
+                    <small class="text-red-500" *ngIf="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched">
+                      Role is required
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </p-card>
+
+            <div class="flex justify-end space-x-4">
+              <p-button label="Cancel" icon="pi pi-times" (onClick)="router.navigate(['../'])" styleClass="p-button-secondary"></p-button>
+              <p-button label="Save Employee" icon="pi pi-check" type="submit" [disabled]="employeeForm.invalid"></p-button>
+            </div>
+          </form>
+        </div>
       </div>
-      
-      <div class="form-container">
-        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="employee-form text-black">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="firstName">First Name</label>
-              <input type="text" id="firstName" formControlName="firstName" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('firstName')?.invalid && employeeForm.get('firstName')?.touched">
-                First name is required
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="lastName">Last Name</label>
-              <input type="text" id="lastName" formControlName="lastName" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('lastName')?.invalid && employeeForm.get('lastName')?.touched">
-                Last name is required
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="phone">Phone</label>
-              <input type="text" id="phone" formControlName="phone" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('phone')?.invalid && employeeForm.get('phone')?.touched">
-                Phone number is required
-              </div>
-            </div>
-            
-            <select id="department" formControlName="departmentId" class="form-control">
-            <option value="">Select Department</option>
-            <option *ngFor="let dept of departments" [value]="dept.id">{{ dept.name }}</option>
-          </select>
-
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="position">Position</label>
-              <input type="text" id="position" formControlName="position" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('position')?.invalid && employeeForm.get('position')?.touched">
-                Position is required
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="hireDate">Hire Date</label>
-              <input type="date" id="hireDate" formControlName="hireDate" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('hireDate')?.invalid && employeeForm.get('hireDate')?.touched">
-                Hire date is required
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label for="salary">Salary</label>
-              <input type="number" id="salary" formControlName="salary" class="form-control">
-              <div class="error-message" *ngIf="employeeForm.get('salary')?.invalid && employeeForm.get('salary')?.touched">
-                Salary is required
-              </div>
-            </div>
-          </div>
-
-          <div class="user-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label class="switch-label">
-                  <input type="checkbox" formControlName="isUser" (change)="onUserSwitchChange($event)">
-                  Create User Account
-                </label>
-              </div>
-            </div>
-
-            <div class="user-fields" *ngIf="employeeForm.get('isUser')?.value">
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="email">Email</label>
-                  <input type="email" id="email" formControlName="email" class="form-control">
-                  <div class="error-message" *ngIf="employeeForm.get('email')?.invalid && employeeForm.get('email')?.touched">
-                    <div *ngIf="employeeForm.get('email')?.errors?.['required']">Email is required</div>
-                    <div *ngIf="employeeForm.get('email')?.errors?.['email']">Please enter a valid email address</div>
-                  </div>
-                </div>
-
-                <div class="form-group">
-                  <label for="password">Password</label>
-                  <input type="password" id="password" formControlName="password" class="form-control">
-                  <div class="error-message" *ngIf="employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched">
-                    <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
-                    <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="role">Role</label>
-                  <select id="role" formControlName="roleId" class="form-control">
-                    <option value="">Select Role</option>
-                    <option *ngFor="let role of roles" [value]="role.id">{{role.name}}</option>
-                  </select>
-                  <div class="error-message" *ngIf="employeeForm.get('roleId')?.invalid && employeeForm.get('roleId')?.touched">
-                    Role is required
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <button type="button" class="btn-secondary" routerLink="../">Cancel</button>
-            <button type="submit" class="btn-primary" [disabled]="employeeForm.invalid">Save Employee</button>
-          </div>
-        
-      </div>
+    </div>
   `,
-  styles: [`
-    .employee-create {
-      padding: 20px;
-    }
-    .page-header {
-      margin-bottom: 20px;
-    }
-    .form-container {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .form-row {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 15px;
-    }
-    .form-group {
-      flex: 1;
-    }
-    .form-control {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .error-message {
-      color: red;
-      font-size: 12px;
-      margin-top: 5px;
-    }
-    .form-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .btn-primary {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-secondary {
-      background-color: #6c757d;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .user-section {
-      margin-top: 20px;
-      padding-top: 20px;
-      border-top: 1px solid #ddd;
-    }
-    .switch-label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-    .user-fields {
-      margin-top: 15px;
-      padding: 15px;
-      background-color: #f8f9fa;
-      border-radius: 4px;
-    }
-  `]
+  providers: [MessageService]
 })
 export class EmployeeCreateComponent implements OnInit {
   employeeForm: FormGroup;
   roles: any[] = [];
-departments: any;
+  departments: any;
+  maritalStatuses = [
+    { label: 'Single', value: 'single' },
+    { label: 'Married', value: 'married' },
+    { label: 'Divorced', value: 'divorced' },
+    { label: 'Widowed', value: 'widowed' }
+  ];
 
   constructor(
     private fb: FormBuilder,
-    private router: Router,
+    public router: Router,
     private employeeService: EmployeeService,
     private roleService: RoleService,
     private route: ActivatedRoute,
-    private departmentService: DepartmentService
+    private departmentService: DepartmentService,
+    private messageService: MessageService
   ) {
     this.employeeForm = this.fb.group({
       firstName: ['', Validators.required],
@@ -224,6 +238,18 @@ departments: any;
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
       salary: ['', [Validators.required, Validators.min(0)]],
+      birthDate: [''],
+      birthLocation: [''],
+      maritalStatus: [''],
+      hasDisabledChild: [false],
+      address: [''],
+      diploma: [''],
+      cinNumber: [''],
+      cinIssueDate: [''],
+      cinIssueLocation: [''],
+      cnssNumber: [''],
+      bankAgency: [''],
+      bankRib: [''],
       isUser: [false],
       email: ['', [Validators.email]],
       password: ['', [Validators.minLength(6)]],
@@ -234,24 +260,27 @@ departments: any;
   ngOnInit(): void {
     this.departmentService.getDepartments().subscribe({
       next: (res) => {
-        this.departments = res.data; // Adjust based on API response structure
+        this.departments = res.data;
       },
       error: (err) => {
         console.error('Error fetching departments', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load departments' });
       }
     });
+
     this.roleService.getRoles().subscribe({
       next: (response) => {
         this.roles = response.data;
       },
       error: (error) => {
         console.error('Error loading roles:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load roles' });
       }
     });
   }
 
   onUserSwitchChange(event: any): void {
-    const isUser = event.target.checked;
+    const isUser = event.checked;
     const emailControl = this.employeeForm.get('email');
     const passwordControl = this.employeeForm.get('password');
     const roleControl = this.employeeForm.get('roleId');
@@ -282,17 +311,27 @@ departments: any;
         position: formValue.position,
         hire_date: formValue.hireDate,
         salary: formValue.salary,
+        birth_date: formValue.birthDate,
+        birth_location: formValue.birthLocation,
+        marital_status: formValue.maritalStatus,
+        has_disabled_child: formValue.hasDisabledChild,
+        address: formValue.address,
+        diploma: formValue.diploma,
+        cin_number: formValue.cinNumber,
+        cin_issue_date: formValue.cinIssueDate,
+        cin_issue_location: formValue.cinIssueLocation,
+        cnss_number: formValue.cnssNumber,
+        bank_agency: formValue.bankAgency,
+        bank_rib: formValue.bankRib,
         is_user: formValue.isUser,
         email: formValue.email,
         password: formValue.password,
         role_id: formValue.roleId
       };
-  
-      console.log('Payload being sent:', employeeData);
-  
+
       this.employeeService.create(employeeData).subscribe({
         next: (response) => {
-          console.log('Employee created successfully:', response);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee created successfully' });
           this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (error) => {
@@ -304,7 +343,8 @@ departments: any;
               }
             }
           }
-        },
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create employee' });
+        }
       });
     }
   }

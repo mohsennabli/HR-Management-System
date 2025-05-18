@@ -16,12 +16,27 @@ class Employee extends Model
         'department_id',
         'position',
         'hire_date',
-        'salary'
+        'salary',
+        'birth_date',
+        'birth_location',
+        'marital_status',
+        'has_disabled_child',
+        'address',
+        'diploma',
+        'cin_number',
+        'cin_issue_date',
+        'cin_issue_location',
+        'cnss_number',
+        'bank_agency',
+        'bank_rib'
     ];
 
     protected $casts = [
         'hire_date' => 'date',
-        'salary' => 'decimal:2'
+        'salary' => 'decimal:2',
+        'birth_date' => 'date',
+        'cin_issue_date' => 'date',
+        'has_disabled_child' => 'boolean'
     ];
 
     public function user()
