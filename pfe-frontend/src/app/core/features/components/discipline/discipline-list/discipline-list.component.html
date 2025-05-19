@@ -1,9 +1,12 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
 <div class="p-6 space-y-6 bg-gray-50 min-h-screen">
   <h2 class="text-3xl font-bold text-gray-800">Disciplinary Management</h2>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Employees List -->
-    <p-card header="All Employees" styleClass="shadow rounded-xl">
+  <div class="grid" [ngClass]="{'grid-cols-1 md:grid-cols-2 gap-6': canViewAllActions(), 'grid-cols-1': !canViewAllActions()}">
+    <!-- Employees List - Admin and HR only -->
+    <p-card *ngIf="canViewAllActions()" header="All Employees" styleClass="shadow rounded-xl">
       <p-table [value]="employees" [paginator]="true" [rows]="5" responsiveLayout="scroll" stripedRows showGridlines>
         <ng-template pTemplate="header">
           <tr>
@@ -28,7 +31,7 @@
     </p-card>
 
     <!-- Disciplinary Actions List -->
-    <p-card header="Disciplinary Actions" styleClass="shadow rounded-xl">
+    <p-card [header]="canViewAllActions() ? 'Disciplinary Actions' : 'My Disciplinary Actions'" styleClass="shadow rounded-xl">
       <p-table [value]="disciplinaryActions" [paginator]="true" [rows]="5" responsiveLayout="scroll" stripedRows showGridlines>
         <ng-template pTemplate="header">
           <tr>
@@ -57,10 +60,23 @@
             <td>{{ action.action_date | date: 'mediumDate' }}</td>
             <td>{{ action.notes || 'N/A' }}</td>
             <td class="text-right">
-              <button pButton pRipple icon="pi pi-trash" label="Delete"
-                class="p-button-sm p-button-outlined p-button-danger"
-                (click)="deleteAction(action.id)">
+              <!-- Delete button - Conditional based on role and ownership -->
+              <button *ngIf="canDeleteAction(action)"
+                      pButton pRipple icon="pi pi-trash" label="Delete"
+                      class="p-button-sm p-button-outlined p-button-danger"
+                      (click)="deleteAction(action.id)">
               </button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="6" class="text-center py-4">
+              <div class="flex flex-col items-center justify-center text-gray-500">
+                <i class="pi pi-exclamation-circle text-4xl mb-2"></i>
+                <p>No disciplinary actions found</p>
+                <small *ngIf="!canViewAllActions()">You don't have any disciplinary actions</small>
+              </div>
             </td>
           </tr>
         </ng-template>

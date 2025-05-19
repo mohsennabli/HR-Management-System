@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LeaveRequestService } from 'src/app/core/features/components/leave/leave-request.service';
 import { EmployeeService } from '../../employee/employee.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 interface LeaveRequest {
   id: number;
@@ -33,15 +34,54 @@ export class LeaveRequestsComponent implements OnInit {
   requests: LeaveRequest[] = [];
   filteredRequests: LeaveRequest[] = [];
   error: any;
+  currentUserRole: number = 0;
+  currentEmployeeId: number = 0;
 
   constructor(
     private leaveRequestService: LeaveRequestService,
-    private employeeService: EmployeeService // Inject EmployeeService
+    private employeeService: EmployeeService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-    
+    this.loadUserInfo();
     this.fetchLeaveRequests();
+  }
+
+  private loadUserInfo(): void {
+    const profile = localStorage.getItem('profile');
+    if (profile) {
+      const userData = JSON.parse(profile);
+      this.currentUserRole = userData.role_id || 0;
+      this.currentEmployeeId = userData.employee_id || 0;
+    }
+  }
+
+  isAdmin(): boolean {
+    return this.currentUserRole === 1;
+  }
+
+  isHR(): boolean {
+    return this.currentUserRole === 2;
+  }
+
+  isEmployee(): boolean {
+    return this.currentUserRole === 3;
+  }
+
+  canViewAllRequests(): boolean {
+    return this.isAdmin() || this.isHR();
+  }
+
+  canDeleteRequest(request: LeaveRequest): boolean {
+    if (this.isAdmin() || this.isHR()) {
+      return true;
+    }
+    return this.isEmployee() && request.employee_id === this.currentEmployeeId && request.status === 'pending';
+  }
+
+  canApproveRequest(): boolean {
+    return this.isAdmin() || this.isHR();
   }
 
   fetchLeaveRequests(): void {
@@ -57,7 +97,6 @@ export class LeaveRequestsComponent implements OnInit {
           return;
         }
 
-        // If response is empty, set empty arrays and return
         if (response.length === 0) {
           this.requests = [];
           this.filteredRequests = [];
@@ -81,6 +120,12 @@ export class LeaveRequestsComponent implements OnInit {
             reason: request.reason
           };
         });
+
+        // Filter requests based on user role
+        if (!this.canViewAllRequests()) {
+          this.requests = this.requests.filter(request => request.employee_id === this.currentEmployeeId);
+        }
+
         this.filterRequests();
         this.loading = false;
       },
@@ -89,11 +134,6 @@ export class LeaveRequestsComponent implements OnInit {
         this.loading = false;
       }
     });
-  }
-
-  setFilter(filter: string): void {
-    this.activeFilter = filter;
-    this.filterRequests();
   }
 
   filterRequests(): void {
@@ -106,14 +146,19 @@ export class LeaveRequestsComponent implements OnInit {
     }
   }
 
-  openNewRequest(): void {
-    this.fetchLeaveRequests(); // Refresh the data
+  setFilter(filter: string): void {
+    this.activeFilter = filter;
+    this.filterRequests();
   }
 
   updateStatus(id: number, status: 'approved' | 'rejected'): void {
+    if (!this.canApproveRequest()) {
+      return;
+    }
+
     this.leaveRequestService.updateStatus(id, status).subscribe({
       next: () => {
-        this.fetchLeaveRequests(); // Refresh the list after status update
+        this.fetchLeaveRequests();
       },
       error: (error) => {
         console.error('Error updating leave request status:', error);
@@ -122,10 +167,15 @@ export class LeaveRequestsComponent implements OnInit {
   }
 
   deleteRequest(id: number): void {
+    const request = this.requests.find(r => r.id === id);
+    if (!request || !this.canDeleteRequest(request)) {
+      return;
+    }
+
     if (confirm('Are you sure you want to delete this leave request?')) {
       this.leaveRequestService.delete(id).subscribe({
         next: () => {
-          this.fetchLeaveRequests(); // Refresh the list after deletion
+          this.fetchLeaveRequests();
         },
         error: (error) => {
           console.error('Error deleting leave request:', error);

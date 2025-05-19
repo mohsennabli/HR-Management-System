@@ -71,15 +71,21 @@
 
       <!-- Footer Actions -->
       <div class="flex justify-end gap-2 mt-4">
-        <button pButton type="button" icon="pi pi-check" label="Approve"
-                *ngIf="request.status === 'pending'"
-                class="p-button-sm p-button-success"
-                (click)="updateStatus(request.id, 'approved')"></button>
-        <button pButton type="button" icon="pi pi-times" label="Reject"
-                *ngIf="request.status === 'pending'"
-                class="p-button-sm p-button-warning"
-                (click)="updateStatus(request.id, 'rejected')"></button>
+        <!-- Approve/Reject buttons - Admin and HR only -->
+        <ng-container *ngIf="canApproveRequest()">
+          <button pButton type="button" icon="pi pi-check" label="Approve"
+                  *ngIf="request.status === 'pending'"
+                  class="p-button-sm p-button-success"
+                  (click)="updateStatus(request.id, 'approved')"></button>
+          <button pButton type="button" icon="pi pi-times" label="Reject"
+                  *ngIf="request.status === 'pending'"
+                  class="p-button-sm p-button-warning"
+                  (click)="updateStatus(request.id, 'rejected')"></button>
+        </ng-container>
+        
+        <!-- Delete button - Conditional based on role and status -->
         <button pButton type="button" icon="pi pi-trash" label="Delete"
+                *ngIf="canDeleteRequest(request)"
                 class="p-button-sm p-button-danger"
                 (click)="deleteRequest(request.id)"></button>
       </div>

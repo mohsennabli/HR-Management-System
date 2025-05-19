@@ -22,7 +22,8 @@
   </div>
 
   <nav class="flex flex-col gap-4">
-    <div>
+    <!-- Statistics Section - Admin and HR only -->
+    <div *ngIf="canAccess([1, 3])">
       <h3 class="text-gray-500 uppercase text-xs mb-2">Statistics</h3>
       <ul>
         <li>
@@ -32,7 +33,8 @@
       </ul>
     </div>
 
-    <div>
+    <!-- User Management Section - Admin and HR only -->
+    <div *ngIf="canAccess([1, 3])">
       <h3 class="text-gray-500 uppercase text-xs mb-2">User Management</h3>
       <ul>
         <li><a pRipple routerLink="users" routerLinkActive="active"
@@ -42,51 +44,69 @@
       </ul>
     </div>
 
-    <div>
+    <!-- Access Control Section - Admin only -->
+    <div *ngIf="isAdmin()">
       <h3 class="text-gray-500 uppercase text-xs mb-2">Access Control</h3>
       <ul>
         <li><a pRipple routerLink="roles" routerLinkActive="active"
             class="block p-2 rounded hover:bg-blue-100">Manage Roles</a></li>
-             <li><a pRipple routerLink="departments" routerLinkActive="active"
+        <li><a pRipple routerLink="departments" routerLinkActive="active"
             class="block p-2 rounded hover:bg-blue-100">Departments</a></li>
-       
       </ul>
     </div>
 
+    <!-- Leave Management Section -->
     <div>
       <h3 class="text-gray-500 uppercase text-xs mb-2">Leave Management</h3>
       <ul>
-        <li><a pRipple routerLink="leave" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Leave Types</a></li>
-        <li><a pRipple routerLink="leave/requests" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Leave Requests</a></li>
-        <li><a pRipple routerLink="leave/request" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Request a Leave</a></li>
+        <!-- Leave Types - Admin and HR only -->
+        <li *ngIf="canAccess([1, 3])">
+          <a pRipple routerLink="leave" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Leave Types</a>
+        </li>
+        <!-- Leave Requests - All roles -->
+        <li>
+          <a pRipple routerLink="leave/requests" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Leave Requests</a>
+        </li>
+        <!-- Request a Leave - All roles -->
+        <li>
+          <a pRipple routerLink="leave/request" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Request a Leave</a>
+        </li>
       </ul>
     </div>
 
-    <div>
+    <!-- Training Management Section - Admin and HR only -->
+    <div *ngIf="canAccess([1, 2,3])">
       <h3 class="text-gray-500 uppercase text-xs mb-2">Training Management</h3>
       <ul>
-        <li><a pRipple routerLink="training" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Training Programs</a></li>
+        <li>
+          <a pRipple routerLink="training" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Training Programs</a>
+        </li>
       </ul>
     </div>
 
-    <div>
+    <!-- Discipline Management Section - Admin and HR only -->
+    <div *ngIf="canAccess([1,2, 3])">
       <h3 class="text-gray-500 uppercase text-xs mb-2">Discipline Management</h3>
       <ul>
-        <li><a pRipple routerLink="discipline" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Disciplinary Actions</a></li>
-           
+        <li>
+          <a pRipple routerLink="discipline" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Disciplinary Actions</a>
+        </li>
       </ul>
     </div>
 
-    <div>
+    <!-- Contracts Section - Admin and HR only -->
+    <div *ngIf="canAccess([1, 3])">
       <h3 class="text-gray-500 uppercase text-xs mb-2">Contracts</h3>
       <ul>
-        <li><a pRipple routerLink="/dashboard/contracts" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Contracts</a></li>
+        <li>
+          <a pRipple routerLink="/dashboard/contracts" routerLinkActive="active"
+            class="block p-2 rounded hover:bg-blue-100">Contracts</a>
+        </li>
       </ul>
     </div>
   </nav>

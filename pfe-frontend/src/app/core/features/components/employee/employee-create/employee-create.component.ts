@@ -275,7 +275,8 @@ export class EmployeeCreateComponent implements OnInit {
       bankAgency: [''],
       bankRib: [''],
       isUser: [false],
-      email: ['', [Validators.email]],
+      email: [''],
+      password: [''],
       roleId: ['']
     });
     
@@ -364,6 +365,7 @@ export class EmployeeCreateComponent implements OnInit {
         if (this.employeeForm.get('isUser')?.value) {
           return this.fb.group({
             email: this.employeeForm.get('email'),
+            password: this.employeeForm.get('password'),
             roleId: this.employeeForm.get('roleId')
           });
         }
@@ -383,17 +385,24 @@ export class EmployeeCreateComponent implements OnInit {
   onUserSwitchChange(event: any): void {
     const isUser = event.checked;
     const emailControl = this.employeeForm.get('email');
+    const passwordControl = this.employeeForm.get('password');
     const roleControl = this.employeeForm.get('roleId');
 
     if (isUser) {
       emailControl?.setValidators([Validators.required, Validators.email]);
+      passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
       roleControl?.setValidators([Validators.required]);
     } else {
       emailControl?.clearValidators();
+      passwordControl?.clearValidators();
       roleControl?.clearValidators();
+      emailControl?.setValue('');
+      passwordControl?.setValue('');
+      roleControl?.setValue('');
     }
 
     emailControl?.updateValueAndValidity();
+    passwordControl?.updateValueAndValidity();
     roleControl?.updateValueAndValidity();
   }
 
@@ -421,8 +430,9 @@ export class EmployeeCreateComponent implements OnInit {
         bank_agency: formValue.bankAgency,
         bank_rib: formValue.bankRib,
         is_user: formValue.isUser,
-        email: formValue.email,
-        role_id: formValue.roleId
+        email: formValue.isUser ? formValue.email : null,
+        password: formValue.isUser ? formValue.password : null,
+        role_id: formValue.isUser ? formValue.roleId : null
       };
 
       this.employeeService.create(employeeData).subscribe({
@@ -439,7 +449,11 @@ export class EmployeeCreateComponent implements OnInit {
               }
             }
           }
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to create employee' });
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: error.error?.error || 'Failed to create employee' 
+          });
         }
       });
     } else {

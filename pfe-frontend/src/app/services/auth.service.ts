@@ -19,8 +19,9 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password })
       .pipe(
         tap(res => {
+          console.log('Login response:', res);
           this.storeToken(res.access_token);
-          this.storeUser(res.user);  // store user info (including role)
+          this.storeUser(res.user);
         })
       );
   }
@@ -29,8 +30,9 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, { name, email, password, role_id })
       .pipe(
         tap(res => {
+          console.log('Register response:', res);
           this.storeToken(res.access_token);
-          this.storeUser(res.user);  // store user info (including role)
+          this.storeUser(res.user);
         })
       );
   }
@@ -43,7 +45,13 @@ export class AuthService {
   }
 
   me(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/me`);
+    return this.http.get<any>(`${this.apiUrl}/me`).pipe(
+      tap(user => {
+        console.log('Me endpoint response:', user);
+        // Update stored user data with fresh data from server
+        this.storeUser(user);
+      })
+    );
   }
 
   refresh(): Observable<LoginResponse> {
@@ -55,17 +63,29 @@ export class AuthService {
   }
 
   private storeUser(user: any) {
+    console.log('Storing user data:', user);
     localStorage.setItem('user', JSON.stringify(user));
   }
 
   getUser(): any | null {
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    if (user) {
+      const parsedUser = JSON.parse(user);
+      console.log('Retrieved user from storage:', parsedUser);
+      return parsedUser;
+    }
+    return null;
   }
 
-  getUserRole(): string | null {
+  getUserRole(): number {
     const user = this.getUser();
-    return user?.role ?? null;
+    console.log('Getting user role from:', user);
+    if (!user) return 0;
+    
+    // Try different possible role field names
+    const role = user.role_id || user.role?.id || user.role || 0;
+    console.log('Parsed role:', role);
+    return role;
   }
 
   getToken(): string | null {
