@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, of } from 'rxjs';
+import { Router } from '@angular/router';
 
 interface LoginResponse {
   access_token: string;
@@ -13,7 +14,10 @@ interface LoginResponse {
 export class AuthService {
   private apiUrl = 'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password })
@@ -38,10 +42,19 @@ export class AuthService {
   }
 
   logout(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/logout`, {})
-      .pipe(
-        tap(() => this.clearStorage())
-      );
+    const token = this.getToken();
+    if (!token) {
+      this.clearStorage();
+      this.router.navigate(['/login']);
+      return of(null);
+    }
+
+    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+      tap(() => {
+        this.clearStorage();
+        this.router.navigate(['/login']);
+      })
+    );
   }
 
   me(): Observable<any> {
@@ -92,16 +105,27 @@ export class AuthService {
     return localStorage.getItem('access_token');
   }
 
-  isLoggedIn(): boolean {
+  isAuthenticated(): boolean {
     const token = this.getToken();
     if (!token) return false;
-    const decoded = this.decodeToken(token);
-    const expirationDate = decoded.exp * 1000;
-    return Date.now() < expirationDate;
+    
+    try {
+      const decoded = this.decodeToken(token);
+      const expirationDate = decoded.exp * 1000;
+      return Date.now() < expirationDate;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      this.clearStorage();
+      return false;
+    }
+  }
+
+  isLoggedIn(): boolean {
+    return this.isAuthenticated();
   }
 
   getLoggedInUser(): Observable<any> {
-    if (this.isLoggedIn()) {
+    if (this.isAuthenticated()) {
       return this.me();
     } else {
       throw new Error('User not logged in');

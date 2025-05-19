@@ -12,8 +12,19 @@
     </button>
   </div>
 
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="flex justify-center items-center min-h-[200px]">
+    <p-progressSpinner 
+      [style]="{width: '50px', height: '50px'}" 
+      styleClass="custom-spinner" 
+      strokeWidth="8" 
+      fill="var(--surface-ground)" 
+      animationDuration=".5s">
+    </p-progressSpinner>
+  </div>
+
   <!-- Grid Layout for Training Programs -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  <div *ngIf="!isLoading" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
     <!-- Loop through training programs -->
     <div *ngFor="let training of trainingPrograms" class="training-card bg-white p-4 rounded-lg shadow-md hover:shadow-lg">
       <div class="card-header flex justify-between items-center mb-3">
@@ -37,19 +48,24 @@
         <p *ngIf="training.location"><i class="pi pi-map-marker"></i> Location: {{ training.location }}</p>
       </div>
 
-      <div class="card-footer mt-4 flex justify-end gap-2">
-        <!-- View button - available to all -->
+      <!-- Action buttons - Only show for Admin and HR -->
+      <div *ngIf="canCreateProgram()" class="card-footer mt-4 flex justify-end gap-2">
+        <!-- View button -->
         <button pButton type="button" icon="pi pi-eye" label="View" 
                 class="p-button-sm p-button-info"
-                [routerLink]="['/training', training.id]"></button>
+                (click)="openViewDialog(training)"></button>
 
-        <!-- Edit button - Admin and HR only -->
-        <button *ngIf="canCreateProgram()" 
-                pButton type="button" icon="pi pi-pencil" label="Edit" 
+        <!-- Assign Employees button -->
+        <button pButton type="button" icon="pi pi-users" label="Assign" 
+                class="p-button-sm p-button-success"
+                (click)="openEmployeeAssignmentDialog(training)"></button>
+
+        <!-- Edit button -->
+        <button pButton type="button" icon="pi pi-pencil" label="Edit" 
                 class="p-button-sm p-button-warning"
-                [routerLink]="['/training', training.id, 'edit']"></button>
+                (click)="editTraining(training)"></button>
 
-        <!-- Delete button - Conditional based on role and status -->
+        <!-- Delete button -->
         <button *ngIf="canDeleteProgram(training)"
                 pButton type="button" icon="pi pi-trash" label="Delete" 
                 class="p-button-sm p-button-danger"
@@ -65,3 +81,41 @@
     </div>
   </div>
 </div>
+
+<style>
+:host ::ng-deep .custom-spinner .p-progress-spinner-circle {
+  animation: custom-progress-spinner-dash 1.5s ease-in-out infinite, custom-progress-spinner-color 6s ease-in-out infinite;
+}
+
+@keyframes custom-progress-spinner-color {
+  100%,
+  0% {
+    stroke: #166534;
+  }
+  40% {
+    stroke: #059669;
+  }
+  66% {
+    stroke: #34d399;
+  }
+  80%,
+  90% {
+    stroke: #6ee7b7;
+  }
+}
+
+@keyframes custom-progress-spinner-dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124px;
+  }
+}
+</style>

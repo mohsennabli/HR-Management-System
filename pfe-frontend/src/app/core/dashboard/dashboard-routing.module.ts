@@ -48,7 +48,10 @@ const routes: Routes = [
         path: 'contracts',
         loadChildren: () => import('../features/components/contract/contract.module').then(m => m.ContractModule)
       },
-      //{ path: '', redirectTo: 'employees', pathMatch: 'full' }
+      // Default route - redirect to employees
+      { path: '', redirectTo: 'employees', pathMatch: 'full' },
+      // Catch-all route - redirect to employees
+      { path: '**', redirectTo: 'employees' }
     ]
   }
 ];

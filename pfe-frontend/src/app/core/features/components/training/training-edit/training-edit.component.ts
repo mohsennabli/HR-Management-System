@@ -123,6 +123,6 @@ export class TrainingEditComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/training/list']);
+    this.router.navigate(['/dashboard/training']);
   }
 }

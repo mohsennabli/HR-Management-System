@@ -49,12 +49,23 @@ export class LeaveRequestsComponent implements OnInit {
   }
 
   private loadUserInfo(): void {
-    const profile = localStorage.getItem('profile');
-    if (profile) {
-      const userData = JSON.parse(profile);
-      this.currentUserRole = userData.role_id || 0;
-      this.currentEmployeeId = userData.employee_id || 0;
-    }
+    this.authService.getLoggedInUser().subscribe({
+      next: (user) => {
+        this.currentUserRole = user.role_id || 0;
+        this.currentEmployeeId = user.employee_id || 0;
+        console.log('User Info:', { 
+          role: this.currentUserRole, 
+          employeeId: this.currentEmployeeId,
+          user: user 
+        });
+        // Fetch requests after we have the user info
+        this.fetchLeaveRequests();
+      },
+      error: (error) => {
+        console.error('Error loading user info:', error);
+        this.error = 'Failed to load user information';
+      }
+    });
   }
 
   isAdmin(): boolean {
@@ -62,21 +73,24 @@ export class LeaveRequestsComponent implements OnInit {
   }
 
   isHR(): boolean {
-    return this.currentUserRole === 2;
-  }
-
-  isEmployee(): boolean {
     return this.currentUserRole === 3;
   }
 
+  isEmployee(): boolean {
+    return this.currentUserRole === 2;
+  }
+
   canViewAllRequests(): boolean {
-    return this.isAdmin() || this.isHR();
+    const canView = this.isAdmin() || this.isHR();
+    console.log('Can view all requests:', canView);
+    return canView;
   }
 
   canDeleteRequest(request: LeaveRequest): boolean {
     if (this.isAdmin() || this.isHR()) {
-      return true;
+      return true; // Admin and HR can delete any request
     }
+    // Employees can only delete their own pending requests
     return this.isEmployee() && request.employee_id === this.currentEmployeeId && request.status === 'pending';
   }
 
@@ -90,7 +104,10 @@ export class LeaveRequestsComponent implements OnInit {
     
     this.leaveRequestService.getAll().subscribe({
       next: (response) => {
+        console.log('API Response:', response);
+        
         if (!response || !Array.isArray(response)) {
+          console.warn('Invalid response format:', response);
           this.requests = [];
           this.filterRequests();
           this.loading = false;
@@ -98,6 +115,7 @@ export class LeaveRequestsComponent implements OnInit {
         }
 
         if (response.length === 0) {
+          console.log('No leave requests found');
           this.requests = [];
           this.filteredRequests = [];
           this.loading = false;
@@ -121,15 +139,28 @@ export class LeaveRequestsComponent implements OnInit {
           };
         });
 
+        console.log('Mapped requests:', this.requests);
+
         // Filter requests based on user role
         if (!this.canViewAllRequests()) {
-          this.requests = this.requests.filter(request => request.employee_id === this.currentEmployeeId);
+          const beforeFilter = this.requests.length;
+          this.requests = this.requests.filter(request => {
+            const matches = request.employee_id === this.currentEmployeeId;
+            console.log('Comparing request:', {
+              requestEmployeeId: request.employee_id,
+              currentEmployeeId: this.currentEmployeeId,
+              matches: matches
+            });
+            return matches;
+          });
+          console.log('Filtered requests:', { before: beforeFilter, after: this.requests.length });
         }
 
         this.filterRequests();
         this.loading = false;
       },
       error: (error) => {
+        console.error('Error fetching leave requests:', error);
         this.error = error;
         this.loading = false;
       }
@@ -144,6 +175,7 @@ export class LeaveRequestsComponent implements OnInit {
         request.status.toLowerCase() === this.activeFilter
       );
     }
+    console.log('Filtered requests:', this.filteredRequests);
   }
 
   setFilter(filter: string): void {
