@@ -8,6 +8,10 @@ const routes: Routes = [
     component: DashboardComponent,
     children: [
       {
+        path: 'profile',
+        loadChildren: () => import('../features/components/employee-profile/employee-profile.module').then(m => m.EmployeeProfileModule)
+      },
+      {
         path: 'employees',
         loadChildren: () => import('../features/components/employee/employee.module').then(m => m.EmployeeModule)
       },

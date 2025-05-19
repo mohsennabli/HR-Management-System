@@ -9,6 +9,18 @@
     <button pButton type="button" label="Logout" class="p-button-sm p-button-danger w-full" (click)="logout()"></button>
   </div>
 
+  <div>
+    <h3 class="text-gray-500 uppercase text-xs mb-2">My Profile</h3>
+    <ul>
+      <li>
+        <a pRipple routerLink="profile" routerLinkActive="active"
+          class="block p-2 rounded hover:bg-blue-100">
+          <i class="pi pi-user mr-2"></i>View Profile
+        </a>
+      </li>
+    </ul>
+  </div>
+
   <nav class="flex flex-col gap-4">
     <div>
       <h3 class="text-gray-500 uppercase text-xs mb-2">Statistics</h3>
