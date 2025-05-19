@@ -5,6 +5,10 @@ export interface Employee {
   email: string;
   phone: string;
   department_id: number;
+  department?: {
+    id: number;
+    name: string;
+  };
   position: string;
   hire_date: string | Date;
   salary: number;

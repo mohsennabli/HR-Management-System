@@ -50,8 +50,8 @@
         <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" [routerLink]="'edit/' + training.id">
           <i class="fas fa-edit"></i> Edit
         </button>
-        <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" [routerLink]="'edit/' + training.id">
-          <i class="fas fa-user-plus"></i> Add Employees
+        <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" (click)="openEmployeeAssignmentDialog(training)">
+          <i class="fas fa-user-plus"></i> Assign Employees
         </button>
         <button class="action-button bg-white text-black border border-gray-300 px-3 py-1 rounded-lg hover:bg-gray-100 focus:outline-none" (click)="confirmDelete(training)">
           <i class="fas fa-trash"></i> Delete

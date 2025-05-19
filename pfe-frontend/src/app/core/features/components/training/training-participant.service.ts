@@ -3,6 +3,7 @@ import { ApiService } from '../../../../services/api.service';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { map } from 'rxjs/operators';
 export class TrainingParticipantService {
   private endpoint = 'training-participants';
   private programEndpoint = 'training-programs';
-  private apiUrl = 'api/training-participants';
+  private apiUrl = `${environment.apiUrl}/training-participants`;
 
   constructor(private api: ApiService, private http: HttpClient) { }
 
@@ -44,5 +45,22 @@ export class TrainingParticipantService {
     return this.http.get<{data: any[]}>(`${this.apiUrl}/available-employees/${programId}`).pipe(
       map(response => response.data)
     );
+  }
+
+  getByTrainingId(trainingId: number): Observable<any[]> {
+    return this.http.get<{data: any[]}>(`${this.apiUrl}/training/${trainingId}`).pipe(
+      map(response => response.data)
+    );
+  }
+
+  assignEmployees(trainingId: number, employeeIds: number[]): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/assign`, {
+      training_id: trainingId,
+      employee_ids: employeeIds
+    });
+  }
+
+  removeEmployee(trainingId: number, employeeId: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/training/${trainingId}/employee/${employeeId}`);
   }
 } 

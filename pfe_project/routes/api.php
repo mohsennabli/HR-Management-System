@@ -74,6 +74,20 @@ Route::prefix('training-programs/{programId}')->group(function () {
 });
 Route::patch('training-participants/{id}/status', [TrainingParticipantController::class, 'updateStatus']);
 
+// Training Participant Routes
+Route::prefix('training-participants')->group(function () {
+    Route::get('/', [TrainingParticipantController::class, 'index']);
+    Route::get('/training/{trainingId}', [TrainingParticipantController::class, 'getByTrainingId']);
+    Route::post('/assign', [TrainingParticipantController::class, 'assignEmployees']);
+    Route::delete('/training/{trainingId}/employee/{employeeId}', [TrainingParticipantController::class, 'removeEmployee']);
+    Route::post('/{programId}', [TrainingParticipantController::class, 'store']);
+    Route::get('/{id}', [TrainingParticipantController::class, 'show']);
+    Route::put('/{id}', [TrainingParticipantController::class, 'update']);
+    Route::delete('/{id}', [TrainingParticipantController::class, 'destroy']);
+    Route::put('/{id}/status', [TrainingParticipantController::class, 'updateStatus']);
+    Route::get('/available/{programId}', [TrainingParticipantController::class, 'getAvailableEmployees']);
+});
+
 // Discipline Management
 Route::get('discipline/employees', [DisciplinaryActionController::class, 'getEmployees']);
 Route::apiResource('disciplinary-actions', DisciplinaryActionController::class);

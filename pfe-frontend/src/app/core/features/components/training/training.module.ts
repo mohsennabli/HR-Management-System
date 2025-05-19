@@ -9,19 +9,30 @@ import { TrainingRoutingModule } from 'src/app/core/features/components/training
 import { TrainingListComponent } from 'src/app/core/features/components/training/training-list/training-list.component';
 import { TrainingCreateComponent } from 'src/app/core/features/components/training/training-create/training-create.component';
 import { TrainingEditComponent } from 'src/app/core/features/components/training/training-edit/training-edit.component';
+import { TrainingEmployeeAssignComponent } from 'src/app/core/features/components/training/training-employee-assign/training-employee-assign.component';
 
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
 import { TrainingParticipantService } from 'src/app/core/features/components/training/training-participant.service';
 
+// PrimeNG Modules
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { ToastModule } from 'primeng/toast';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CheckboxModule } from 'primeng/checkbox';
+import { DropdownModule } from 'primeng/dropdown';
 
-import { ToastModule } from 'primeng/toast'; // Import the ToastModule from PrimeNG
-import { ConfirmDialogModule } from 'primeng/confirmdialog'; // Import the module for p-confirmDialog
-import { ButtonModule } from 'primeng/button'; // Import the ButtonModule from PrimeNG
 @NgModule({
   declarations: [
     TrainingListComponent,
     TrainingCreateComponent,
-    TrainingEditComponent
+    TrainingEditComponent,
+    TrainingEmployeeAssignComponent
   ],
   imports: [
     CommonModule,
@@ -30,9 +41,17 @@ import { ButtonModule } from 'primeng/button'; // Import the ButtonModule from P
     RouterModule,
     HttpClientModule,
     TrainingRoutingModule,
+    ButtonModule,
+    CardModule,
+    ConfirmDialogModule,
+    DialogModule,
+    DynamicDialogModule,
+    InputTextModule,
+    InputTextareaModule,
     ToastModule,
-    ConfirmDialogModule ,
-    ButtonModule
+    ProgressSpinnerModule,
+    CheckboxModule,
+    DropdownModule
   ],
   providers: [
     TrainingProgramService,

@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
-import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
-import { TrainingParticipantService } from '../training-participant.service';
+
 @Component({
   selector: 'app-training-create',
   template: `
@@ -111,20 +110,6 @@ import { TrainingParticipantService } from '../training-participant.service';
             Location is required
           </div>
         </div>
-        <div class="form-group">
-          <label>Assign Employees</label>
-          <div class="employee-select">
-            <div *ngIf="isLoadingEmployees">Loading employees...</div>
-            <div *ngFor="let employee of employees" class="employee-checkbox">
-              <label>
-                <input type="checkbox" 
-                      [value]="employee.id"
-                      (change)="onEmployeeSelect($event, employee.id)">
-                {{ employee.first_name }} {{ employee.last_name }}
-              </label>
-            </div>
-          </div>
-        </div>
 
         <div class="form-actions">
           <button type="submit" class="btn-primary" [disabled]="!trainingForm.valid">Create Training Program</button>
@@ -218,16 +203,12 @@ import { TrainingParticipantService } from '../training-participant.service';
 })
 export class TrainingCreateComponent implements OnInit {
   trainingForm!: FormGroup;
-  employees: any[] = [];
   isSubmitting = false;
   errorMessage: string = '';
-  isLoadingEmployees = false;
-  selectedEmployees: number[] = [];
 
   constructor(
     private fb: FormBuilder,
     private trainingService: TrainingProgramService,
-    private employeeService: EmployeeService,
     private router: Router
   ) {}
 
@@ -245,107 +226,68 @@ export class TrainingCreateComponent implements OnInit {
       capacity: ['', [Validators.required, Validators.min(1)]],
       instructor: ['', Validators.required],
       location: ['', Validators.required],
-      status: ['upcoming', Validators.required],
-      selectedEmployees: [[], Validators.required]
+      status: ['upcoming', Validators.required]
     });
   }
 
   private setupDateChangeListeners(): void {
-    // Load available employees when dates change
     this.trainingForm.get('startDate')?.valueChanges.subscribe(() => {
-      if (this.trainingForm.get('startDate')?.valid && this.trainingForm.get('endDate')?.valid) {
-        this.loadAvailableEmployees();
-      }
+      this.validateDates();
     });
 
     this.trainingForm.get('endDate')?.valueChanges.subscribe(() => {
-      if (this.trainingForm.get('startDate')?.valid && this.trainingForm.get('endDate')?.valid) {
-        this.loadAvailableEmployees();
-      }
+      this.validateDates();
     });
   }
 
-  onEmployeeSelect(event: Event, employeeId: number): void {
-    const checkbox = event.target as HTMLInputElement;
-    if (checkbox.checked) {
-      this.selectedEmployees.push(employeeId);
-    } else {
-      const index = this.selectedEmployees.indexOf(employeeId);
-      if (index > -1) {
-        this.selectedEmployees.splice(index, 1);
-      }
-    }
-    this.trainingForm.patchValue({ selectedEmployees: this.selectedEmployees });
-  }
-
-  private loadAvailableEmployees(): void {
+  private validateDates(): void {
     const startDate = this.trainingForm.get('startDate')?.value;
     const endDate = this.trainingForm.get('endDate')?.value;
 
-    if (!startDate || !endDate) {
-      return;
-    }
-
-    this.isLoadingEmployees = true;
-
-    // Create a temporary training program to get available employees
-    const tempProgram = {
-      start_date: startDate,
-      end_date: endDate
-    };
-
-    this.trainingService.getAvailableEmployees(tempProgram).subscribe({
-      next: (employees) => {
-        this.employees = employees;
-        this.isLoadingEmployees = false;
-      },
-      error: (err) => {
-        console.error('Failed to load available employees', err);
-        this.errorMessage = 'Failed to load available employees.';
-        this.isLoadingEmployees = false;
+    if (startDate && endDate) {
+      if (new Date(startDate) > new Date(endDate)) {
+        this.trainingForm.get('endDate')?.setErrors({ invalidDate: true });
+      } else {
+        // Clear the invalidDate error if dates are valid
+        const endDateControl = this.trainingForm.get('endDate');
+        if (endDateControl?.errors?.['invalidDate']) {
+          const errors = { ...endDateControl.errors };
+          delete errors['invalidDate'];
+          endDateControl.setErrors(Object.keys(errors).length ? errors : null);
+        }
       }
-    });
+    }
   }
 
   onSubmit(): void {
-    if (this.trainingForm.invalid || this.isSubmitting) {
-      this.trainingForm.markAllAsTouched();
-      return;
-    }
+    if (this.trainingForm.valid) {
+      this.isSubmitting = true;
+      const formData = this.trainingForm.value;
+      
+      const trainingData = {
+        name: formData.programName,
+        description: formData.description,
+        start_date: formData.startDate,
+        end_date: formData.endDate,
+        capacity: formData.capacity,
+        instructor: formData.instructor,
+        location: formData.location,
+        status: formData.status
+      };
 
-    this.isSubmitting = true;
-    this.errorMessage = '';
-
-    // Transform form data to match API expectations
-    const formData = {
-      name: this.trainingForm.value.programName,
-      description: this.trainingForm.value.description,
-      start_date: this.trainingForm.value.startDate,
-      end_date: this.trainingForm.value.endDate,
-      capacity: this.trainingForm.value.capacity,
-      instructor: this.trainingForm.value.instructor,
-      location: this.trainingForm.value.location,
-      status: this.trainingForm.value.status,
-      selectedEmployees: this.trainingForm.value.selectedEmployees
-    };
-
-    this.trainingService.create(formData).subscribe({
-      next: (response) => {
-        this.router.navigate(['/dashboard/training']);
-      },
-      error: (err) => {
-        console.error('Failed to create training program', err);
-        if (err.error?.message) {
-          this.errorMessage = err.error.message;
-        } else {
-          this.errorMessage = 'An error occurred while creating the training program.';
+      this.trainingService.create(trainingData).subscribe({
+        next: (response) => {
+          this.router.navigate(['/training/list']);
+        },
+        error: (error) => {
+          this.errorMessage = error.message || 'An error occurred while creating the training program';
+          this.isSubmitting = false;
         }
-        this.isSubmitting = false;
-      }
-    });
+      });
+    }
   }
 
   onCancel(): void {
-    this.router.navigate(['/dashboard/training']);
+    this.router.navigate(['/training/list']);
   }
 }

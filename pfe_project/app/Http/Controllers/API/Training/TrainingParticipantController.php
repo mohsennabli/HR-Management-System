@@ -7,6 +7,7 @@ use App\Models\TrainingParticipant;
 use App\Models\TrainingProgram;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class TrainingParticipantController extends Controller
 {
@@ -19,6 +20,118 @@ class TrainingParticipantController extends Controller
     {
         $participants = TrainingParticipant::with(['employee', 'trainingProgram'])->get();
         return response()->json(['data' => $participants], 200);
+    }
+
+    /**
+     * Get participants for a specific training program
+     *
+     * @param int $trainingId
+     * @return \Illuminate\Http\Response
+     */
+    public function getByTrainingId($trainingId)
+    {
+        $participants = TrainingParticipant::with('employee')
+            ->where('training_program_id', $trainingId)
+            ->get();
+        return response()->json(['data' => $participants], 200);
+    }
+
+    /**
+     * Assign multiple employees to a training program
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function assignEmployees(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'training_id' => 'required|exists:training_programs,id',
+            'employee_ids' => 'required|array',
+            'employee_ids.*' => 'exists:employees,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $program = TrainingProgram::findOrFail($request->training_id);
+        $currentParticipants = $program->participants()->count();
+        $newParticipants = count($request->employee_ids);
+
+        if ($currentParticipants + $newParticipants > $program->capacity) {
+            return response()->json([
+                'message' => 'Adding these employees would exceed the training program capacity'
+            ], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($request->employee_ids as $employeeId) {
+                // Check for duplicate enrollment
+                $exists = TrainingParticipant::where([
+                    'training_program_id' => $request->training_id,
+                    'employee_id' => $employeeId
+                ])->exists();
+
+                if (!$exists) {
+                    // Check for overlapping training enrollments
+                    $hasOverlap = $this->checkOverlappingTrainingEnrollments(
+                        $employeeId,
+                        $program->start_date,
+                        $program->end_date
+                    );
+
+                    if (!$hasOverlap) {
+                        TrainingParticipant::create([
+                            'training_program_id' => $request->training_id,
+                            'employee_id' => $employeeId,
+                            'status' => 'enrolled'
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Employees assigned successfully'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Failed to assign employees',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove an employee from a training program
+     *
+     * @param int $trainingId
+     * @param int $employeeId
+     * @return \Illuminate\Http\Response
+     */
+    public function removeEmployee($trainingId, $employeeId)
+    {
+        $participant = TrainingParticipant::where([
+            'training_program_id' => $trainingId,
+            'employee_id' => $employeeId
+        ])->first();
+
+        if (!$participant) {
+            return response()->json([
+                'message' => 'Employee is not enrolled in this training program'
+            ], 404);
+        }
+
+        $participant->delete();
+        return response()->json([
+            'message' => 'Employee removed from training program'
+        ], 200);
     }
 
     /**

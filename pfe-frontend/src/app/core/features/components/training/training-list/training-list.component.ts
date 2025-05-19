@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { TrainingEmployeeAssignComponent } from '../training-employee-assign/training-employee-assign.component';
 
 export interface TrainingProgram {
   id: number;
@@ -16,15 +18,17 @@ export interface TrainingProgram {
 @Component({
   selector: 'app-training-list',
   templateUrl: './training-list.component.html',
-  providers: [ConfirmationService, MessageService]
+  providers: [ConfirmationService, MessageService, DialogService]
 })
 export class TrainingListComponent implements OnInit {
   trainingPrograms: TrainingProgram[] = [];
+  ref: DynamicDialogRef | undefined;
 
   constructor(
     private trainingService: TrainingProgramService,
     private confirmationService: ConfirmationService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private dialogService: DialogService
   ) {}
 
   ngOnInit(): void {
@@ -62,6 +66,24 @@ export class TrainingListComponent implements OnInit {
       },
       error: (err) => {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete training program.' });
+      }
+    });
+  }
+
+  openEmployeeAssignmentDialog(training: TrainingProgram): void {
+    this.ref = this.dialogService.open(TrainingEmployeeAssignComponent, {
+      header: `Assign Employees - ${training.name}`,
+      width: '600px',
+      contentStyle: { overflow: 'auto' },
+      baseZIndex: 10000,
+      data: {
+        trainingId: training.id
+      }
+    });
+
+    this.ref.onClose.subscribe((result) => {
+      if (result) {
+        this.fetchTrainings();
       }
     });
   }
