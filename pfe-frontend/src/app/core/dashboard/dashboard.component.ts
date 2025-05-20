@@ -1,80 +1,88 @@
 import { Component, OnInit, HostListener } from '@angular/core';
+import { ThemeService } from 'src/app/services/theme.service';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { RippleModule } from 'primeng/ripple';
+import { DashboardSidebarComponent } from 'src/app/core/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-dashboard',
   template: `
-    <div class="dashboard-container" [ngClass]="{'sidebar-collapsed': sidebarCollapsed}">
-      <app-dashboard-sidebar [collapsed]="sidebarCollapsed" (toggleSidebar)="toggleSidebar()"></app-dashboard-sidebar>
-      <div class="content" [ngClass]="{'expanded': sidebarCollapsed}">
-        <div class="content-header">
-          <button pButton icon="pi pi-bars" class="p-button-text sidebar-toggle" (click)="toggleSidebar()" *ngIf="isMobile"></button>
-          <p-breadcrumb [model]="breadcrumbItems" [home]="homeItem" styleClass="border-none"></p-breadcrumb>
-        </div>
-        <div class="content-body">
-          <router-outlet></router-outlet>
-        </div>
+    <div class="flex min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+      <!-- Sidebar -->
+      <app-dashboard-sidebar 
+        [collapsed]="sidebarCollapsed" 
+        (toggleSidebar)="toggleSidebar()"
+        class="fixed top-0 left-0 h-full z-30 transition-all duration-300"
+        [ngClass]="{'w-72': !sidebarCollapsed, 'w-20': sidebarCollapsed}"
+      ></app-dashboard-sidebar>
+
+      <!-- Main Content -->
+      <div class="flex-1 transition-all duration-300"
+           [ngClass]="{'ml-72': !sidebarCollapsed, 'ml-20': sidebarCollapsed}">
+        <!-- Header -->
+        <header class="sticky top-0 z-20 bg-white dark:bg-gray-800 shadow-sm transition-colors duration-200">
+          <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center space-x-4">
+              <button 
+                pButton 
+                type="button"
+                icon="pi pi-bars"
+                class="p-button-text p-button-rounded"
+                (click)="toggleSidebar()"
+              ></button>
+              <p-breadcrumb 
+                [model]="breadcrumbItems" 
+                [home]="homeItem" 
+                styleClass="border-none"
+              ></p-breadcrumb>
+            </div>
+            <div class="flex items-center space-x-4">
+              <button 
+                pButton 
+                type="button"
+                [icon]="(isDarkMode$ | async) ? 'pi pi-sun' : 'pi pi-moon'"
+                class="p-button-text p-button-rounded"
+                (click)="toggleTheme()"
+                pTooltip="Toggle theme"
+                tooltipPosition="bottom"
+              ></button>
+            </div>
+          </div>
+        </header>
+
+        <!-- Content Area -->
+        <main class="p-6">
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 transition-colors duration-200">
+            <router-outlet></router-outlet>
+          </div>
+        </main>
       </div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
-
-    .dashboard-container {
-      @apply flex min-h-screen bg-white transition-all duration-300 ease-in-out overflow-hidden;
-    }
-    
-    .content {
-      @apply flex-1 ml-72 p-5 transition-all duration-300 ease-in-out bg-white;
-    }
-
-    .content.expanded {
-      @apply ml-20;
-    }
-    
-    .content-header {
-      @apply flex items-center mb-4 bg-white rounded-lg shadow-sm p-3;
-    }
-
-    .content-body {
-      @apply bg-white rounded-lg shadow-sm p-5 min-h-[calc(100vh-130px)];
-    }
-
-    .sidebar-toggle {
-      @apply mr-2;
-    }
-
-    /* Chrome-specific fixes */
-    @media screen and (-webkit-min-device-pixel-ratio: 0) {
-      .dashboard-container {
-        @apply overflow-y-auto;
-      }
-      
-      .content {
-        @apply will-change-transform;
-      }
-    }
-    
-    /* Mobile responsive design */
-    @media (max-width: 768px) {
-      .content {
-        @apply ml-0 w-full;
-      }
-      
-      .content.expanded {
-        @apply ml-0;
-      }
-    }
-  `]
+  styles: [],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    ButtonModule,
+    TooltipModule,
+    BreadcrumbModule,
+    RippleModule,
+    DashboardSidebarComponent
+  ]
 })
 export class DashboardComponent implements OnInit {
   sidebarCollapsed = false;
   isMobile = false;
   breadcrumbItems: any[] = [];
   homeItem: any;
+  isDarkMode$ = this.themeService.isDarkMode$;
+
+  constructor(private themeService: ThemeService) {}
 
   ngOnInit() {
     this.checkScreenSize();
@@ -93,9 +101,11 @@ export class DashboardComponent implements OnInit {
     this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
+  toggleTheme() {
+    this.themeService.toggleTheme();
+  }
+
   setupBreadcrumb() {
     this.homeItem = { icon: 'pi pi-home', routerLink: '/' };
-    // You can set up dynamic breadcrumbs based on the current route
-    // using Router events and ActivatedRoute
   }
 }

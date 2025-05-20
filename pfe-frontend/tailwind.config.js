@@ -4,6 +4,7 @@ module.exports = {
     "./src/**/*.{html,ts}",
     "./node_modules/primeng/**/*.{js,ts}"
   ],
+  darkMode: 'class',
   theme: {
     extend: {},
   },

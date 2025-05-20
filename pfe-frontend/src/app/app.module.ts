@@ -28,6 +28,8 @@ import { ChartModule } from 'primeng/chart';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
+import { TooltipModule } from 'primeng/tooltip';
+import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 @NgModule({
   declarations: [
@@ -49,7 +51,9 @@ import { PasswordModule } from 'primeng/password';
     ProgressBarModule,
     MessageModule,
     PasswordModule,
-    LoginModule
+    LoginModule,
+    TooltipModule,
+    BreadcrumbModule
   ],
   providers: [
     DatePipe,

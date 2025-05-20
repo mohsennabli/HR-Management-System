@@ -1,10 +1,21 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
 
 @Component({
   selector: 'app-dashboard-sidebar',
   templateUrl: './sidebar.component.html',
+  standalone: true,
+  imports: [
+    CommonModule, 
+    RouterModule,
+    ButtonModule,
+    RippleModule
+  ]
 })
 export class DashboardSidebarComponent implements OnInit {
   @Input() collapsed: boolean | undefined;

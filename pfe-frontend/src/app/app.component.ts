@@ -5,7 +5,9 @@ import { filter } from 'rxjs/operators';
 @Component({
   selector: 'app-root',
   template: `
-    <router-outlet></router-outlet>
+    <div class="min-h-screen bg-gray-50">
+      <router-outlet></router-outlet>
+    </div>
   `,
   styles: []
 })

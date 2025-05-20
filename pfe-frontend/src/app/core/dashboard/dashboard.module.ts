@@ -7,15 +7,14 @@ import { CoreModule } from '../core.module';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 
 @NgModule({
-  declarations: [
-    DashboardComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     RouterModule,
     DashboardRoutingModule,
     CoreModule,
-    BreadcrumbModule
+    BreadcrumbModule,
+    DashboardComponent
   ],
   exports: [DashboardComponent]
 })

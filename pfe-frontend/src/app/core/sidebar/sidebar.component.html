@@ -1,111 +1,163 @@
-<div class="flex flex-col shadow-md p-4 min-h-screen bg-white w-64">
-  <div class="mb-6 text-center">
-    <h2 class="text-xl font-bold">Dashboard</h2>
+<div class="h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-colors duration-200">
+  <!-- Logo and Title -->
+  <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex items-center justify-center">
+      <h2 class="text-xl font-bold text-gray-800 dark:text-white" [class.hidden]="collapsed">Dashboard</h2>
+      <i class="pi pi-th-large text-xl text-gray-800 dark:text-white" [class.ml-0]="collapsed"></i>
+    </div>
   </div>
 
-  <div *ngIf="user" class="mb-6 text-center">
-    <div class="font-semibold mb-1">{{ user.name }}</div>
-    <div class="text-gray-500 mb-3">{{ user.email }}</div>
-    <button pButton type="button" label="Logout" class="p-button-sm p-button-danger w-full" (click)="logout()"></button>
+  <!-- User Profile -->
+  <div *ngIf="user" class="p-4 border-b border-gray-200 dark:border-gray-700">
+    <div class="flex flex-col items-center">
+      <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mb-2">
+        <i class="pi pi-user text-blue-600 dark:text-blue-300 text-xl"></i>
+      </div>
+      <div class="text-center" [class.hidden]="collapsed">
+        <div class="font-semibold text-gray-800 dark:text-white">{{ user.name }}</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</div>
+        <button 
+          pButton 
+          type="button" 
+          label="Logout" 
+          icon="pi pi-sign-out"
+          class="p-button-sm p-button-danger w-full mt-2"
+          (click)="logout()"
+        ></button>
+      </div>
+    </div>
   </div>
 
-  <div>
-    <h3 class="text-gray-500 uppercase text-xs mb-2">My Profile</h3>
-    <ul>
-      <li>
-        <a pRipple routerLink="profile" routerLinkActive="active"
-          class="block p-2 rounded hover:bg-blue-100">
-          <i class="pi pi-user mr-2"></i>View Profile
-        </a>
-      </li>
-    </ul>
-  </div>
-
-  <nav class="flex flex-col gap-4">
-    <!-- Statistics Section - Admin and HR only -->
-    <div *ngIf="canAccess([1, 3])">
-      <h3 class="text-gray-500 uppercase text-xs mb-2">Statistics</h3>
-      <ul>
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto p-4">
+    <!-- My Profile Section -->
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">My Profile</h3>
+      <ul class="space-y-1">
         <li>
-          <a pRipple routerLink="statistics" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">HR Analytics</a>
+          <a pRipple 
+             routerLink="profile" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-user mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">View Profile</span>
+          </a>
         </li>
       </ul>
     </div>
 
-    <!-- User Management Section - Admin and HR only -->
-    <div *ngIf="canAccess([1, 3])">
-      <h3 class="text-gray-500 uppercase text-xs mb-2">User Management</h3>
-      <ul>
-        <li><a pRipple routerLink="users" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Manage Users</a></li>
-        <li><a pRipple routerLink="employees" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Manage Employees</a></li>
+    <!-- Statistics Section -->
+    <div *ngIf="canAccess([1, 3])" class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">Statistics</h3>
+      <ul class="space-y-1">
+        <li>
+          <a pRipple 
+             routerLink="statistics" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-chart-bar mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">HR Analytics</span>
+          </a>
+        </li>
       </ul>
     </div>
 
-    <!-- Access Control Section - Admin only -->
-    <div *ngIf="isAdmin()">
-      <h3 class="text-gray-500 uppercase text-xs mb-2">Access Control</h3>
-      <ul>
-        <li><a pRipple routerLink="roles" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Manage Roles</a></li>
-        <li><a pRipple routerLink="departments" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Departments</a></li>
+    <!-- User Management Section -->
+    <div *ngIf="canAccess([1, 3])" class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">User Management</h3>
+      <ul class="space-y-1">
+        <li>
+          <a pRipple 
+             routerLink="users" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-users mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Manage Users</span>
+          </a>
+        </li>
+        <li>
+          <a pRipple 
+             routerLink="employees" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-id-card mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Manage Employees</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Access Control Section -->
+    <div *ngIf="isAdmin()" class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">Access Control</h3>
+      <ul class="space-y-1">
+        <li>
+          <a pRipple 
+             routerLink="roles" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-lock mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Manage Roles</span>
+          </a>
+        </li>
+        <li>
+          <a pRipple 
+             routerLink="departments" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-building mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Departments</span>
+          </a>
+        </li>
       </ul>
     </div>
 
     <!-- Leave Management Section -->
-    <div>
-      <h3 class="text-gray-500 uppercase text-xs mb-2">Leave Management</h3>
-      <ul>
-        <!-- Leave Types - Admin and HR only -->
+    <div class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">Leave Management</h3>
+      <ul class="space-y-1">
         <li *ngIf="canAccess([1, 3])">
-          <a pRipple routerLink="leave" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Leave Types</a>
+          <a pRipple 
+             routerLink="leave" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-calendar mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Leave Types</span>
+          </a>
         </li>
-        <!-- Leave Requests - All roles -->
         <li>
-          <a pRipple routerLink="leave/requests" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Leave Requests</a>
+          <a pRipple 
+             routerLink="leave/requests" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-list mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Leave Requests</span>
+          </a>
         </li>
-        <!-- Request a Leave - All roles -->
         <li>
-          <a pRipple routerLink="leave/request" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Request a Leave</a>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Training Management Section - Admin and HR only -->
-    <div *ngIf="canAccess([1, 2,3])">
-      <h3 class="text-gray-500 uppercase text-xs mb-2">Training Management</h3>
-      <ul>
-        <li>
-          <a pRipple routerLink="training" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Training Programs</a>
-        </li>
-      </ul>
-    </div>
-
-    <!-- Discipline Management Section - Admin and HR only -->
-    <div *ngIf="canAccess([1,2, 3])">
-      <h3 class="text-gray-500 uppercase text-xs mb-2">Discipline Management</h3>
-      <ul>
-        <li>
-          <a pRipple routerLink="discipline" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Disciplinary Actions</a>
+          <a pRipple 
+             routerLink="leave/request" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-plus-circle mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Request a Leave</span>
+          </a>
         </li>
       </ul>
     </div>
 
-    <!-- Contracts Section - Admin and HR only -->
-    <div *ngIf="canAccess([1, 3])">
-      <h3 class="text-gray-500 uppercase text-xs mb-2">Contracts</h3>
-      <ul>
+    <!-- Training Management Section -->
+    <div *ngIf="canAccess([1, 2, 3])" class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">Training Management</h3>
+      <ul class="space-y-1">
         <li>
-          <a pRipple routerLink="/dashboard/contracts" routerLinkActive="active"
-            class="block p-2 rounded hover:bg-blue-100">Contracts</a>
+          <a pRipple 
+             routerLink="training" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-book mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Training Programs</span>
+          </a>
         </li>
       </ul>
     </div>
