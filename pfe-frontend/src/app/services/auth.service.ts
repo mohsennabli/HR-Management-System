@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap, of } from 'rxjs';
 import { Router } from '@angular/router';
 
@@ -23,9 +23,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password })
       .pipe(
         tap(res => {
-          console.log('Login response:', res);
-          this.storeToken(res.access_token);
-          this.storeUser(res.user);
+          if (res.access_token) {
+            this.storeToken(res.access_token);
+            this.storeUser(res.user);
+          }
         })
       );
   }
@@ -49,7 +50,9 @@ export class AuthService {
       return of(null);
     }
 
-    return this.http.post(`${this.apiUrl}/logout`, {}).pipe(
+    return this.http.post(`${this.apiUrl}/logout`, {}, {
+      headers: this.getAuthHeaders()
+    }).pipe(
       tap(() => {
         this.clearStorage();
         this.router.navigate(['/login']);
@@ -58,7 +61,9 @@ export class AuthService {
   }
 
   me(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/me`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/me`, {
+      headers: this.getAuthHeaders()
+    }).pipe(
       tap(user => {
         console.log('Me endpoint response:', user);
         // Update stored user data with fresh data from server
@@ -140,5 +145,19 @@ export class AuthService {
   private decodeToken(token: string): any {
     const payload = token.split('.')[1];
     return JSON.parse(atob(payload));
+  }
+
+  resetPassword(email: string): Observable<{ message: string; email_status: { sent: boolean; email: string } }> {
+    return this.http.post<{ message: string; email_status: { sent: boolean; email: string } }>(
+      `${this.apiUrl}/reset-password`,
+      { email }
+    );
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = this.getToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
   }
 }

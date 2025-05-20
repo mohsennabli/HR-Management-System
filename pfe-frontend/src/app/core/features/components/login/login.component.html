@@ -1,21 +1,70 @@
-<form (ngSubmit)="onSubmit()" class="flex flex-col gap-4 max-w-sm mx-auto p-6 bg-white shadow rounded">
-  <h2 class="text-2xl font-semibold text-center">Login</h2>
-  <p-message *ngIf="errorMsg" severity="error" [text]="errorMsg"></p-message>
-  
-  <div class="flex flex-col gap-2">
-    <label for="email" class="font-medium">Email</label>
-    <input id="email" type="email" pInputText [(ngModel)]="email" name="email" required class="w-full" />
-  </div>
-  
-  <div class="flex flex-col gap-2">
-    <label for="password" class="font-medium">Password</label>
-    <!-- <input id="password" type="password" pInputText [(ngModel)]="password" name="password" minlength="6" required class="w-full"/> -->
-    <p-password [(ngModel)]="password" id="password" name="password"  minlength="6" required [toggleMask]="true"/>
-  </div>
-  
-  <p-button label="Login" type="submit" class="w-full"></p-button>
-  
-  <p class="text-center">
-    Don't have an account? <a routerLink="/register" class="text-blue-600 hover:underline">Register</a>
-  </p>
-</form>
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <p-card class="w-full max-w-md">
+    <ng-template pTemplate="header">
+      <div class="text-center py-4">
+        <h2 class="text-3xl font-bold text-gray-900">Welcome Back</h2>
+        <p class="mt-2 text-sm text-gray-600">Please sign in to your account</p>
+      </div>
+    </ng-template>
+
+    <form (ngSubmit)="onSubmit()" class="space-y-6">
+      <p-message *ngIf="errorMsg" severity="error" [text]="errorMsg" class="w-full"></p-message>
+      
+      <div class="space-y-2">
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-envelope"></i>
+          <input 
+            id="email" 
+            type="email" 
+            pInputText 
+            [(ngModel)]="email" 
+            name="email" 
+            required 
+            class="w-full" 
+            placeholder="Enter your email"
+          />
+        </span>
+      </div>
+      
+      <div class="space-y-2">
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <p-password 
+          [(ngModel)]="password" 
+          id="password" 
+          name="password"  
+          minlength="6" 
+          required 
+          [toggleMask]="true"
+          [feedback]="false"
+          placeholder="Enter your password"
+          styleClass="w-full"
+        ></p-password>
+      </div>
+      
+      <div class="space-y-4">
+        <p-button 
+          label="Sign In" 
+          type="submit" 
+          class="w-full"
+          [loading]="isSubmitting"
+          [disabled]="isSubmitting"
+          icon="pi pi-sign-in"
+        ></p-button>
+        
+        <p-divider align="center">
+          <span class="text-sm text-gray-500">OR</span>
+        </p-divider>
+        
+        <p-button 
+          label="Forgot Password?" 
+          type="button" 
+          class="w-full p-button-text"
+          (onClick)="onForgotPassword()"
+          [disabled]="isSubmitting"
+          icon="pi pi-lock"
+        ></p-button>
+      </div>
+    </form>
+  </p-card>
+</div>

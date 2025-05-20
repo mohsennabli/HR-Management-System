@@ -193,15 +193,6 @@ import { MenuItem } from 'primeng/api';
                       </div>
 
                       <div class="field">
-                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                        <input pInputText type="password" id="password" formControlName="password" class="w-full" />
-                        <small class="text-red-500" *ngIf="employeeForm.get('password')?.invalid && employeeForm.get('password')?.touched">
-                          <div *ngIf="employeeForm.get('password')?.errors?.['required']">Password is required</div>
-                          <div *ngIf="employeeForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
-                        </small>
-                      </div>
-
-                      <div class="field">
                         <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
                         <p-dropdown id="role" formControlName="roleId" [options]="roles" 
                           optionLabel="name" optionValue="id" placeholder="Select Role" class="w-full">
@@ -220,7 +211,13 @@ import { MenuItem } from 'primeng/api';
                 <p-button *ngIf="activeIndex > 0" label="Previous" icon="pi pi-arrow-left" (onClick)="prevStep()" styleClass="p-button-secondary"></p-button>
                 <div class="flex gap-4">
                   <p-button *ngIf="activeIndex < items.length - 1" label="Next" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextStep()"></p-button>
-                  <p-button *ngIf="activeIndex === items.length - 1" label="Save Employee" icon="pi pi-check" (onClick)="onSubmit()" [disabled]="employeeForm.invalid"></p-button>
+                  <p-button *ngIf="activeIndex === items.length - 1" 
+                    label="Save Employee" 
+                    icon="pi pi-check" 
+                    (onClick)="onSubmit()" 
+                    [disabled]="employeeForm.invalid || isSubmitting"
+                    [loading]="isSubmitting">
+                  </p-button>
                 </div>
               </div>
             </form>
@@ -237,6 +234,7 @@ export class EmployeeCreateComponent implements OnInit {
   departments: any;
   activeIndex = 0;
   items: MenuItem[];
+  isSubmitting = false;
   
   maritalStatuses = [
     { label: 'Single', value: 'single' },
@@ -276,7 +274,6 @@ export class EmployeeCreateComponent implements OnInit {
       bankRib: [''],
       isUser: [false],
       email: [''],
-      password: [''],
       roleId: ['']
     });
     
@@ -365,7 +362,6 @@ export class EmployeeCreateComponent implements OnInit {
         if (this.employeeForm.get('isUser')?.value) {
           return this.fb.group({
             email: this.employeeForm.get('email'),
-            password: this.employeeForm.get('password'),
             roleId: this.employeeForm.get('roleId')
           });
         }
@@ -385,62 +381,101 @@ export class EmployeeCreateComponent implements OnInit {
   onUserSwitchChange(event: any): void {
     const isUser = event.checked;
     const emailControl = this.employeeForm.get('email');
-    const passwordControl = this.employeeForm.get('password');
     const roleControl = this.employeeForm.get('roleId');
 
     if (isUser) {
       emailControl?.setValidators([Validators.required, Validators.email]);
-      passwordControl?.setValidators([Validators.required, Validators.minLength(6)]);
       roleControl?.setValidators([Validators.required]);
     } else {
       emailControl?.clearValidators();
-      passwordControl?.clearValidators();
       roleControl?.clearValidators();
       emailControl?.setValue('');
-      passwordControl?.setValue('');
       roleControl?.setValue('');
     }
 
     emailControl?.updateValueAndValidity();
-    passwordControl?.updateValueAndValidity();
     roleControl?.updateValueAndValidity();
   }
 
   onSubmit(): void {
     if (this.employeeForm.valid) {
+      this.isSubmitting = true;
       const formValue = this.employeeForm.value;
+      
+      // Format dates to YYYY-MM-DD
+      const formatDate = (date: Date) => {
+        if (!date) return null;
+        return date instanceof Date ? date.toISOString().split('T')[0] : date;
+      };
+
       const employeeData = {
         first_name: formValue.firstName,
         last_name: formValue.lastName,
         phone: formValue.phone,
         department_id: formValue.departmentId,
         position: formValue.position,
-        hire_date: formValue.hireDate,
+        hire_date: formatDate(formValue.hireDate),
         salary: formValue.salary,
-        birth_date: formValue.birthDate,
+        birth_date: formatDate(formValue.birthDate),
         birth_location: formValue.birthLocation,
         marital_status: formValue.maritalStatus,
         has_disabled_child: formValue.hasDisabledChild,
         address: formValue.address,
         diploma: formValue.diploma,
         cin_number: formValue.cinNumber,
-        cin_issue_date: formValue.cinIssueDate,
+        cin_issue_date: formatDate(formValue.cinIssueDate),
         cin_issue_location: formValue.cinIssueLocation,
         cnss_number: formValue.cnssNumber,
         bank_agency: formValue.bankAgency,
         bank_rib: formValue.bankRib,
         is_user: formValue.isUser,
         email: formValue.isUser ? formValue.email : null,
-        password: formValue.isUser ? formValue.password : null,
         role_id: formValue.isUser ? formValue.roleId : null
       };
 
+      // Validate user account fields if is_user is true
+      if (employeeData.is_user && (!employeeData.email || !employeeData.role_id)) {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Validation Error', 
+          detail: 'Email and role are required when creating a user account.' 
+        });
+        this.isSubmitting = false;
+        return;
+      }
+
       this.employeeService.create(employeeData).subscribe({
         next: (response) => {
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Employee created successfully' });
+          this.isSubmitting = false;
+          
+          // Show success message for employee creation
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Employee created successfully'
+          });
+
+          // Show email status if user account was created
+          if (response.email_status) {
+            if (response.email_status.sent) {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Email Sent',
+                detail: `Login credentials have been sent to ${response.email_status.email}`
+              });
+            } else {
+              this.messageService.add({
+                severity: 'warn',
+                summary: 'Email Not Sent',
+                detail: `Failed to send login credentials to ${response.email_status.email}. Please contact the administrator.`
+              });
+            }
+          }
+
           this.router.navigate(['../'], { relativeTo: this.route });
         },
         error: (error) => {
+          this.isSubmitting = false;
           console.error('Error creating employee:', error);
           if (error.error?.errors) {
             for (const key in error.error.errors) {

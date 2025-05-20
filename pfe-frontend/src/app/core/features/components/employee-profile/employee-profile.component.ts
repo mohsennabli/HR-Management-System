@@ -27,28 +27,28 @@ import { MenuItem } from 'primeng/api';
                 <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
                   <i class="pi pi-user text-6xl text-blue-500"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800">{{ employee?.first_name }} {{ employee?.last_name }}</h3>
-                <p class="text-gray-600">{{ employee?.position ?? 'No Position' }}</p>
-                <p-tag *ngIf="employee?.department?.name" [value]="employee?.department?.name" severity="info" class="mt-2"></p-tag>
+                <h3 class="text-xl font-semibold text-gray-800">{{ employee.first_name }} {{ employee.last_name }}</h3>
+                <p class="text-gray-600">{{ employee.position || 'No Position' }}</p>
+                <p-tag *ngIf="employee.department?.name" [value]="employee.department?.name" severity="info" class="mt-2"></p-tag>
               </div>
             </ng-template>
 
             <div class="space-y-4">
               <div class="flex items-center text-gray-600">
                 <i class="pi pi-envelope mr-2"></i>
-                <span>{{ employee?.email }}</span>
+                <span>{{ employee.email }}</span>
               </div>
               <div class="flex items-center text-gray-600">
                 <i class="pi pi-phone mr-2"></i>
-                <span>{{ employee?.phone || 'No phone number' }}</span>
+                <span>{{ employee.phone || 'No phone number' }}</span>
               </div>
               <div class="flex items-center text-gray-600">
                 <i class="pi pi-calendar mr-2"></i>
-                <span>Hired: {{ employee?.hire_date | date:'mediumDate' }}</span>
+                <span>Hired: {{ employee.hire_date | date:'mediumDate' }}</span>
               </div>
               <div class="flex items-center text-gray-600">
                 <i class="pi pi-map-marker mr-2"></i>
-                <span>{{ employee?.address || 'No address' }}</span>
+                <span>{{ employee.address || 'No address' }}</span>
               </div>
             </div>
           </p-card>
@@ -63,20 +63,20 @@ import { MenuItem } from 'primeng/api';
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Birth Date</label>
-                  <p class="text-gray-900">{{ employee?.birth_date ? (employee.birth_date | date:'mediumDate') : 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.birth_date ? (employee.birth_date | date:'mediumDate') : 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Birth Location</label>
-                  <p class="text-gray-900">{{ employee?.birth_location || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.birth_location || 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Marital Status</label>
-                  <p class="text-gray-900">{{ employee?.marital_status || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.marital_status || 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Disabled Child</label>
-                  <p-tag [value]="employee?.has_disabled_child ? 'Yes' : 'No'" 
-                        [severity]="employee?.has_disabled_child ? 'warning' : 'success'">
+                  <p-tag [value]="employee.has_disabled_child ? 'Yes' : 'No'" 
+                        [severity]="employee.has_disabled_child ? 'warning' : 'success'">
                   </p-tag>
                 </div>
               </div>
@@ -87,19 +87,19 @@ import { MenuItem } from 'primeng/api';
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Department</label>
-                  <p class="text-gray-900">{{ employee?.department?.name || 'Not assigned' }}</p>
+                  <p class="text-gray-900">{{ employee.department?.name || 'Not assigned' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Position</label>
-                  <p class="text-gray-900">{{ employee?.position || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.position || 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Salary</label>
-                  <p class="text-gray-900">{{ employee?.salary ? (employee.salary | currency:'MAD':'symbol-narrow':'1.2-2') : 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.salary ? (employee.salary | currency:'MAD':'symbol-narrow':'1.2-2') : 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Diploma</label>
-                  <p class="text-gray-900">{{ employee?.diploma || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.diploma || 'Not specified' }}</p>
                 </div>
               </div>
             </div>
@@ -109,19 +109,19 @@ import { MenuItem } from 'primeng/api';
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">CIN Number</label>
-                  <p class="text-gray-900">{{ employee?.cin_number || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.cin_number || 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">CIN Issue Date</label>
-                  <p class="text-gray-900">{{ employee?.cin_issue_date ? (employee.cin_issue_date | date:'mediumDate') : 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.cin_issue_date ? (employee.cin_issue_date | date:'mediumDate') : 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">CIN Issue Location</label>
-                  <p class="text-gray-900">{{ employee?.cin_issue_location || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.cin_issue_location || 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">CNSS Number</label>
-                  <p class="text-gray-900">{{ employee?.cnss_number || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.cnss_number || 'Not specified' }}</p>
                 </div>
               </div>
             </div>
@@ -131,11 +131,11 @@ import { MenuItem } from 'primeng/api';
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Bank Agency</label>
-                  <p class="text-gray-900">{{ employee?.bank_agency || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.bank_agency || 'Not specified' }}</p>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-600 mb-1">Bank RIB</label>
-                  <p class="text-gray-900">{{ employee?.bank_rib || 'Not specified' }}</p>
+                  <p class="text-gray-900">{{ employee.bank_rib || 'Not specified' }}</p>
                 </div>
               </div>
             </div>

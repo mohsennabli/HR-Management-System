@@ -7,6 +7,8 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeController extends Controller
 {
@@ -67,9 +69,8 @@ class EmployeeController extends Controller
             'bank_agency' => 'nullable|string|max:255',
             'bank_rib' => 'nullable|string|max:255',
             'is_user' => 'boolean',
-            'email' => 'nullable|email|unique:users,email',
-            'password' => 'nullable|min:6',
-            'role_id' => 'nullable|exists:roles,id'
+            'email' => 'required_if:is_user,true|email|unique:users,email',
+            'role_id' => 'required_if:is_user,true|exists:roles,id'
         ]);
 
         if ($validator->fails()) {
@@ -85,28 +86,91 @@ class EmployeeController extends Controller
                 'has_disabled_child', 'address', 'diploma', 'cin_number', 'cin_issue_date',
                 'cin_issue_location', 'cnss_number', 'bank_agency', 'bank_rib'
             ]);
+
+            Log::info('Creating employee with data:', $employeeData);
             $employee = Employee::create($employeeData);
+            Log::info('Employee created successfully:', ['employee_id' => $employee->id]);
 
             // If is_user is true, create a user account
             if ($request->is_user) {
-                if (!$request->email || !$request->password || !$request->role_id) {
-                    return response()->json(['error' => 'Email, password, and role are required when creating a user account'], 422);
+                if (!$request->email || !$request->role_id) {
+                    Log::error('Missing email or role_id for user creation');
+                    return response()->json(['error' => 'Email and role are required when creating a user account'], 422);
                 }
-                
-                $user = \App\Models\User::create([
-                    'name' => $employee->first_name . ' ' . $employee->last_name,
-                    'email' => $request->email,
-                    'password' => bcrypt($request->password),
-                    'employee_id' => $employee->id,
-                    'role_id' => $request->role_id
-                ]);
+
+                try {
+                    // Generate a secure random password
+                    $password = Str::random(12);
+                    Log::info('Creating user account for employee', [
+                        'employee_id' => $employee->id,
+                        'email' => $request->email,
+                        'role_id' => $request->role_id
+                    ]);
+
+                    $user = \App\Models\User::create([
+                        'name' => $employee->first_name . ' ' . $employee->last_name,
+                        'email' => $request->email,
+                        'password' => \Illuminate\Support\Facades\Hash::make($password),
+                        'employee_id' => $employee->id,
+                        'role_id' => $request->role_id
+                    ]);
+
+                    Log::info('User account created successfully', ['user_id' => $user->id]);
+
+                    // Send email with credentials
+                    try {
+                        Log::info('Attempting to send email to: ' . $user->email);
+                        Log::info('Mail configuration:', [
+                            'driver' => config('mail.default'),
+                            'host' => config('mail.mailers.smtp.host'),
+                            'port' => config('mail.mailers.smtp.port'),
+                            'from_address' => config('mail.from.address'),
+                            'from_name' => config('mail.from.name')
+                        ]);
+                        
+                        // Test email configuration
+                        if (config('mail.mailers.smtp.host') !== 'smtp.mailtrap.io') {
+                            Log::warning('Mail configuration might not be using Mailtrap');
+                        }
+                        
+                        Mail::to($user->email)->send(new \App\Mail\UserCredentialsMail($user->email, $password));
+                        Log::info('Credentials email sent successfully', ['email' => $user->email]);
+                        $emailSent = true;
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send credentials email: ' . $e->getMessage(), [
+                            'trace' => $e->getTraceAsString(),
+                            'mail_config' => [
+                                'driver' => config('mail.default'),
+                                'host' => config('mail.mailers.smtp.host'),
+                                'port' => config('mail.mailers.smtp.port')
+                            ]
+                        ]);
+                        $emailSent = false;
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to create user account: ' . $e->getMessage());
+                    // Delete the employee if user creation fails
+                    $employee->delete();
+                    throw $e;
+                }
             }
 
-            return response()->json(['data' => $employee->fresh(['user'])], 201);
+            $response = [
+                'data' => $employee->fresh(['user']),
+                'email_status' => $request->is_user ? [
+                    'sent' => $emailSent ?? false,
+                    'email' => $request->email
+                ] : null
+            ];
+
+            return response()->json($response, 201);
 
         } catch (\Exception $e) {
-            Log::error('Employee creation failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Employee creation failed'], 500);
+            Log::error('Employee creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            return response()->json(['error' => 'Employee creation failed: ' . $e->getMessage()], 500);
         }
     }
 
@@ -142,7 +206,6 @@ class EmployeeController extends Controller
             'bank_agency' => 'nullable|string|max:255',
             'bank_rib' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:users,email,' . ($employee->user ? $employee->user->id : 'NULL') . ',id',
-            'password' => 'nullable|min:6',
             'role_id' => 'nullable|exists:roles,id'
         ]);
 
@@ -168,9 +231,6 @@ class EmployeeController extends Controller
                         'name' => $employee->first_name . ' ' . $employee->last_name,
                         'email' => $request->email
                     ];
-                    if ($request->has('password')) {
-                        $userData['password'] = bcrypt($request->password);
-                    }
                     if ($request->has('role_id')) {
                         $userData['role_id'] = $request->role_id;
                     }

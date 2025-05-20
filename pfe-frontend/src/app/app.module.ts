@@ -16,7 +16,7 @@ import { SumPipe } from './pipes/sum.pipe';
 import { DatePipe } from '@angular/common';
 
 // 🔥 Auth
-import { LoginComponent } from 'src/app/core/features/components/login/login.component';
+import { LoginModule } from 'src/app/core/features/components/login/login.module';
 
 // ✅ Interceptor & Guard
 import { AuthInterceptor as OldAuthInterceptor } from 'src/app/interceptors/auth.interceptor';
@@ -33,7 +33,6 @@ import { PasswordModule } from 'primeng/password';
   declarations: [
     AppComponent,
     SumPipe,
-    LoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -50,6 +49,7 @@ import { PasswordModule } from 'primeng/password';
     ProgressBarModule,
     MessageModule,
     PasswordModule,
+    LoginModule
   ],
   providers: [
     DatePipe,
