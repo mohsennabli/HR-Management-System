@@ -1,0 +1,69 @@
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h4>Feuille de Présence</h4>
+      <br>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <label for="dateFilter" class="form-label">Date:</label>
+          <input type="date" id="dateFilter" class="form-control" 
+                 [(ngModel)]="selectedDate" (change)="onDateChange(selectedDate)">
+        </div>
+        <div class="col-md-4">
+          <label for="userFilter" class="form-label">Filtrer par employé (ID):</label>
+          <input type="text" id="userFilter" class="form-control" 
+                 [(ngModel)]="selectedUserId" (change)="onUserFilter(selectedUserId)">
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="isLoading" class="text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="!isLoading && !errorMessage">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>ID Pointage</th>
+              <th>Employé</th>
+              <th>Département</th>
+              <th>Date/Heure</th>
+              <th>Type</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let att of attendances">
+              <td>{{ att.uid }}</td>
+              <td>{{ att.employe_name }}</td>
+              <td>{{ att.departement_name }}</td>
+              <td>{{ att.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+              <td>
+                <span [ngClass]="{
+                  'badge bg-primary': att.type === 0,
+                  'badge bg-success': att.type === 1,
+                  'badge bg-warning': att.type === 2
+                }">
+                  {{ getTypeLabel(att.type) }}
+                </span>
+              </td>
+              <td>{{ att.state }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="attendances.length === 0" class="alert alert-info">
+          Aucun pointage trouvé pour cette date.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

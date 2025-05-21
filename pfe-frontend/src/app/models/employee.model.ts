@@ -25,6 +25,7 @@ export interface Employee {
   cnss_number?: string;
   bank_agency?: string;
   bank_rib?: string;
+  pin?:number;
   is_user?: boolean;
   user?: {
     id: number;

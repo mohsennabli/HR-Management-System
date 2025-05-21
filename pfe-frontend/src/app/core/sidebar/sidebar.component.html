@@ -102,6 +102,15 @@
         </li>
         <li>
           <a pRipple 
+             routerLink="/dashboard/contracts" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-lock mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Contracts</span>
+          </a>
+        </li>
+        <li>
+          <a pRipple 
              routerLink="departments" 
              routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
              class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -157,6 +166,24 @@
              class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             <i class="pi pi-book mr-3 text-gray-500 dark:text-gray-400"></i>
             <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Training Programs</span>
+          </a>
+        </li>
+        <li>
+          <a pRipple 
+             routerLink="attendance"
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-book mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Attendance</span>
+          </a>
+        </li>
+        <li>
+          <a pRipple 
+             routerLink="/dashboard/attendance/workinghours"
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-book mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">WorkHours</span>
           </a>
         </li>
       </ul>

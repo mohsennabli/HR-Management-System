@@ -274,7 +274,7 @@ export class EmployeeCreateComponent implements OnInit {
       bankRib: [''],
       isUser: [false],
       email: [''],
-      roleId: ['']
+      roleId: [''],
     });
     
     this.items = [

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Jmrashed\Zkteco\Lib\ZKTeco;
+
 
 class EmployeeController extends Controller
 {
@@ -89,6 +91,9 @@ class EmployeeController extends Controller
 
             Log::info('Creating employee with data:', $employeeData);
             $employee = Employee::create($employeeData);
+            $PIN=  $this->AddUser($employee,"192.168.121.210",4370);
+            $employee->pin=$PIN;
+            $employee->update($request->all());
             Log::info('Employee created successfully:', ['employee_id' => $employee->id]);
 
             // If is_user is true, create a user account
@@ -274,5 +279,23 @@ class EmployeeController extends Controller
     {
         $roles = \App\Models\Role::all();
         return response()->json(['data' => $roles], 200);
+    }
+
+    public function AddUser(Employe $emp,string $ip,int $port){
+        try {
+            $zk = new ZKTeco($ip, $port);
+
+            if (!$zk->connect()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Unable to connect to device at $ip:$port"
+                ], 500);
+            }
+            $PIN = random_int(100000, 999999);
+            $zk->setUser($emp->id,$emp->id,$emp->nom,$PIN,0,0);
+             return $PIN;
+        } catch (\Throwable $e) {
+            return 0;
+        }
     }
 }

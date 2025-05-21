@@ -20,7 +20,7 @@ export class LoginComponent {
   password = '';
   errorMsg = '';
   isSubmitting = false;
-
+  role_id=0;
   constructor(
     private auth: AuthService, 
     private router: Router,
@@ -38,7 +38,8 @@ export class LoginComponent {
           summary: 'Success',
           detail: 'Login successful'
         });
-        this.router.navigate(['/dashboard']);
+        this.role_id=JSON.parse(localStorage.getItem('user')as string).role_id;
+        this.router.navigate([this.role_id!=2?'/dashboard/employees':'/dashboard/profile']);
       },
       error: err => {
         this.isSubmitting = false;

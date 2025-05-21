@@ -1,0 +1,121 @@
+<div class="container my-4">
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover table-striped align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>Nom</th>
+          <th>Lundi</th>
+          <th>Mardi</th>
+          <th>Mercredi</th>
+          <th>Jeudi</th>
+          <th>Vendredi</th>
+          <th>Samedi</th>
+          <th>Dimanche</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let work of workHour">
+          <td class="fw-bold"><p>{{ work.nom }}</p></td>
+
+          <!-- Monday -->
+          <td>
+            <ng-container *ngIf="work.MonHours; else absentMon">
+              <p><strong>Heures :</strong> {{ work.MonHours.hours|number:'1.0-2'}} Heures</p>
+              <p class="text-muted">Pause : {{ work.MonHours.pause }} Minutes</p>
+              <p class="text-muted">Nb Pauses : {{ work.MonHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentMon>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Tuesday -->
+          <td>
+            <ng-container *ngIf="work.TueHours; else absentTue">
+              <p><strong>Heures :</strong> {{ work.TueHours.hours|number:'1.0-2' }} Heures</p>
+              <p class="text-muted">Pause : {{ work.TueHours.pause }} Minutes</p>
+              <p class="text-muted">Nb Pauses : {{ work.TueHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentTue>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Wednesday -->
+          <td>
+            <ng-container *ngIf="work.WedHours; else absentWed">
+              <p><strong>Heures :</strong> {{ work.WedHours.hours|number:'1.0-2' }}Heures</p>
+              <p class="text-muted">Pause : {{ work.WedHours.pause }} Minutes</p>
+              <p class="text-muted">Nb Pauses : {{ work.WedHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentWed>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Thursday -->
+          <td>
+            <ng-container *ngIf="work.ThuHours; else absentThu">
+              <p><strong>Heures :</strong> {{ work.ThuHours.hours|number:'1.0-2' }} Heures</p>
+              <p class="text-muted">Pause : {{ work.ThuHours.pause }} Minutes</p>
+              <p class="text-muted">Nb Pauses : {{ work.ThuHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentThu>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Friday -->
+          <td>
+            <ng-container *ngIf="work.FriHours; else absentFri">
+              <p><strong>Heures :</strong> {{ work.FriHours.hours |number:'1.0-2' }} Heures</p>
+              <p class="text-muted">Pause : {{ work.FriHours.pause }} Minutes/p>
+              <p class="text-muted">Nb Pauses : {{ work.FriHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentFri>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Saturday -->
+          <td>
+            <ng-container *ngIf="work.SatHours; else absentSat">
+              <p><strong>Heures :</strong> {{ work.SatHours.hours|number:'1.0-2' }} Heures</p>
+              <p class="text-muted">Pause : {{ work.SatHours.pause }} Minutes</p>
+              <p class="text-muted">Nb Pauses : {{ work.SatHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentSat>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Sunday -->
+          <td>
+            <ng-container *ngIf="work.SunHours; else absentSun">
+              <p><strong>Heures :</strong> {{ work.SunHours.hours|number:'1.0-2'}} Heures</p>
+              <p class="text-muted">Pause : {{ work.SunHours.pause }} Minutes</p>
+              <p class="text-muted">Nb Pauses : {{ work.SunHours.nbPause }}</p>
+            </ng-container>
+            <ng-template #absentSun>
+              <span class="text-danger">Absent ou Erreur Pointage</span>
+            </ng-template>
+          </td>
+
+          <!-- Total -->
+          <td class="fw-bold text-primary">
+            {{ 
+             ( (work.MonHours?.hours || 0) +
+              (work.TueHours?.hours || 0) +
+              (work.WedHours?.hours || 0) +
+              (work.ThuHours?.hours || 0) +
+              (work.FriHours?.hours || 0) +
+              (work.SatHours?.hours || 0) +
+              (work.SunHours?.hours || 0))|number:'1.0-2'
+            }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

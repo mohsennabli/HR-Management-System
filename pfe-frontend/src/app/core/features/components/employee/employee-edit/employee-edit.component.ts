@@ -29,6 +29,10 @@ import { MessageService } from 'primeng/api';
                     First name is required
                   </small>
                 </div>
+                 <div class="field">
+                      <label for="pin" class="block text-sm font-medium text-gray-700 mb-1">Pin</label>
+                      <input pInputText id="pin" formControlName="pin" class="w-full" />
+                    </div>
 
                 <div class="field">
                   <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
@@ -254,7 +258,8 @@ export class EmployeeEditComponent implements OnInit {
       isUser: [false],
       email: ['', [Validators.email]],
       password: ['', [Validators.minLength(6)]],
-      roleId: ['']
+      roleId: [''],
+      pin:['']
     });
   }
 
@@ -306,8 +311,10 @@ export class EmployeeEditComponent implements OnInit {
           bankRib: employee.bank_rib,
           isUser: employee.is_user,
           email: employee.email,
-          roleId: employee.role_id
+          roleId: employee.role_id,
+          pin:employee.pin
         });
+        this.employeeForm.controls['pin'].disable();
       },
       error: (error) => {
         console.error('Error loading employee:', error);

@@ -119,3 +119,8 @@ Route::apiResource('contracts', ContractController::class);
 Route::get('contracts/employee/{employeeId}', [ContractController::class, 'getEmployeeContracts']);
 Route::post('contracts/sivp', [ContractController::class, 'storeSIVP']);
 Route::post('contracts/medysis', [ContractController::class, 'storeMedysis']);
+
+
+//Zkteco Routes
+Route::get('GetAllAttendance', [\App\Http\Controllers\API\Zkteco\ZktecoController::class, 'getAllAttendanceOfToday']);
+Route::get('GetWorksHours', [\App\Http\Controllers\API\Zkteco\ZktecoController::class, 'getWorksHours']);
