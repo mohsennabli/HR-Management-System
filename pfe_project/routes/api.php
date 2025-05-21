@@ -13,6 +13,8 @@ use App\Http\Controllers\API\Training\TrainingParticipantController;
 use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
 use App\Http\Controllers\API\Department\DepartmentController;
 use App\Http\Controllers\API\Contract\ContractController;
+use App\Http\Controllers\ZktecoController;
+use App\Http\Controllers\API\Zkteco\ZktecoController as APIZk;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -122,5 +124,5 @@ Route::post('contracts/medysis', [ContractController::class, 'storeMedysis']);
 
 
 //Zkteco Routes
-Route::get('GetAllAttendance', [\App\Http\Controllers\API\Zkteco\ZktecoController::class, 'getAllAttendanceOfToday']);
-Route::get('GetWorksHours', [\App\Http\Controllers\API\Zkteco\ZktecoController::class, 'getWorksHours']);
+Route::get('GetAllAttendance', [APIZk::class, 'getAllAttendanceOfToday']);
+Route::get('GetWorkHours',    [APIZk::class, 'getWorksHour']);

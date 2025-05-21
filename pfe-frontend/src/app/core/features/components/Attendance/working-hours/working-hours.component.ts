@@ -1,26 +1,51 @@
-import { DatePipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { WorkHours } from 'src/app/models/workhours.model';
+// src/app/features/attendance/working-hours/working-hours.component.ts
+import { Component, OnInit } from '@angular/core';
 import { AttendanceService } from 'src/app/core/features/components/Attendance/attendance.service';
+import { WorkHours } from 'src/app/models/workhours.model';
 
 @Component({
-  selector: 'app-heures-travailles',
+  selector: 'app-working-hours',
   templateUrl: './working-hours.component.html',
 })
 export class WorkingHoursComponent implements OnInit {
-  datePipe=inject(DatePipe);
-  date = this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
-  role_id=JSON.parse(localStorage.getItem('profile')as string).role_id
-  employe_id=JSON.parse(localStorage.getItem('profile')as string).id_employe
-  workHour:WorkHours[]=[];
-  attendenceService=inject(AttendanceService);
-  // toastr=inject (ToastrService);
+  workHours: WorkHours[] = [];
+  isLoading = false;
+  selectedDate = new Date().toISOString().substring(0, 10);
+  private profile = JSON.parse(localStorage.getItem('profile') as string);
+  userId = this.profile?.id_employe;
+  isEmployee = this.profile?.role_id === 4;
+
+  constructor(private attendanceService: AttendanceService) {}
+
   ngOnInit(): void {
-    this.attendenceService.getWorkHours(this.date,this.role_id!=4?null:this.employe_id).subscribe((data)=>{
-      //  data.success?this.toastr.success('List Presence Chargés '):this.toastr.error('Error de l affichage');
-       this.workHour=data.logOfToday[0];
-    })
+    this.isLoading = true;
+    this.attendanceService
+      .getWorkHours(this.selectedDate, this.isEmployee ? this.userId : undefined)
+      .subscribe({
+        next: res => {
+          if (res.success && res.logOfToday.length) {
+            // res.logOfToday[0] is the array of WorkHours rows
+            this.workHours = res.logOfToday[0];
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+        }
+      });
   }
-  
+
+  getTotal(row: WorkHours): string {
+    const days = [
+      'MonHours',
+      'TueHours',
+      'WedHours',
+      'ThuHours',
+      'FriHours',
+      'SatHours',
+      'SunHours'
+    ] as const;
+    const total = days.reduce((sum, day) => sum + (row[day]?.hours || 0), 0);
+    return total.toFixed(2) + 'h';
+  }
 }

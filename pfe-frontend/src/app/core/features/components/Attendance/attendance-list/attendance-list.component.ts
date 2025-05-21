@@ -1,6 +1,5 @@
-import { DatePipe } from '@angular/common';
+// src/app/features/attendance/attendance-list/attendance-list.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Attendance } from 'src/app/models/attendance.model';
 import { AttendanceService } from 'src/app/core/features/components/Attendance/attendance.service';
 
 @Component({
@@ -8,18 +7,13 @@ import { AttendanceService } from 'src/app/core/features/components/Attendance/a
   templateUrl: './attendance-list.component.html',
 })
 export class AttendanceListComponent implements OnInit {
-attendances: Attendance[] = [];
+  attendances: any[] = [];
   isLoading = false;
   errorMessage = '';
-  selectedDate: string;
-  selectedUserId: string ='';
+  selectedDate = new Date().toISOString().substring(0, 10);
+  selectedUserId = '';
 
-  constructor(
-    private attendanceService: AttendanceService,
-    private datePipe: DatePipe
-  ) {
-    this.selectedDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd') || '';
-  }
+  constructor(private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
     this.loadAttendances();
@@ -28,41 +22,29 @@ attendances: Attendance[] = [];
   loadAttendances(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    
     this.attendanceService.getTodayAttendances(this.selectedDate, this.selectedUserId)
       .subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.attendances = response.logOfToday;
+        next: res => {
+          if (res.success) {
+            this.attendances = res.logOfToday;
           } else {
-            this.errorMessage = 'Erreur lors du chargement des pointages';
+            this.errorMessage = 'Error loading attendance.';
           }
           this.isLoading = false;
         },
-        error: (err) => {
-          this.errorMessage = 'Erreur de connexion au serveur';
+        error: () => {
+          this.errorMessage = 'Server connection error.';
           this.isLoading = false;
-          console.error(err);
         }
       });
   }
 
-  onDateChange(date: string): void {
-    this.selectedDate = date;
-    this.loadAttendances();
-  }
-
-  onUserFilter(userId: string): void {
-    this.selectedUserId = userId;
-    this.loadAttendances();
-  }
   getTypeLabel(type: number): string {
-    switch(type) {
-    case 0: return 'Entrée';
-    case 1: return 'Sortie';
-    case 2: return 'Pause';
-    default: return 'Inconnu';
+    switch (type) {
+      case 0: return 'Entry';
+      case 1: return 'Exit';
+      case 2: return 'Break';
+      default: return 'Unknown';
+    }
   }
-}
-  
 }

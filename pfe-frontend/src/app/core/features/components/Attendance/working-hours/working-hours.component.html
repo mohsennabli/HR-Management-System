@@ -1,121 +1,40 @@
-<div class="container my-4">
-  <div class="table-responsive">
-    <table class="table table-bordered table-hover table-striped align-middle text-center">
-      <thead class="table-dark">
+<!-- src/app/features/attendance/working-hours/working-hours.component.html -->
+<div class="p-4">
+  <div class="card shadow-lg rounded-lg p-4">
+    <h3 class="text-2xl font-semibold mb-4">Weekly Work Hours</h3>
+
+    <p-table [value]="workHours" [loading]="isLoading">
+      <ng-template pTemplate="header">
         <tr>
-          <th>Nom</th>
-          <th>Lundi</th>
-          <th>Mardi</th>
-          <th>Mercredi</th>
-          <th>Jeudi</th>
-          <th>Vendredi</th>
-          <th>Samedi</th>
-          <th>Dimanche</th>
+          <th>Employee</th>
+          <th>Mon</th>
+          <th>Tue</th>
+          <th>Wed</th>
+          <th>Thu</th>
+          <th>Fri</th>
+          <th>Sat</th>
+          <th>Sun</th>
           <th>Total</th>
         </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let work of workHour">
-          <td class="fw-bold"><p>{{ work.nom }}</p></td>
-
-          <!-- Monday -->
-          <td>
-            <ng-container *ngIf="work.MonHours; else absentMon">
-              <p><strong>Heures :</strong> {{ work.MonHours.hours|number:'1.0-2'}} Heures</p>
-              <p class="text-muted">Pause : {{ work.MonHours.pause }} Minutes</p>
-              <p class="text-muted">Nb Pauses : {{ work.MonHours.nbPause }}</p>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr>
+          <td class="font-medium">{{ row.name }}</td>
+          <td *ngFor="let d of ['MonHours','TueHours','WedHours','ThuHours','FriHours','SatHours','SunHours']">
+            <ng-container *ngIf="row[d]; else absent">
+              <div><strong>{{ row[d].hours.toFixed(2) }}h</strong></div>
+              <div class="text-gray-500 text-sm">Break: {{ row[d].pause }}m</div>
+              <div class="text-gray-500 text-sm">Pauses: {{ row[d].nbPause }}</div>
             </ng-container>
-            <ng-template #absentMon>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
+            <ng-template #absent>
+              <span class="text-red-600">N/A</span>
             </ng-template>
           </td>
-
-          <!-- Tuesday -->
-          <td>
-            <ng-container *ngIf="work.TueHours; else absentTue">
-              <p><strong>Heures :</strong> {{ work.TueHours.hours|number:'1.0-2' }} Heures</p>
-              <p class="text-muted">Pause : {{ work.TueHours.pause }} Minutes</p>
-              <p class="text-muted">Nb Pauses : {{ work.TueHours.nbPause }}</p>
-            </ng-container>
-            <ng-template #absentTue>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
-            </ng-template>
-          </td>
-
-          <!-- Wednesday -->
-          <td>
-            <ng-container *ngIf="work.WedHours; else absentWed">
-              <p><strong>Heures :</strong> {{ work.WedHours.hours|number:'1.0-2' }}Heures</p>
-              <p class="text-muted">Pause : {{ work.WedHours.pause }} Minutes</p>
-              <p class="text-muted">Nb Pauses : {{ work.WedHours.nbPause }}</p>
-            </ng-container>
-            <ng-template #absentWed>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
-            </ng-template>
-          </td>
-
-          <!-- Thursday -->
-          <td>
-            <ng-container *ngIf="work.ThuHours; else absentThu">
-              <p><strong>Heures :</strong> {{ work.ThuHours.hours|number:'1.0-2' }} Heures</p>
-              <p class="text-muted">Pause : {{ work.ThuHours.pause }} Minutes</p>
-              <p class="text-muted">Nb Pauses : {{ work.ThuHours.nbPause }}</p>
-            </ng-container>
-            <ng-template #absentThu>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
-            </ng-template>
-          </td>
-
-          <!-- Friday -->
-          <td>
-            <ng-container *ngIf="work.FriHours; else absentFri">
-              <p><strong>Heures :</strong> {{ work.FriHours.hours |number:'1.0-2' }} Heures</p>
-              <p class="text-muted">Pause : {{ work.FriHours.pause }} Minutes/p>
-              <p class="text-muted">Nb Pauses : {{ work.FriHours.nbPause }}</p>
-            </ng-container>
-            <ng-template #absentFri>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
-            </ng-template>
-          </td>
-
-          <!-- Saturday -->
-          <td>
-            <ng-container *ngIf="work.SatHours; else absentSat">
-              <p><strong>Heures :</strong> {{ work.SatHours.hours|number:'1.0-2' }} Heures</p>
-              <p class="text-muted">Pause : {{ work.SatHours.pause }} Minutes</p>
-              <p class="text-muted">Nb Pauses : {{ work.SatHours.nbPause }}</p>
-            </ng-container>
-            <ng-template #absentSat>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
-            </ng-template>
-          </td>
-
-          <!-- Sunday -->
-          <td>
-            <ng-container *ngIf="work.SunHours; else absentSun">
-              <p><strong>Heures :</strong> {{ work.SunHours.hours|number:'1.0-2'}} Heures</p>
-              <p class="text-muted">Pause : {{ work.SunHours.pause }} Minutes</p>
-              <p class="text-muted">Nb Pauses : {{ work.SunHours.nbPause }}</p>
-            </ng-container>
-            <ng-template #absentSun>
-              <span class="text-danger">Absent ou Erreur Pointage</span>
-            </ng-template>
-          </td>
-
-          <!-- Total -->
-          <td class="fw-bold text-primary">
-            {{ 
-             ( (work.MonHours?.hours || 0) +
-              (work.TueHours?.hours || 0) +
-              (work.WedHours?.hours || 0) +
-              (work.ThuHours?.hours || 0) +
-              (work.FriHours?.hours || 0) +
-              (work.SatHours?.hours || 0) +
-              (work.SunHours?.hours || 0))|number:'1.0-2'
-            }}
+          <td class="font-semibold text-blue-600">
+            {{ getTotal(row) }}
           </td>
         </tr>
-      </tbody>
-    </table>
+      </ng-template>
+    </p-table>
   </div>
 </div>
