@@ -13,8 +13,8 @@ use App\Http\Controllers\API\Training\TrainingParticipantController;
 use App\Http\Controllers\API\Discipline\DisciplinaryActionController;
 use App\Http\Controllers\API\Department\DepartmentController;
 use App\Http\Controllers\API\Contract\ContractController;
-use App\Http\Controllers\ZktecoController;
-use App\Http\Controllers\API\Zkteco\ZktecoController as APIZk;
+//use App\Http\Controllers\ZktecoController;
+use App\Http\Controllers\ZktecoController as APIZk;
 /*
 |--------------------------------------------------------------------------
 | API Routes

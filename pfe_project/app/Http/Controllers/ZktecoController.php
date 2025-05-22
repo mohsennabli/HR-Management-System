@@ -28,6 +28,7 @@ class ZktecoController extends Controller
                     'message' => "Unable to connect to device "
                 ], 500);
             }
+            Log::error("connected " .json_encode($ip));
             $attendanceLog = array_values((array) $zk->getAttendance($zk)) ;
              $attendanceLog =array_map(   function ($item ) {
                 $employe=Employee::find($item['id']);
