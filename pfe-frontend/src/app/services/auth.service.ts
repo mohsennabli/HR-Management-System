@@ -35,7 +35,6 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/register`, { name, email, password, role_id })
       .pipe(
         tap(res => {
-          console.log('Register response:', res);
           this.storeToken(res.access_token);
           this.storeUser(res.user);
         })
@@ -65,8 +64,6 @@ export class AuthService {
       headers: this.getAuthHeaders()
     }).pipe(
       tap(user => {
-        console.log('Me endpoint response:', user);
-        // Update stored user data with fresh data from server
         this.storeUser(user);
       })
     );
@@ -81,29 +78,23 @@ export class AuthService {
   }
 
   private storeUser(user: any) {
-    console.log('Storing user data:', user);
     localStorage.setItem('user', JSON.stringify(user));
   }
 
   getUser(): any | null {
     const user = localStorage.getItem('user');
     if (user) {
-      const parsedUser = JSON.parse(user);
-      console.log('Retrieved user from storage:', parsedUser);
-      return parsedUser;
+      return JSON.parse(user);
     }
     return null;
   }
 
   getUserRole(): number {
     const user = this.getUser();
-    console.log('Getting user role from:', user);
     if (!user) return 0;
     
     // Try different possible role field names
-    const role = user.role_id || user.role?.id || user.role || 0;
-    console.log('Parsed role:', role);
-    return role;
+    return user.role_id || user.role?.id || user.role || 0;
   }
 
   getToken(): string | null {
@@ -119,7 +110,6 @@ export class AuthService {
       const expirationDate = decoded.exp * 1000;
       return Date.now() < expirationDate;
     } catch (error) {
-      console.error('Error decoding token:', error);
       this.clearStorage();
       return false;
     }

@@ -16,8 +16,10 @@ export class AttendanceListComponent implements OnInit {
   constructor(private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
+    this.attendanceService.synchroniseAttendance().subscribe(() => {
     this.loadAttendances();
-  }
+  })
+}
 
   loadAttendances(): void {
     this.isLoading = true;

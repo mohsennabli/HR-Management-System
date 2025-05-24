@@ -18,7 +18,7 @@ export class WorkingHoursComponent implements OnInit {
   constructor(private attendanceService: AttendanceService) {}
 
   ngOnInit(): void {
-    this.isLoading = true;
+    this.attendanceService.synchroniseAttendance().subscribe(() => {this.isLoading = true;
     this.attendanceService
       .getWorkHours(this.selectedDate, this.isEmployee ? this.userId : undefined)
       .subscribe({
@@ -32,7 +32,7 @@ export class WorkingHoursComponent implements OnInit {
         error: () => {
           this.isLoading = false;
         }
-      });
+      });})
   }
 
   getTotal(row: WorkHours): string {

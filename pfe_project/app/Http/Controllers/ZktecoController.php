@@ -9,9 +9,51 @@ use Carbon\Carbon;
 use App\Models\Employee;
 use App\Models\Department;
 use Illuminate\Support\Facades\Log;
+use App\Models\Attendance;
+use Illuminate\Support\Facades\DB;
 class ZktecoController extends Controller
 {
     
+  public function AsynchroniseAttendance(Request $request){
+        $ip = $request->input('ip', '192.168.121.210'); // Default IP, replace or pass from Angular
+        $port = $request->input('port', 4370);
+        $lastLocalAttendance=Attendance::orderBy('uid','desc')->first();
+        Log::error("lastLocalAttendance : " .json_encode( $lastLocalAttendance));
+        $zk = new ZKTeco($ip, $port);
+
+            if (!$zk->connect()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Unable to connect to device "
+                ], 500);
+            }
+        $attendanceLog = array_values((array) $zk->getAttendance($zk));
+        if( $lastLocalAttendance){
+          $AttendancetoSynchronise = array_filter( $attendanceLog,function($attendace) use($lastLocalAttendance){
+             return ($attendace['uid'] > $lastLocalAttendance['uid']);
+          } );
+        }
+        else{
+           $AttendancetoSynchronise =$attendanceLog;
+        }
+        
+       foreach ($AttendancetoSynchronise  as $attandance) {
+           $addedAttandance=new Attendance();
+           DB::table('attendance')->insert([
+            'id' => $attandance['id'],
+            'uid'=>$attandance['uid'],
+            'type' => $attandance['type'],
+            'timestamp' => $attandance['timestamp']
+           ]);
+     
+       };
+    
+}
+
+
+
+
+
 
     
     //liste pointage par jour
@@ -29,7 +71,7 @@ class ZktecoController extends Controller
                 ], 500);
             }
             Log::error("connected " .json_encode($ip));
-            $attendanceLog = array_values((array) $zk->getAttendance($zk)) ;
+              $attendanceLog =  Attendance::get()->toArray() ;
              $attendanceLog =array_map(   function ($item ) {
                 $employe=Employee::find($item['id']);
                if($employe){
@@ -96,7 +138,7 @@ class ZktecoController extends Controller
                     'message' => "Unable to connect to device "
                 ], 500);
             }
-            $attendanceLog = array_values((array) $zk->getAttendance($zk)) ;
+            $attendanceLog =  Attendance::get()->toArray() ;
              $attendanceLog =array_map(   function ($item ) {
                 $employe=Employee::find($item['id']);
                if($employe){
@@ -388,7 +430,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->TueHours=null;
                                    break;
@@ -446,7 +488,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->WedHours=null;
                                    break;
@@ -504,7 +546,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->ThuHours=null;
                                    break;
@@ -562,7 +604,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->FriHours=null;
                                    break;
@@ -620,7 +662,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->SatHours=null;
                                    break;
@@ -678,7 +720,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->SunHours=null;
                                    break;
@@ -825,7 +867,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->TueHours=null;
                                    break;
@@ -942,7 +984,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->ThuHours=null;
                                    break;
@@ -1000,7 +1042,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->FriHours=null;
                                    break;
@@ -1058,7 +1100,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->SatHours=null;
                                    break;
@@ -1116,7 +1158,7 @@ class ZktecoController extends Controller
                             $pause=0;
                             //each two related pointage must have different type
                             for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]-['type']){
+                                if($value[$i]['type']==$value[$i-1]['type']){
                                    $isCorrect=false;
                                    $employe->SunHours=null;
                                    break;

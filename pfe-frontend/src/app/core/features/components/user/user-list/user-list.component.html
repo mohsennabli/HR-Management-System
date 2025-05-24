@@ -33,7 +33,7 @@
               pButton
               icon="pi pi-pencil"
               class="p-button-sm p-button-info"
-              [routerLink]="['/dashboard/users/edit', user.id]"
+              (click)="showEditDialog(user)"
               label="Edit">
             </button>
             <button
@@ -52,3 +52,59 @@
     <p-message *ngIf="!loading && users.length === 0" severity="info" text="No users found."></p-message>
   </div>
 </div>
+
+<!-- Slide-out Sheet -->
+<p-sidebar [(visible)]="visible" [baseZIndex]="10000" [showCloseIcon]="true" [modal]="true" position="left" styleClass="w-25rem">
+  <div class="p-4">
+    <h2 class="text-xl font-bold mb-4">Edit User</h2>
+    <form [formGroup]="editForm" (ngSubmit)="saveUser()" class="flex flex-column gap-3">
+      <div class="field">
+        <label for="name" class="block mb-2">Name</label>
+        <input id="name" type="text" pInputText formControlName="name" class="w-full" />
+        <small class="text-red-500" *ngIf="editForm.get('name')?.invalid && editForm.get('name')?.touched">
+          Name is required
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="email" class="block mb-2">Email</label>
+        <input id="email" type="email" pInputText formControlName="email" class="w-full" />
+        <small class="text-red-500" *ngIf="editForm.get('email')?.invalid && editForm.get('email')?.touched">
+          Please enter a valid email
+        </small>
+      </div>
+
+      <div class="field">
+        <label for="role" class="block mb-2">Role</label>
+        <p-dropdown
+          id="role"
+          [options]="roles"
+          formControlName="role_id"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Select a role"
+          class="w-full">
+        </p-dropdown>
+        <small class="text-red-500" *ngIf="editForm.get('role_id')?.invalid && editForm.get('role_id')?.touched">
+          Role is required
+        </small>
+      </div>
+
+      <div class="flex justify-content-end gap-2 mt-4">
+        <button
+          pButton
+          type="button"
+          label="Cancel"
+          class="p-button-text"
+          (click)="hideDialog()">
+        </button>
+        <button
+          pButton
+          type="submit"
+          label="Save"
+          [disabled]="editForm.invalid">
+        </button>
+      </div>
+    </form>
+  </div>
+</p-sidebar>

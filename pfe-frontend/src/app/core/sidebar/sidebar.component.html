@@ -170,6 +170,20 @@
         </li>
       </ul>
     </div>
+<div *ngIf="canAccess([1, 2, 3])" class="mb-6">
+      <h3 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2" [class.hidden]="collapsed">Discipline</h3>
+      <ul class="space-y-1">
+        <li>
+          <a pRipple 
+             routerLink="discipline" 
+             routerLinkActive="bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300"
+             class="flex items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <i class="pi pi-book mr-3 text-gray-500 dark:text-gray-400"></i>
+            <span [class.hidden]="collapsed" class="text-gray-700 dark:text-gray-300">Discipline</span>
+          </a>
+        </li>
+      </ul>
+    </div>
 
     <!-- Attendance Management Section -->
     <div *ngIf="canAccess([1, 2, 3])" class="mb-6">

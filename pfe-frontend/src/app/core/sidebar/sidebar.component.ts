@@ -32,7 +32,6 @@ export class DashboardSidebarComponent implements OnInit {
         this.user = user;
         this.role_id = user.role_id;
         this.employe_id = user.employee_id;
-        console.log('User role:', this.role_id); // Debug log
       },
       error: () => {
         this.user = null;
@@ -50,19 +49,18 @@ export class DashboardSidebarComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    return this.role_id === 1; // Admin role ID is 1
+    return this.role_id === 1;
   }
 
   isHR(): boolean {
-    return this.role_id === 3; // HR role ID is 3
+    return this.role_id === 3;
   }
 
   isEmployee(): boolean {
-    return this.role_id === 2; // Employee role ID is 2
+    return this.role_id === 2;
   }
 
   canAccess(requiredRoles: number[]): boolean {
-    console.log('Checking access for roles:', requiredRoles, 'Current role:', this.role_id); // Debug log
     return requiredRoles.includes(this.role_id);
   }
 }

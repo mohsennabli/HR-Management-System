@@ -5,24 +5,13 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { DatePipe } from '@angular/common';
+
+// PrimeNG Modules
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
-import { AuthGuard } from 'src/app/guards/auth.guard';
-import { SumPipe } from './pipes/sum.pipe';
-import { DatePipe } from '@angular/common';
-
-// 🔥 Auth
-import { LoginModule } from 'src/app/core/features/components/login/login.module';
-
-// ✅ Interceptor & Guard
-import { AuthInterceptor as OldAuthInterceptor } from 'src/app/interceptors/auth.interceptor';
-import { AuthGuard as OldAuthGuard } from 'src/app/guards/auth.guard';
-
-// PrimeNG Modules
 import { MenubarModule } from 'primeng/menubar';
 import { ChartModule } from 'primeng/chart';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -30,6 +19,13 @@ import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
 import { TooltipModule } from 'primeng/tooltip';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+
+// Auth & Guards
+import { LoginModule } from 'src/app/core/features/components/login/login.module';
+import { AuthInterceptor } from 'src/app/interceptors/auth.interceptor';
+import { AuthGuard } from 'src/app/guards/auth.guard';
+import { MessageService } from 'primeng/api';
+import { SumPipe } from './pipes/sum.pipe';
 
 @NgModule({
   declarations: [
@@ -42,6 +38,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
     HttpClientModule,
     FormsModule,
     AppRoutingModule,
+    // PrimeNG Modules
     ButtonModule,
     RippleModule,
     InputTextModule,
@@ -51,9 +48,10 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
     ProgressBarModule,
     MessageModule,
     PasswordModule,
-    LoginModule,
     TooltipModule,
-    BreadcrumbModule
+    BreadcrumbModule,
+    // Feature Modules
+    LoginModule
   ],
   providers: [
     DatePipe,

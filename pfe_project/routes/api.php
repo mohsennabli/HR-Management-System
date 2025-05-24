@@ -126,3 +126,4 @@ Route::post('contracts/medysis', [ContractController::class, 'storeMedysis']);
 //Zkteco Routes
 Route::get('GetAllAttendance', [APIZk::class, 'getAllAttendanceOfToday']);
 Route::get('GetWorkHours',    [APIZk::class, 'getWorksHour']);
+Route::get('AsynchroniseAttendance', [APIZk::class, 'AsynchroniseAttendance']);

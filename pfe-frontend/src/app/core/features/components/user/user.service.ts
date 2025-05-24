@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../../../../services/api.service';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/models/user.model';
+import { ApiResponse } from 'src/app/models/employee.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,37 +12,34 @@ export class UserService {
 
   constructor(private api: ApiService) { }
 
-  getUsers(): Observable<any> {
-    return this.api.get(this.endpoint);
+  getUsers(): Observable<ApiResponse<User[]>> {
+    return this.api.get<ApiResponse<User[]>>(this.endpoint);
   }
 
-  getUser(id: number): Observable<any> {
-    return this.api.get(`${this.endpoint}/${id}`);
+  getUser(id: number): Observable<ApiResponse<User>> {
+    return this.api.get<ApiResponse<User>>(`${this.endpoint}/${id}`);
   }
 
-  createUser(user: User): Observable<any> {
-    console.log('Creating user with data:', user); // Debug log
+  createUser(user: User): Observable<ApiResponse<User>> {
     const userData = {
       name: user.name,
       email: user.email,
       password: user.password,
       role_id: user.role_id
     };
-    console.log('Sending to API:', userData); // Debug log
-    return this.api.post(this.endpoint, userData);
+    return this.api.post<ApiResponse<User>>(this.endpoint, userData);
   }
 
-  updateUser(id: number, user: User): Observable<any> {
+  updateUser(id: number, user: User): Observable<ApiResponse<User>> {
     const userData = {
       name: user.name,
       email: user.email,
-      password: user.password,
       role_id: user.role_id
     };
-    return this.api.put(`${this.endpoint}/${id}`, userData);
+    return this.api.put<ApiResponse<User>>(`${this.endpoint}/${id}`, userData);
   }
 
-  deleteUser(id: number): Observable<any> {
-    return this.api.delete(`${this.endpoint}/${id}`);
+  deleteUser(id: number): Observable<ApiResponse<void>> {
+    return this.api.delete<ApiResponse<void>>(`${this.endpoint}/${id}`);
   }
 }
