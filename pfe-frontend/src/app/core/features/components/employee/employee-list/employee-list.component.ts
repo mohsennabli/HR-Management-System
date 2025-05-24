@@ -2,10 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
 import { ApiResponse, Employee } from 'src/app/models/employee.model';
+import { DepartmentService } from '../../department/department.service';
+import { Department } from 'src/app/models/department.model';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-employee-list',
   templateUrl: './employee-list.component.html',
+  providers: [MessageService]
 })
 export class EmployeeListComponent implements OnInit {
 
@@ -13,18 +17,11 @@ export class EmployeeListComponent implements OnInit {
   loading = false;
   error = '';
   searchTerm = '';
-  selectedDepartment = '';
+  selectedDepartment: number | null = null;
   selectedEmployee: Employee | null = null;
   isModalOpen = false;
   isSidebarOpen = false;
-
-  departments = [
-    { label: 'All Departments', value: '' },
-    { label: 'IT', value: 'it' },
-    { label: 'HR', value: 'hr' },
-    { label: 'Finance', value: 'finance' },
-    { label: 'Marketing', value: 'marketing' }
-  ];
+  departments: Department[] = [];
 
   steps = [
     { label: 'Basic Info' },
@@ -36,13 +33,30 @@ export class EmployeeListComponent implements OnInit {
 
   constructor(
     private employeeService: EmployeeService,
+    private departmentService: DepartmentService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private messageService: MessageService
   ) { }
 
   ngOnInit(): void {
+    this.loadDepartments();
     this.loadEmployees();
     this.activeStep = 0;
+  }
+
+  loadDepartments(): void {
+    console.log('Loading departments...');
+    this.departmentService.getDepartments().subscribe({
+      next: (response) => {
+        console.log('Departments loaded:', response.data);
+        this.departments = response.data;
+      },
+      error: (error) => {
+        console.error('Error loading departments:', error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load departments' });
+      }
+    });
   }
 
   loadEmployees(): void {
@@ -51,14 +65,29 @@ export class EmployeeListComponent implements OnInit {
 
     const params: any = {};
     if (this.searchTerm) params.search = this.searchTerm;
-    if (this.selectedDepartment) params.department = this.selectedDepartment;
+    if (this.selectedDepartment) params.department_id = this.selectedDepartment;
+
+    console.log('Loading employees with params:', params);
+    console.log('Selected department:', this.selectedDepartment);
 
     this.employeeService.getAll(params).subscribe({
       next: (response: ApiResponse<Employee[]>) => {
-        this.employees = response.data;
+        console.log('API Response:', response);
+        this.employees = response.data.map(employee => {
+          const processedEmployee = { ...employee };
+          if (typeof employee.department === 'string') {
+            processedEmployee.department = {
+              id: employee.department_id,
+              name: employee.department
+            };
+          }
+          return processedEmployee;
+        });
+        console.log('Processed employees:', this.employees);
         this.loading = false;
       },
       error: (error: any) => {
+        console.error('Error loading employees:', error);
         this.handleError('Failed to load employees', error);
       }
     });
@@ -90,6 +119,7 @@ export class EmployeeListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load employee details', err);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load employee details' });
       }
     });
   }
@@ -115,5 +145,23 @@ export class EmployeeListComponent implements OnInit {
     this.error = message;
     this.loading = false;
     console.error(`${message}:`, error);
+    this.messageService.add({ severity: 'error', summary: 'Error', detail: message });
+  }
+
+  getDepartmentSeverity(departmentName: string | undefined): string {
+    if (!departmentName) return 'info';
+    
+    switch (departmentName.toLowerCase()) {
+      case 'it':
+        return 'info';
+      case 'hr':
+        return 'warning';
+      case 'finance':
+        return 'success';
+      case 'marketing':
+        return 'help';
+      default:
+        return 'info';
+    }
   }
 }

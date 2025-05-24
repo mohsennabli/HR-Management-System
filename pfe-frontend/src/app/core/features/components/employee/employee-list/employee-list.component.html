@@ -10,10 +10,13 @@
     <p-dropdown 
       [options]="departments" 
       [(ngModel)]="selectedDepartment" 
-      placeholder="Select Department"
+      optionLabel="name"
+      optionValue="id"
+      placeholder="All Departments"
       (onChange)="filterEmployees()"
       class="w-full md:w-1/4"
-    ></p-dropdown>
+      [showClear]="true">
+    </p-dropdown>
   </div>
 
   <!-- Table -->
@@ -36,7 +39,18 @@
       <tr>
         <td>{{ employee.id }}</td>
         <td>{{ employee.first_name }} {{ employee.last_name }}</td>
-        <td>{{ employee.department }}</td>
+        <td>
+          <p-tag *ngIf="employee.department" 
+            [value]="employee.department.name" 
+            [severity]="getDepartmentSeverity(employee.department.name)"
+            styleClass="min-w-[100px] text-center">
+          </p-tag>
+          <p-tag *ngIf="!employee.department" 
+            value="No Department" 
+            severity="info"
+            styleClass="min-w-[100px] text-center">
+          </p-tag>
+        </td>
         <td>{{ employee.position }}</td>
         <td>{{ employee.email || 'No account' }}</td>
         <td>{{ employee.phone }}</td>
@@ -92,7 +106,12 @@
               </div>
               <div class="space-y-1">
                 <div class="text-sm font-medium text-gray-500">Department</div>
-                <div class="text-gray-900">{{ selectedEmployee.department_id }}</div>
+                <div class="text-gray-900">
+                  <p-tag *ngIf="selectedEmployee.department" [value]="selectedEmployee.department.name" 
+                    [severity]="getDepartmentSeverity(selectedEmployee.department.name)">
+                  </p-tag>
+                  <span *ngIf="!selectedEmployee.department" class="text-gray-500">No Department</span>
+                </div>
               </div>
               <div class="space-y-1">
                 <div class="text-sm font-medium text-gray-500">Position</div>
@@ -140,14 +159,6 @@
                   </p-tag>
                 </div>
               </div>
-              <div class="space-y-1 col-span-2">
-                <div class="text-sm font-medium text-gray-500">Address</div>
-                <div class="text-gray-900">{{ selectedEmployee.address }}</div>
-              </div>
-              <div class="space-y-1">
-                <div class="text-sm font-medium text-gray-500">Diploma</div>
-                <div class="text-gray-900">{{ selectedEmployee.diploma }}</div>
-              </div>
             </div>
           </p-card>
         </div>
@@ -178,13 +189,13 @@
           </p-card>
         </div>
 
-        <!-- Step 4: CNSS & Bank Info -->
+        <!-- Step 4: CNSS & Bank -->
         <div *ngIf="activeStep === 3" class="animate-fadeIn">
           <p-card styleClass="shadow-none border">
             <ng-template pTemplate="header">
               <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b">
-                <i class="pi pi-wallet text-primary-500"></i>
-                <h4 class="text-lg font-semibold text-gray-700">CNSS and Bank Information</h4>
+                <i class="pi pi-credit-card text-primary-500"></i>
+                <h4 class="text-lg font-semibold text-gray-700">CNSS & Bank Information</h4>
               </div>
             </ng-template>
             <div class="grid grid-cols-2 gap-4 p-4">

@@ -3,7 +3,13 @@ export interface Employee {
     first_name: string;
     last_name: string;
     position: string;
-    department: string;
+    department_id: number;
+    department?: {
+      id: number;
+      name: string;
+    };
+    email?: string;
+    phone?: string;
   }
   
   export type DisciplinaryActionType = 

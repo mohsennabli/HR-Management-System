@@ -17,6 +17,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputTextareaModule } from 'primeng/inputtextarea';
+import { SidebarModule } from 'primeng/sidebar';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
     ToastModule,
     ConfirmDialogModule,
     InputTextModule,
-    InputTextareaModule
+    InputTextareaModule,
+    SidebarModule
   ]
 })
 export class DisciplineModule { }

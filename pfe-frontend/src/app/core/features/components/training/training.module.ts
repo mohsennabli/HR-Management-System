@@ -28,6 +28,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { CalendarModule } from 'primeng/calendar';
 import { MessageModule } from 'primeng/message';
+import { SidebarModule } from 'primeng/sidebar';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { MessageModule } from 'primeng/message';
     CheckboxModule,
     DropdownModule,
     CalendarModule,
-    MessageModule
+    MessageModule,
+    SidebarModule
   ],
   providers: [
     TrainingProgramService,
