@@ -7,11 +7,32 @@ import { catchError, finalize, map } from 'rxjs/operators';
 import { AuthService } from 'src/app/services/auth.service';
 import { Observable } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CalendarModule } from 'primeng/calendar';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-employee-leave-request-form',
   templateUrl: './employee-leave-request-form.component.html',
-  styleUrls: ['./employee-leave-request-form.component.scss']
+  providers: [MessageService],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextareaModule,
+    InputNumberModule,
+    CalendarModule,
+    DropdownModule,
+    ButtonModule,
+    ToastModule,
+    MessageModule
+  ]
 })
 export class EmployeeLeaveRequestFormComponent implements OnInit {
   leaveRequestForm: FormGroup;

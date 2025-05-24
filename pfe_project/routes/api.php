@@ -15,6 +15,7 @@ use App\Http\Controllers\API\Department\DepartmentController;
 use App\Http\Controllers\API\Contract\ContractController;
 //use App\Http\Controllers\ZktecoController;
 use App\Http\Controllers\ZktecoController as APIZk;
+use App\Http\Controllers\API\StatisticsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -36,6 +37,16 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/me', [AuthController::class, 'me']);
+    
+    // Statistics Routes
+    Route::prefix('statistics')->group(function () {
+        Route::get('/employees', [StatisticsController::class, 'getEmployeeStatistics']);
+        Route::get('/leaves', [StatisticsController::class, 'getLeaveStatistics']);
+        Route::get('/departments', [StatisticsController::class, 'getDepartmentStatistics']);
+        Route::get('/disciplinary', [StatisticsController::class, 'getDisciplinaryStatistics']);
+        Route::get('/attendance', [StatisticsController::class, 'getAttendanceStatistics']);
+        Route::get('/training', [StatisticsController::class, 'getTrainingStatistics']);
+    });
     
     // User Management
     Route::apiResource('users', UserController::class);

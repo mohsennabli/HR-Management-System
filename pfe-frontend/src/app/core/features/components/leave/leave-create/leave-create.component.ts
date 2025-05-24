@@ -2,11 +2,31 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LeaveTypeService } from 'src/app/core/features/components/leave/leave-type.service';
+import { MessageService } from 'primeng/api';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputTextareaModule } from 'primeng/inputtextarea';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-leave-create',
   templateUrl: './leave-create.component.html',
-  styleUrls: ['./leave-create.component.scss']
+  providers: [MessageService],
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    InputTextareaModule,
+    InputNumberModule,
+    CheckboxModule,
+    ButtonModule,
+    ToastModule
+  ]
 })
 export class LeaveCreateComponent {
   leaveForm!: FormGroup;
@@ -15,7 +35,8 @@ export class LeaveCreateComponent {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private leaveTypeService: LeaveTypeService
+    private leaveTypeService: LeaveTypeService,
+    private messageService: MessageService
   ) {
     this.initializeForm();
   }
@@ -29,7 +50,7 @@ export class LeaveCreateComponent {
         Validators.min(1),
         Validators.max(365)
       ]],
-      isPaid: [true],
+      isPaid: [false],
       carryOver: [false],
       maxCarryOver: [0, [Validators.min(0)]]
     });
@@ -46,6 +67,17 @@ export class LeaveCreateComponent {
     });
   }
 
+  private prepareLeaveTypeData(): any {
+    return {
+      name: this.leaveForm.value.name,
+      description: this.leaveForm.value.description,
+      days_allowed: Number(this.leaveForm.value.daysAllowed),
+      is_paid: this.leaveForm.value.isPaid,
+      carry_over: this.leaveForm.value.carryOver,
+      max_carry_over: this.leaveForm.value.carryOver ? Number(this.leaveForm.value.maxCarryOver) : 0
+    };
+  }
+
   onSubmit(): void {
     if (this.leaveForm.invalid || this.isSubmitting) return;
 
@@ -53,29 +85,28 @@ export class LeaveCreateComponent {
     const leaveTypeData = this.prepareLeaveTypeData();
 
     this.leaveTypeService.create(leaveTypeData).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard/leave']); // Updated to HR path
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: response.message || 'Leave type created successfully'
+        });
+        setTimeout(() => {
+          this.router.navigate(['/dashboard/leave']);
+        }, 1500);
       },
       error: (error) => {
         this.isSubmitting = false;
-        console.error('Error creating leave type:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.message || 'Failed to create leave type'
+        });
       }
     });
   }
 
-  private prepareLeaveTypeData(): any {
-    const formValue = this.leaveForm.value;
-    return {
-      name: formValue.name,
-    description: formValue.description,
-    days_allowed: Number(formValue.daysAllowed), // Snake case
-    is_paid: formValue.isPaid, // Snake case
-    carry_over: formValue.carryOver, // Snake case
-    max_carry_over: formValue.carryOver ? Number(formValue.maxCarryOver) : 0 // Snake case
-    };
-  }
-
   onCancel(): void {
-    this.router.navigate(['/dashboard/leave']); 
+    this.router.navigate(['/dashboard/leave']);
   }
 }

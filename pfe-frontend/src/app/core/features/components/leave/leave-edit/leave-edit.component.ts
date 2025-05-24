@@ -6,7 +6,6 @@ import { LeaveTypeService } from 'src/app/core/features/components/leave/leave-t
 @Component({
   selector: 'app-leave-edit',
   templateUrl: './leave-edit.component.html',
-  styleUrls: ['./leave-edit.component.scss']
 })
 export class LeaveEditComponent implements OnInit {
   leaveForm: FormGroup;

@@ -41,8 +41,20 @@ class LeaveTypeController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Check if leave type name already exists
+        if (LeaveType::where('name', $request->name)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A leave type with this name already exists.'
+            ], 422);
+        }
+
         $leaveType = LeaveType::create($request->all());
-        return response()->json(['data' => $leaveType], 201);
+        return response()->json([
+            'success' => true,
+            'data' => $leaveType,
+            'message' => 'Leave type created successfully'
+        ], 201);
     }
 
     /**

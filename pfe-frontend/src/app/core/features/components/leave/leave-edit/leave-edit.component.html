@@ -1,120 +1,134 @@
-<div class="leave-edit-container">
-  <div *ngIf="errorMessage" class="error-message">
-    {{ errorMessage }}
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h2>Edit Leave Type</h2>
+<div class="p-6">
+  <div class="max-w-[1600px] mx-auto">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Edit Leave Type</h2>
+      <p class="text-gray-600 mt-1">Update the leave type details below</p>
     </div>
 
-    <div class="card-body">
-      <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()">
-        <!-- Name Field -->
-        <div class="form-group">
-          <label for="name">Leave Type Name*</label>
-          <input 
-            type="text" 
-            id="name" 
-            formControlName="name"
-            placeholder="Annual Leave"
-            class="form-control"
-            [class.invalid]="name?.touched && name?.invalid">
-          <div class="error-message" *ngIf="name?.touched && name?.invalid">
-            <div *ngIf="name?.errors?.['required']">Name is required</div>
-            <div *ngIf="name?.errors?.['maxlength']">Maximum 50 characters allowed</div>
+    <p-toast></p-toast>
+
+    <p-card>
+      <form [formGroup]="leaveForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Error Message -->
+        <p-message *ngIf="errorMessage" severity="error" [text]="errorMessage" class="mb-4"></p-message>
+
+        <!-- Form Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Name Field -->
+          <div class="field">
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Leave Type Name*</label>
+            <input 
+              pInputText
+              type="text" 
+              id="name" 
+              formControlName="name"
+              placeholder="Annual Leave"
+              class="w-full"
+              [ngClass]="{'ng-invalid ng-dirty': name?.touched && name?.invalid}">
+            <small class="text-red-500" *ngIf="name?.touched && name?.invalid">
+              <span *ngIf="name?.errors?.['required']">Name is required</span>
+              <span *ngIf="name?.errors?.['maxlength']">Maximum 50 characters allowed</span>
+            </small>
+          </div>
+
+          <!-- Days Allowed Field -->
+          <div class="field">
+            <label for="daysAllowed" class="block text-sm font-medium text-gray-700 mb-1">Days Allowed Per Year*</label>
+            <p-inputNumber
+              id="daysAllowed"
+              formControlName="daysAllowed"
+              [showButtons]="true"
+              [min]="1"
+              [max]="365"
+              placeholder="20"
+              class="w-full"
+              [ngClass]="{'ng-invalid ng-dirty': daysAllowed?.touched && daysAllowed?.invalid}">
+            </p-inputNumber>
+            <small class="text-red-500" *ngIf="daysAllowed?.touched && daysAllowed?.invalid">
+              <span *ngIf="daysAllowed?.errors?.['required']">Days allowed is required</span>
+              <span *ngIf="daysAllowed?.errors?.['min']">Minimum 1 day required</span>
+              <span *ngIf="daysAllowed?.errors?.['max']">Maximum 365 days allowed</span>
+            </small>
           </div>
         </div>
 
         <!-- Description Field -->
-        <div class="form-group">
-          <label for="description">Description*</label>
+        <div class="field">
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description*</label>
           <textarea 
+            pInputTextarea
             id="description" 
             formControlName="description" 
             placeholder="Description of the leave type"
-            class="form-control"
             rows="3"
-            [class.invalid]="description?.touched && description?.invalid"></textarea>
-          <div class="error-message" *ngIf="description?.touched && description?.invalid">
-            <div *ngIf="description?.errors?.['required']">Description is required</div>
-            <div *ngIf="description?.errors?.['maxlength']">Maximum 200 characters allowed</div>
-          </div>
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': description?.touched && description?.invalid}">
+          </textarea>
+          <small class="text-red-500" *ngIf="description?.touched && description?.invalid">
+            <span *ngIf="description?.errors?.['required']">Description is required</span>
+            <span *ngIf="description?.errors?.['maxlength']">Maximum 200 characters allowed</span>
+          </small>
         </div>
 
-        <!-- Days Allowed Field -->
-        <div class="form-group">
-          <label for="daysAllowed">Days Allowed Per Year*</label>
-          <input 
-            type="number" 
-            id="daysAllowed" 
-            formControlName="daysAllowed" 
-            placeholder="20"
-            class="form-control"
-            min="1"
-            max="365"
-            [class.invalid]="daysAllowed?.touched && daysAllowed?.invalid">
-          <div class="error-message" *ngIf="daysAllowed?.touched && daysAllowed?.invalid">
-            <div *ngIf="daysAllowed?.errors?.['required']">Days allowed is required</div>
-            <div *ngIf="daysAllowed?.errors?.['min']">Minimum 1 day required</div>
-            <div *ngIf="daysAllowed?.errors?.['max']">Maximum 365 days allowed</div>
-          </div>
-        </div>
-
-        <!-- Paid Leave Checkbox -->
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+        <!-- Checkboxes Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Paid Leave Checkbox -->
+          <div class="field-checkbox">
+            <p-checkbox
+              id="isPaid"
               formControlName="isPaid"
-              class="checkbox-input">
-            Paid Leave
-          </label>
-        </div>
+              [binary]="true"
+              label="Paid Leave">
+            </p-checkbox>
+          </div>
 
-        <!-- Carry Over Checkbox -->
-        <div class="form-group">
-          <label class="checkbox-label">
-            <input 
-              type="checkbox" 
+          <!-- Carry Over Checkbox -->
+          <div class="field-checkbox">
+            <p-checkbox
+              id="carryOver"
               formControlName="carryOver"
-              class="checkbox-input">
-            Allow Carry Over
-          </label>
+              [binary]="true"
+              label="Allow Carry Over">
+            </p-checkbox>
+          </div>
         </div>
 
         <!-- Max Carry Over Days (conditional) -->
-        <div class="form-group" *ngIf="leaveForm.get('carryOver')?.value">
-          <label for="maxCarryOver">Maximum Carry Over Days</label>
-          <input 
-            type="number" 
-            id="maxCarryOver" 
-            formControlName="maxCarryOver" 
-            class="form-control"
-            min="0"
-            [class.invalid]="maxCarryOver?.touched && maxCarryOver?.invalid">
-          <div class="error-message" *ngIf="maxCarryOver?.touched && maxCarryOver?.invalid">
-            <div *ngIf="maxCarryOver?.errors?.['min']">Minimum value is 0</div>
-            <div *ngIf="maxCarryOver?.errors?.['required']">This field is required when carry over is enabled</div>
-          </div>
+        <div class="field" *ngIf="leaveForm.get('carryOver')?.value">
+          <label for="maxCarryOver" class="block text-sm font-medium text-gray-700 mb-1">Maximum Carry Over Days</label>
+          <p-inputNumber
+            id="maxCarryOver"
+            formControlName="maxCarryOver"
+            [showButtons]="true"
+            [min]="0"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': maxCarryOver?.touched && maxCarryOver?.invalid}">
+          </p-inputNumber>
+          <small class="text-red-500" *ngIf="maxCarryOver?.touched && maxCarryOver?.invalid">
+            <span *ngIf="maxCarryOver?.errors?.['min']">Minimum value is 0</span>
+            <span *ngIf="maxCarryOver?.errors?.['required']">This field is required when carry over is enabled</span>
+          </small>
         </div>
 
-        <div class="form-actions">
-          <button 
-            type="submit" 
-            class="btn-primary"
-            [disabled]="leaveForm.invalid || isSubmitting">
-            <span *ngIf="!isSubmitting">Update Leave Type</span>
-            <span *ngIf="isSubmitting">Updating...</span>
-          </button>
-          <button 
-            type="button" 
-            class="btn-secondary"
+        <!-- Form Actions -->
+        <div class="flex justify-end gap-4 pt-6 border-t">
+          <p-button
+            type="button"
+            label="Cancel"
+            icon="pi pi-times"
+            class="p-button-text"
             (click)="onCancel()">
-            Cancel
-          </button>
+          </p-button>
+          <p-button
+            type="submit"
+            label="Update Leave Type"
+            icon="pi pi-check"
+            [loading]="isSubmitting"
+            [disabled]="!leaveForm.valid || isSubmitting">
+          </p-button>
         </div>
       </form>
-    </div>
+    </p-card>
   </div>
 </div>

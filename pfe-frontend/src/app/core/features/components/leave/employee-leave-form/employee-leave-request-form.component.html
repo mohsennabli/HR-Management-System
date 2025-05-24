@@ -1,115 +1,128 @@
-<form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()" class="space-y-6 bg-white p-8 rounded-xl shadow max-w-3xl mx-auto">
-  <!-- Header -->
-  <div class="border-b pb-4">
-    <h2 class="text-2xl font-bold text-gray-800">Request Leave</h2>
-    <p class="text-gray-600 mt-1">Fill in the details below to submit your leave request</p>
-  </div>
-
-  <!-- Add error message display -->
-  <div *ngIf="errorMessage" class="p-message p-message-error">
-    <div class="p-message-wrapper">
-      <span class="p-message-icon pi pi-exclamation-triangle"></span>
-      <span class="p-message-text">{{ errorMessage }}</span>
-    </div>
-  </div>
-
-  <!-- Form Grid -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Leave Type -->
-    <div class="flex flex-col">
-      <label class="font-medium text-gray-700 mb-2">Leave Type</label>
-      <p-dropdown [options]="leaveTypes" 
-                 formControlName="leave_type_id"
-                 optionLabel="name"
-                 optionValue="id"
-                 placeholder="Select leave type"
-                 [showClear]="true"
-                 class="w-full">
-      </p-dropdown>
-      <small *ngIf="leaveRequestForm.get('leave_type_id')?.invalid && leaveRequestForm.get('leave_type_id')?.touched" 
-             class="text-red-500 mt-1">
-        Please select a leave type
-      </small>
+<div class="p-6">
+  <div class="max-w-[1600px] mx-auto">
+    <!-- Header Section -->
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-800">Request Leave</h2>
+      <p class="text-gray-600 mt-1">Fill in the details below to submit your leave request</p>
     </div>
 
-    <!-- Days -->
-    <div class="flex flex-col">
-      <label class="font-medium text-gray-700 mb-2">Duration (Days)</label>
-      <p-inputNumber formControlName="days" 
-                    [showButtons]="true"
-                    [readonly]="true"
-                    class="w-full">
-      </p-inputNumber>
-      <small *ngIf="leaveRequestForm.get('days')?.invalid && leaveRequestForm.get('days')?.touched" 
-             class="text-red-500 mt-1">
-        Please select valid dates to calculate duration
-      </small>
-    </div>
+    <p-toast></p-toast>
 
-    <!-- Start Date -->
-    <div class="flex flex-col">
-      <label class="font-medium text-gray-700 mb-2">Start Date</label>
-      <p-calendar formControlName="start_date"
-                 [showIcon]="true"
-                 dateFormat="dd/mm/yy"
-                 [minDate]="minDate"
-                 placeholder="Select start date"
-                 class="w-full">
-      </p-calendar>
-      <small *ngIf="leaveRequestForm.get('start_date')?.invalid && leaveRequestForm.get('start_date')?.touched" 
-             class="text-red-500 mt-1">
-        Please select a start date
-      </small>
-    </div>
+    <form [formGroup]="leaveRequestForm" (ngSubmit)="onSubmit()" class="bg-white rounded-lg shadow-md p-6">
+      <!-- Error Message -->
+      <p-message *ngIf="errorMessage" severity="error" [text]="errorMessage" class="mb-4"></p-message>
 
-    <!-- End Date -->
-    <div class="flex flex-col">
-      <label class="font-medium text-gray-700 mb-2">End Date</label>
-      <p-calendar formControlName="end_date"
-                 [showIcon]="true"
-                 dateFormat="dd/mm/yy"
-                 [minDate]="minDate"
-                 placeholder="Select end date"
-                 class="w-full">
-      </p-calendar>
-      <small *ngIf="leaveRequestForm.get('end_date')?.hasError('invalidRange')" class="text-red-500 mt-1">
-        End date must be after start date
-      </small>
-      <small *ngIf="leaveRequestForm.get('end_date')?.invalid && leaveRequestForm.get('end_date')?.touched && !leaveRequestForm.get('end_date')?.hasError('invalidRange')" 
-             class="text-red-500 mt-1">
-        Please select an end date
-      </small>
-    </div>
+      <!-- Form Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Leave Type -->
+        <div class="field">
+          <label for="leave_type_id" class="block text-sm font-medium text-gray-700 mb-1">Leave Type</label>
+          <p-dropdown 
+            id="leave_type_id"
+            [options]="leaveTypes" 
+            formControlName="leave_type_id"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select leave type"
+            [showClear]="true"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': leaveRequestForm.get('leave_type_id')?.invalid && leaveRequestForm.get('leave_type_id')?.touched}">
+          </p-dropdown>
+          <small class="text-red-500" *ngIf="leaveRequestForm.get('leave_type_id')?.invalid && leaveRequestForm.get('leave_type_id')?.touched">
+            Please select a leave type
+          </small>
+        </div>
+
+        <!-- Start Date -->
+        <div class="field">
+          <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+          <p-calendar 
+            id="start_date"
+            formControlName="start_date"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            [minDate]="minDate"
+            placeholder="Select start date"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': leaveRequestForm.get('start_date')?.invalid && leaveRequestForm.get('start_date')?.touched}">
+          </p-calendar>
+          <small class="text-red-500" *ngIf="leaveRequestForm.get('start_date')?.invalid && leaveRequestForm.get('start_date')?.touched">
+            Please select a start date
+          </small>
+        </div>
+
+        <!-- End Date -->
+        <div class="field">
+          <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+          <p-calendar 
+            id="end_date"
+            formControlName="end_date"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            [minDate]="minDate"
+            placeholder="Select end date"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': leaveRequestForm.get('end_date')?.invalid && leaveRequestForm.get('end_date')?.touched}">
+          </p-calendar>
+          <small class="text-red-500" *ngIf="leaveRequestForm.get('end_date')?.hasError('invalidRange')">
+            End date must be after start date
+          </small>
+          <small class="text-red-500" *ngIf="leaveRequestForm.get('end_date')?.invalid && leaveRequestForm.get('end_date')?.touched && !leaveRequestForm.get('end_date')?.hasError('invalidRange')">
+            Please select an end date
+          </small>
+        </div>
+
+        <!-- Days -->
+        <div class="field">
+          <label for="days" class="block text-sm font-medium text-gray-700 mb-1">Duration (Days)</label>
+          <p-inputNumber 
+            id="days"
+            formControlName="days" 
+            [showButtons]="true"
+            [readonly]="true"
+            class="w-full"
+            [ngClass]="{'ng-invalid ng-dirty': leaveRequestForm.get('days')?.invalid && leaveRequestForm.get('days')?.touched}">
+          </p-inputNumber>
+          <small class="text-red-500" *ngIf="leaveRequestForm.get('days')?.invalid && leaveRequestForm.get('days')?.touched">
+            Please select valid dates to calculate duration
+          </small>
+        </div>
+      </div>
+
+      <!-- Reason -->
+      <div class="field mt-6">
+        <label for="reason" class="block text-sm font-medium text-gray-700 mb-1">Reason for Leave</label>
+        <textarea 
+          pInputTextarea
+          id="reason"
+          formControlName="reason"
+          rows="4"
+          placeholder="Please provide a reason for your leave request"
+          class="w-full"
+          [ngClass]="{'ng-invalid ng-dirty': leaveRequestForm.get('reason')?.invalid && leaveRequestForm.get('reason')?.touched}">
+        </textarea>
+        <small class="text-red-500" *ngIf="leaveRequestForm.get('reason')?.invalid && leaveRequestForm.get('reason')?.touched">
+          Please provide a reason (minimum 10 characters)
+        </small>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end gap-4 mt-6 pt-6 border-t">
+        <p-button
+          type="button"
+          label="Cancel"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="onCancel()">
+        </p-button>
+        <p-button
+          type="submit"
+          label="Submit Request"
+          icon="pi pi-check"
+          [loading]="isSubmitting"
+          [disabled]="!leaveRequestForm.valid || isSubmitting">
+        </p-button>
+      </div>
+    </form>
   </div>
-
-  <!-- Reason -->
-  <div class="flex flex-col">
-    <label class="font-medium text-gray-700 mb-2">Reason for Leave</label>
-    <textarea pInputTextarea
-              formControlName="reason"
-              rows="4"
-              placeholder="Please provide a reason for your leave request"
-              class="w-full">
-    </textarea>
-    <small *ngIf="leaveRequestForm.get('reason')?.invalid && leaveRequestForm.get('reason')?.touched" 
-           class="text-red-500 mt-1">
-      Please provide a reason (minimum 10 characters)
-    </small>
-  </div>
-
-  <!-- Buttons -->
-  <div class="flex justify-end gap-3 pt-4 border-t">
-    <button pButton type="button" 
-            label="Cancel" 
-            icon="pi pi-times" 
-            class="p-button-sm p-button-secondary"
-            (click)="onCancel()">
-    </button>
-    <button pButton type="submit" 
-            label="Submit Request" 
-            icon="pi pi-check" 
-            class="p-button-sm p-button-primary"
-            [disabled]="isSubmitting || leaveRequestForm.invalid">
-    </button>
-  </div>
-</form>
+</div>

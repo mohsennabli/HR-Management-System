@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { StatisticsService } from './statistics.service';
+import { MessageService } from 'primeng/api';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-statistics-board',
   templateUrl: './statistics-board.component.html',
-  styleUrls: ['./statistics-board.component.scss']
+  styleUrls: ['./statistics-board.component.scss'],
+  providers: [MessageService]
 })
-export class StatisticsBoardComponent {
-  // You can later populate these with real data from your backend
- // Chart data for employees
+export class StatisticsBoardComponent implements OnInit {
+  // Chart data for employees
   employeeChartData: any;
   
   // Chart data for leave requests
@@ -46,124 +49,150 @@ export class StatisticsBoardComponent {
   // Options for line charts
   lineChartOptions: any;
 
-  constructor() { }
+  // Loading state
+  loading: boolean = true;
+
+  constructor(
+    private statisticsService: StatisticsService,
+    private messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
-    this.initChartData();
     this.initChartOptions();
+    this.loadStatistics();
   }
 
-  initChartData() {
-    // Employee chart data
+  getTotalDisciplinaryCases(): number {
+    if (!this.disciplinaryChartData?.datasets[0]?.data) {
+      return 0;
+    }
+    return this.disciplinaryChartData.datasets[0].data.reduce((a: number, b: number) => a + b, 0);
+  }
+
+  loadStatistics() {
+    this.loading = true;
+    this.statisticsService.getOverallStatistics().subscribe({
+      next: (data) => {
+        this.updateChartData(data);
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading statistics:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load statistics data'
+        });
+        this.loading = false;
+      }
+    });
+  }
+
+  updateChartData(data: any) {
+    // Update employee chart data
     this.employeeChartData = {
       labels: ['Full-time', 'Part-time', 'Contract'],
-      datasets: [
-        {
-          data: [300, 50, 100],
-          backgroundColor: ['#3B82F6', '#8B5CF6', '#10B981'],
-          hoverBackgroundColor: ['#2563EB', '#7C3AED', '#059669'],
-          borderWidth: 0
-        }
-      ]
+      datasets: [{
+        data: [
+          data.employees.fullTime || 0,
+          data.employees.partTime || 0,
+          data.employees.contract || 0
+        ],
+        backgroundColor: ['#3B82F6', '#8B5CF6', '#10B981'],
+        hoverBackgroundColor: ['#2563EB', '#7C3AED', '#059669'],
+        borderWidth: 0
+      }]
     };
 
-    // Leave chart data
+    // Update leave chart data
     this.leaveChartData = {
       labels: ['Approved', 'Pending', 'Rejected'],
-      datasets: [
-        {
-          data: [45, 25, 10],
-          backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
-          hoverBackgroundColor: ['#059669', '#D97706', '#DC2626'],
-          borderWidth: 0
-        }
-      ]
+      datasets: [{
+        data: [
+          data.leaves.approved || 0,
+          data.leaves.pending || 0,
+          data.leaves.rejected || 0
+        ],
+        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'],
+        hoverBackgroundColor: ['#059669', '#D97706', '#DC2626'],
+        borderWidth: 0
+      }]
     };
 
-    // Training programs data
+    // Update training chart data
     this.trainingChartData = {
-      labels: ['Jan', 'Feb', 'Mar'],
-      datasets: [
-        {
-          label: 'Programs',
-          data: [2, 3, 3],
-          backgroundColor: '#A855F7',
-          borderColor: '#9333EA',
-          borderWidth: 0,
-          borderRadius: 4
-        }
-      ]
+      labels: data.training.months || [],
+      datasets: [{
+        label: 'Programs',
+        data: data.training.programs || [],
+        backgroundColor: '#A855F7',
+        borderColor: '#9333EA',
+        borderWidth: 0,
+        borderRadius: 4
+      }]
     };
 
-    // Disciplinary cases data
+    // Update disciplinary chart data
     this.disciplinaryChartData = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-      datasets: [
-        {
-          label: 'Cases',
-          data: [1, 3, 2, 4, 3, 2],
-          fill: true,
-          tension: 0.4,
-          backgroundColor: 'rgba(245, 158, 11, 0.2)',
-          borderColor: '#F59E0B',
-          pointBackgroundColor: '#F59E0B',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: '#F59E0B'
-        }
-      ]
+      labels: data.disciplines.months || [],
+      datasets: [{
+        label: 'Cases',
+        data: data.disciplines.cases || [],
+        fill: true,
+        tension: 0.4,
+        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        borderColor: '#F59E0B',
+        pointBackgroundColor: '#F59E0B',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#F59E0B'
+      }]
     };
 
-    // Department data
+    // Update department chart data
     this.departmentChartData = {
-      labels: ['HR', 'IT', 'Finance', 'Marketing', 'Operations', 'Sales'],
-      datasets: [
-        {
-          label: 'Employees',
-          data: [25, 40, 30, 35, 45, 50],
-          backgroundColor: 'rgba(6, 182, 212, 0.2)',
-          borderColor: '#06B6D4',
-          pointBackgroundColor: '#06B6D4',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: '#06B6D4'
-        }
-      ]
+      labels: data.departments.names || [],
+      datasets: [{
+        label: 'Employees',
+        data: data.departments.employeeCounts || [],
+        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+        borderColor: '#06B6D4',
+        pointBackgroundColor: '#06B6D4',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#06B6D4'
+      }]
     };
 
-    // Employee distribution data
+    // Update employee distribution data
     this.employeeDistributionData = {
-      labels: ['HR', 'IT', 'Finance', 'Marketing', 'Operations', 'Sales', 'R&D', 'Admin'],
-      datasets: [
-        {
-          label: 'Employees',
-          data: [25, 40, 30, 35, 45, 50, 20, 15],
-          backgroundColor: 'rgba(59, 130, 246, 0.7)',
-          borderColor: '#3B82F6',
-          borderWidth: 0,
-          borderRadius: 6,
-          hoverBackgroundColor: '#2563EB'
-        }
-      ]
+      labels: data.departments.names || [],
+      datasets: [{
+        label: 'Employees',
+        data: data.departments.employeeCounts || [],
+        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+        borderColor: '#3B82F6',
+        borderWidth: 0,
+        borderRadius: 6,
+        hoverBackgroundColor: '#2563EB'
+      }]
     };
 
-    // Attendance trend data
+    // Update attendance trend data
     this.attendanceTrendData = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      datasets: [
-        {
-          label: 'Attendance Rate',
-          data: [92, 93, 95, 94, 96, 95, 97, 96, 94, 95, 93, 95],
-          fill: true,
-          tension: 0.4,
-          backgroundColor: 'rgba(16, 185, 129, 0.2)',
-          borderColor: '#10B981',
-          pointBackgroundColor: '#10B981',
-          pointBorderColor: '#fff',
-          pointHoverBackgroundColor: '#fff',
-          pointHoverBorderColor: '#10B981'
-        }
-      ]
+      labels: data.attendance.months || [],
+      datasets: [{
+        label: 'Attendance Rate',
+        data: data.attendance.rates || [],
+        fill: true,
+        tension: 0.4,
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        borderColor: '#10B981',
+        pointBackgroundColor: '#10B981',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: '#10B981'
+      }]
     };
   }
 
@@ -305,7 +334,10 @@ export class StatisticsBoardComponent {
             color: 'rgba(203, 213, 225, 0.3)'
           },
           pointLabels: {
-            display: false
+            color: '#64748B',
+            font: {
+              size: 10
+            }
           },
           ticks: {
             display: false
@@ -340,7 +372,10 @@ export class StatisticsBoardComponent {
             display: false
           },
           ticks: {
-            color: '#64748B'
+            color: '#64748B',
+            font: {
+              size: 11
+            }
           }
         },
         y: {
@@ -348,16 +383,15 @@ export class StatisticsBoardComponent {
             color: 'rgba(203, 213, 225, 0.3)'
           },
           ticks: {
-            color: '#64748B'
+            color: '#64748B',
+            font: {
+              size: 11
+            }
           }
         }
       },
       responsive: true,
-      maintainAspectRatio: false,
-      animation: {
-        duration: 1000,
-        easing: 'easeInOutQuart'
-      }
+      maintainAspectRatio: false
     };
 
     // Line chart options
@@ -384,7 +418,10 @@ export class StatisticsBoardComponent {
             display: false
           },
           ticks: {
-            color: '#64748B'
+            color: '#64748B',
+            font: {
+              size: 11
+            }
           }
         },
         y: {
@@ -393,18 +430,14 @@ export class StatisticsBoardComponent {
           },
           ticks: {
             color: '#64748B',
-            callback: function(value: any) {
-              return value + '%';
+            font: {
+              size: 11
             }
           }
         }
       },
       responsive: true,
-      maintainAspectRatio: false,
-      animation: {
-        duration: 1000,
-        easing: 'easeInOutQuart'
-      }
+      maintainAspectRatio: false
     };
   }
 }
