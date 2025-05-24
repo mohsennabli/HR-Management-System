@@ -43,7 +43,7 @@
         <td class="flex gap-2">
           <p-button icon="pi pi-pencil" label="Edit" class="p-button-sm" (onClick)="onEdit(employee.id!)"></p-button>
           <p-button icon="pi pi-trash" label="Delete" class="p-button-sm p-button-danger" (onClick)="onDelete(employee.id!)"></p-button>
-          <p-button icon="pi pi-eye" label="View" class="p-button-sm p-button-secondary" (onClick)="onView(employee)"></p-button>
+          <p-button icon="pi pi-eye" label="View" class="p-button-sm p-button-secondary" (onClick)="onView(employee.id)"></p-button>
         </td>
       </tr>
     </ng-template>
@@ -55,42 +55,171 @@
   </p-table>
 
   <!-- Sidebar for details -->
-  <p-sidebar [(visible)]="isSidebarOpen" position="right" [dismissible]="true" [baseZIndex]="10000" styleClass="w-full md:w-96">
-    <h3 class="text-lg font-semibold mb-4">Employee Details</h3>
-    <div *ngIf="selectedEmployee" class="space-y-2">
-      <p><strong>ID:</strong> {{ selectedEmployee.id }}</p>
-      <p><strong>Name:</strong> {{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}</p>
-      <p><strong>Phone:</strong> {{ selectedEmployee.phone }}</p>
-      <p><strong>Department:</strong> {{ selectedEmployee.department_id }}</p>
-      <p><strong>Position:</strong> {{ selectedEmployee.position }}</p>
-      <p><strong>Hire Date:</strong> {{ selectedEmployee.hire_date }}</p>
-      <p><strong>Salary:</strong> ${{ selectedEmployee.salary }}</p>
-      
-      <!-- Personal Information -->
-      <div class="mt-4">
-        <h4 class="font-semibold mb-2">Personal Information</h4>
-        <p><strong>Birth Date:</strong> {{ selectedEmployee.birth_date | date }}</p>
-        <p><strong>Birth Location:</strong> {{ selectedEmployee.birth_location }}</p>
-        <p><strong>Marital Status:</strong> {{ selectedEmployee.marital_status }}</p>
-        <p><strong>Has Disabled Child:</strong> {{ selectedEmployee.has_disabled_child ? 'Yes' : 'No' }}</p>
-        <p><strong>Address:</strong> {{ selectedEmployee.address }}</p>
-        <p><strong>Diploma:</strong> {{ selectedEmployee.diploma }}</p>
+  <p-sidebar [(visible)]="isSidebarOpen" position="right" [dismissible]="true" [baseZIndex]="10000" styleClass="w-full md:w-[32rem]">
+    <div class="flex flex-col h-full">
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-6 pb-4 border-b">
+        <i class="pi pi-id-card text-2xl text-primary-600"></i>
+        <h3 class="text-xl font-bold text-gray-800">Employee Details</h3>
       </div>
 
-      <!-- CIN Information -->
-      <div class="mt-4">
-        <h4 class="font-semibold mb-2">CIN Information</h4>
-        <p><strong>CIN Number:</strong> {{ selectedEmployee.cin_number }}</p>
-        <p><strong>Issue Date:</strong> {{ selectedEmployee.cin_issue_date | date }}</p>
-        <p><strong>Issue Location:</strong> {{ selectedEmployee.cin_issue_location }}</p>
+      <!-- Stepper -->
+      <p-steps [model]="steps" [activeIndex]="activeStep" [readonly]="false" class="mb-6"></p-steps>
+
+      <!-- Content -->
+      <div *ngIf="selectedEmployee" class="flex-1 overflow-y-auto pr-2">
+        <!-- Step 1: Basic Info -->
+        <div *ngIf="activeStep === 0" class="animate-fadeIn">
+          <p-card styleClass="shadow-none border">
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b">
+                <i class="pi pi-user text-primary-500"></i>
+                <h4 class="text-lg font-semibold text-gray-700">Basic Information</h4>
+              </div>
+            </ng-template>
+            <div class="grid grid-cols-2 gap-4 p-4">
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">ID</div>
+                <div class="text-gray-900">{{ selectedEmployee.id }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Full Name</div>
+                <div class="text-gray-900">{{ selectedEmployee.first_name }} {{ selectedEmployee.last_name }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Phone</div>
+                <div class="text-gray-900">{{ selectedEmployee.phone }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Department</div>
+                <div class="text-gray-900">{{ selectedEmployee.department_id }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Position</div>
+                <div class="text-gray-900">{{ selectedEmployee.position }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Hire Date</div>
+                <div class="text-gray-900">{{ selectedEmployee.hire_date | date }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Salary</div>
+                <div class="text-gray-900">${{ selectedEmployee.salary | number:'1.2-2' }}</div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Step 2: Personal Info -->
+        <div *ngIf="activeStep === 1" class="animate-fadeIn">
+          <p-card styleClass="shadow-none border">
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b">
+                <i class="pi pi-user text-primary-500"></i>
+                <h4 class="text-lg font-semibold text-gray-700">Personal Information</h4>
+              </div>
+            </ng-template>
+            <div class="grid grid-cols-2 gap-4 p-4">
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Birth Date</div>
+                <div class="text-gray-900">{{ selectedEmployee.birth_date | date }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Birth Location</div>
+                <div class="text-gray-900">{{ selectedEmployee.birth_location }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Marital Status</div>
+                <div class="text-gray-900">{{ selectedEmployee.marital_status }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Has Disabled Child</div>
+                <div class="text-gray-900">
+                  <p-tag [value]="selectedEmployee.has_disabled_child ? 'Yes' : 'No'"
+                        [severity]="selectedEmployee.has_disabled_child ? 'warning' : 'success'">
+                  </p-tag>
+                </div>
+              </div>
+              <div class="space-y-1 col-span-2">
+                <div class="text-sm font-medium text-gray-500">Address</div>
+                <div class="text-gray-900">{{ selectedEmployee.address }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Diploma</div>
+                <div class="text-gray-900">{{ selectedEmployee.diploma }}</div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Step 3: CIN Info -->
+        <div *ngIf="activeStep === 2" class="animate-fadeIn">
+          <p-card styleClass="shadow-none border">
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b">
+                <i class="pi pi-id-card text-primary-500"></i>
+                <h4 class="text-lg font-semibold text-gray-700">CIN Information</h4>
+              </div>
+            </ng-template>
+            <div class="grid grid-cols-2 gap-4 p-4">
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">CIN Number</div>
+                <div class="text-gray-900">{{ selectedEmployee.cin_number }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Issue Date</div>
+                <div class="text-gray-900">{{ selectedEmployee.cin_issue_date | date }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Issue Location</div>
+                <div class="text-gray-900">{{ selectedEmployee.cin_issue_location }}</div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Step 4: CNSS & Bank Info -->
+        <div *ngIf="activeStep === 3" class="animate-fadeIn">
+          <p-card styleClass="shadow-none border">
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-2 px-4 py-3 bg-gray-50 border-b">
+                <i class="pi pi-wallet text-primary-500"></i>
+                <h4 class="text-lg font-semibold text-gray-700">CNSS and Bank Information</h4>
+              </div>
+            </ng-template>
+            <div class="grid grid-cols-2 gap-4 p-4">
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">CNSS Number</div>
+                <div class="text-gray-900">{{ selectedEmployee.cnss_number }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Bank Agency</div>
+                <div class="text-gray-900">{{ selectedEmployee.bank_agency }}</div>
+              </div>
+              <div class="space-y-1">
+                <div class="text-sm font-medium text-gray-500">Bank RIB/RIP</div>
+                <div class="text-gray-900">{{ selectedEmployee.bank_rib }}</div>
+              </div>
+            </div>
+          </p-card>
+        </div>
       </div>
 
-      <!-- CNSS and Bank Information -->
-      <div class="mt-4">
-        <h4 class="font-semibold mb-2">CNSS and Bank Information</h4>
-        <p><strong>CNSS Number:</strong> {{ selectedEmployee.cnss_number }}</p>
-        <p><strong>Bank Agency:</strong> {{ selectedEmployee.bank_agency }}</p>
-        <p><strong>Bank RIB/RIP:</strong> {{ selectedEmployee.bank_rib }}</p>
+      <!-- Navigation Buttons -->
+      <div class="flex justify-between items-center mt-6 pt-4 border-t">
+        <p-button *ngIf="activeStep > 0" 
+                  label="Previous" 
+                  icon="pi pi-arrow-left" 
+                  (onClick)="prevStep()" 
+                  styleClass="p-button-secondary">
+        </p-button>
+        <p-button *ngIf="activeStep < steps.length - 1" 
+                  label="Next" 
+                  icon="pi pi-arrow-right" 
+                  iconPos="right" 
+                  (onClick)="nextStep()" 
+                  styleClass="p-button-primary">
+        </p-button>
       </div>
     </div>
   </p-sidebar>

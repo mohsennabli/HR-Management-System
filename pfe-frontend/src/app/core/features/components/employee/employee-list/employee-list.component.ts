@@ -26,6 +26,13 @@ export class EmployeeListComponent implements OnInit {
     { label: 'Marketing', value: 'marketing' }
   ];
 
+  steps = [
+    { label: 'Basic Info' },
+    { label: 'Personal Info' },
+    { label: 'CIN Info' },
+    { label: 'CNSS & Bank' }
+  ];
+  activeStep = 0;
 
   constructor(
     private employeeService: EmployeeService,
@@ -34,8 +41,8 @@ export class EmployeeListComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    
     this.loadEmployees();
+    this.activeStep = 0;
   }
 
   loadEmployees(): void {
@@ -79,6 +86,7 @@ export class EmployeeListComponent implements OnInit {
       next: (response) => {
         this.selectedEmployee = response.data;
         this.isSidebarOpen = true;
+        this.activeStep = 0;
       },
       error: (err) => {
         console.error('Failed to load employee details', err);
@@ -89,6 +97,18 @@ export class EmployeeListComponent implements OnInit {
   closeModal(): void {
     this.isModalOpen = false;
     this.selectedEmployee = null;
+  }
+
+  nextStep(): void {
+    if (this.activeStep < this.steps.length - 1) {
+      this.activeStep++;
+    }
+  }
+
+  prevStep(): void {
+    if (this.activeStep > 0) {
+      this.activeStep--;
+    }
   }
 
   private handleError(message: string, error: any): void {

@@ -26,6 +26,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { SidebarModule } from 'primeng/sidebar';
 import { StepsModule } from 'primeng/steps';
+import { TagModule } from 'primeng/tag';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import { StepsModule } from 'primeng/steps';
     ConfirmDialogModule,
     DialogModule,
     SidebarModule,
-    StepsModule
+    StepsModule,
+    TagModule
   ],
   providers: [EmployeeService],
   exports: [

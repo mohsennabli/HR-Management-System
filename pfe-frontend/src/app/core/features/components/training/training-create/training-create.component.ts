@@ -2,204 +2,174 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TrainingProgramService } from 'src/app/core/features/components/training/training-program.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-training-create',
   template: `
-    <div class="training-create">
-      <div class="page-header">
-        <h2>Add New Training Program</h2>
+    <div class="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
+      <!-- Header -->
+      <div class="flex items-center gap-3">
+        <i class="pi pi-book text-2xl text-primary-600"></i>
+        <h2 class="text-2xl font-semibold text-gray-800">Add New Training Program</h2>
       </div>
-      
-      <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="training-form text-black">
-        <div class="form-group">
-          <label for="programName">Program Name</label>
-          <input 
-            type="text" 
-            id="programName" 
-            formControlName="programName" 
-            placeholder="Enter program name"
-            class="form-control"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']">
-            Program name is required
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea 
-            id="description" 
-            formControlName="description" 
-            placeholder="Enter program description"
-            class="form-control"
-            rows="3"
-          ></textarea>
-          <div class="error-message" *ngIf="trainingForm.get('description')?.touched && trainingForm.get('description')?.errors?.['required']">
-            Description is required
+      <!-- Form Card -->
+      <p-card styleClass="shadow-none border">
+        <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="space-y-6">
+          <!-- Program Name -->
+          <div class="field">
+            <label for="programName" class="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-bookmark"></i>
+              <input 
+                pInputText 
+                id="programName" 
+                formControlName="programName" 
+                placeholder="Enter program name"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']}"
+              >
+            </span>
+            <small class="text-red-500" *ngIf="trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']">
+              Program name is required
+            </small>
           </div>
-        </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="startDate">Start Date</label>
-            <input 
-              type="date" 
-              id="startDate" 
-              formControlName="startDate" 
-              class="form-control"
-            >
-            <div class="error-message" *ngIf="trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']">
-              Start date is required
+          <!-- Description -->
+          <div class="field">
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea 
+              pInputTextarea 
+              id="description" 
+              formControlName="description" 
+              placeholder="Enter program description"
+              [rows]="3"
+              class="w-full"
+              [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('description')?.touched && trainingForm.get('description')?.errors?.['required']}"
+            ></textarea>
+            <small class="text-red-500" *ngIf="trainingForm.get('description')?.touched && trainingForm.get('description')?.errors?.['required']">
+              Description is required
+            </small>
+          </div>
+
+          <!-- Date Range -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="field">
+              <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <p-calendar 
+                id="startDate" 
+                formControlName="startDate" 
+                [showIcon]="true"
+                dateFormat="yy-mm-dd"
+                [readonlyInput]="true"
+                placeholder="Select start date"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']}"
+              ></p-calendar>
+              <small class="text-red-500" *ngIf="trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']">
+                Start date is required
+              </small>
+            </div>
+
+            <div class="field">
+              <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <p-calendar 
+                id="endDate" 
+                formControlName="endDate" 
+                [showIcon]="true"
+                dateFormat="yy-mm-dd"
+                [readonlyInput]="true"
+                placeholder="Select end date"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']}"
+              ></p-calendar>
+              <small class="text-red-500" *ngIf="trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']">
+                End date is required
+              </small>
             </div>
           </div>
 
-          <div class="form-group">
-            <label for="endDate">End Date</label>
-            <input 
-              type="date" 
-              id="endDate" 
-              formControlName="endDate" 
-              class="form-control"
-            >
-            <div class="error-message" *ngIf="trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']">
-              End date is required
-            </div>
+          <!-- Capacity -->
+          <div class="field">
+            <label for="capacity" class="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-users"></i>
+              <input 
+                pInputText 
+                type="number" 
+                id="capacity" 
+                formControlName="capacity" 
+                placeholder="Enter maximum number of participants"
+                class="w-full"
+                min="1"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('capacity')?.touched && trainingForm.get('capacity')?.errors?.['required']}"
+              >
+            </span>
+            <small class="text-red-500" *ngIf="trainingForm.get('capacity')?.touched && trainingForm.get('capacity')?.errors?.['required']">
+              Capacity is required
+            </small>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="capacity">Capacity</label>
-          <input 
-            type="number" 
-            id="capacity" 
-            formControlName="capacity" 
-            placeholder="Enter maximum number of participants"
-            class="form-control"
-            min="1"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('capacity')?.touched && trainingForm.get('capacity')?.errors?.['required']">
-            Capacity is required
+          <!-- Instructor -->
+          <div class="field">
+            <label for="instructor" class="block text-sm font-medium text-gray-700 mb-1">Instructor</label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-user"></i>
+              <input 
+                pInputText 
+                id="instructor" 
+                formControlName="instructor" 
+                placeholder="Enter instructor name"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('instructor')?.touched && trainingForm.get('instructor')?.errors?.['required']}"
+              >
+            </span>
+            <small class="text-red-500" *ngIf="trainingForm.get('instructor')?.touched && trainingForm.get('instructor')?.errors?.['required']">
+              Instructor is required
+            </small>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="instructor">Instructor</label>
-          <input 
-            type="text" 
-            id="instructor" 
-            formControlName="instructor" 
-            placeholder="Enter instructor name"
-            class="form-control"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('instructor')?.touched && trainingForm.get('instructor')?.errors?.['required']">
-            Instructor is required
+          <!-- Location -->
+          <div class="field">
+            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-map-marker"></i>
+              <input 
+                pInputText 
+                id="location" 
+                formControlName="location" 
+                placeholder="Enter training location"
+                class="w-full"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('location')?.touched && trainingForm.get('location')?.errors?.['required']}"
+              >
+            </span>
+            <small class="text-red-500" *ngIf="trainingForm.get('location')?.touched && trainingForm.get('location')?.errors?.['required']">
+              Location is required
+            </small>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="location">Location</label>
-          <input 
-            type="text" 
-            id="location" 
-            formControlName="location" 
-            placeholder="Enter training location"
-            class="form-control"
-          >
-          <div class="error-message" *ngIf="trainingForm.get('location')?.touched && trainingForm.get('location')?.errors?.['required']">
-            Location is required
+          <!-- Form Actions -->
+          <div class="flex justify-end gap-3 pt-4 border-t">
+            <p-button 
+              label="Cancel" 
+              icon="pi pi-times" 
+              styleClass="p-button-text" 
+              (onClick)="onCancel()"
+            ></p-button>
+            <p-button 
+              label="Create Program" 
+              icon="pi pi-check" 
+              type="submit"
+              [disabled]="!trainingForm.valid || isSubmitting"
+              [loading]="isSubmitting"
+            ></p-button>
           </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="!trainingForm.valid">Create Training Program</button>
-          <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
-        </div>
-      </form>
+        </form>
+      </p-card>
     </div>
   `,
-  styles: [`
-    .hr-training-create {
-      padding: 20px;
-    }
-    .page-header {
-      margin-bottom: 20px;
-    }
-    .page-header h2 {
-      margin: 0;
-    }
-    .training-form {
-      max-width: 800px;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-row {
-      display: flex;
-      gap: 20px;
-    }
-    .form-row .form-group {
-      flex: 1;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-    }
-    .form-control {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    .form-control:focus {
-      outline: none;
-      border-color: #3498db;
-    }
-    textarea.form-control {
-      resize: vertical;
-    }
-    .error-message {
-      color: #e74c3c;
-      font-size: 12px;
-      margin-top: 5px;
-    }
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .btn-primary, .btn-secondary {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-    .btn-primary {
-      background-color: #3498db;
-      color: white;
-    }
-    .btn-primary:hover {
-      background-color: #2980b9;
-    }
-    .btn-primary:disabled {
-      background-color: #bdc3c7;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      background-color: #95a5a6;
-      color: white;
-    }
-    .btn-secondary:hover {
-      background-color: #7f8c8d;
-    }
-  `]
+  providers: [MessageService]
 })
 export class TrainingCreateComponent implements OnInit {
   trainingForm!: FormGroup;
@@ -209,7 +179,8 @@ export class TrainingCreateComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private trainingService: TrainingProgramService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -247,14 +218,13 @@ export class TrainingCreateComponent implements OnInit {
     if (startDate && endDate) {
       if (new Date(startDate) > new Date(endDate)) {
         this.trainingForm.get('endDate')?.setErrors({ invalidDate: true });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Invalid Date',
+          detail: 'End date must be after start date'
+        });
       } else {
-        // Clear the invalidDate error if dates are valid
-        const endDateControl = this.trainingForm.get('endDate');
-        if (endDateControl?.errors?.['invalidDate']) {
-          const errors = { ...endDateControl.errors };
-          delete errors['invalidDate'];
-          endDateControl.setErrors(Object.keys(errors).length ? errors : null);
-        }
+        this.trainingForm.get('endDate')?.setErrors(null);
       }
     }
   }
@@ -262,32 +232,31 @@ export class TrainingCreateComponent implements OnInit {
   onSubmit(): void {
     if (this.trainingForm.valid) {
       this.isSubmitting = true;
-      const formData = this.trainingForm.value;
-      
-      const trainingData = {
-        name: formData.programName,
-        description: formData.description,
-        start_date: formData.startDate,
-        end_date: formData.endDate,
-        capacity: formData.capacity,
-        instructor: formData.instructor,
-        location: formData.location,
-        status: formData.status
-      };
-
-      this.trainingService.create(trainingData).subscribe({
-        next: (response) => {
-          this.router.navigate(['/training/list']);
+      this.trainingService.create(this.trainingForm.value).subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Training program created successfully'
+          });
+          this.router.navigate(['/training']);
         },
         error: (error) => {
-          this.errorMessage = error.message || 'An error occurred while creating the training program';
           this.isSubmitting = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to create training program'
+          });
+          console.error('Error creating training program:', error);
         }
       });
+    } else {
+      this.trainingForm.markAllAsTouched();
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/training/list']);
+    this.router.navigate(['/training']);
   }
 }

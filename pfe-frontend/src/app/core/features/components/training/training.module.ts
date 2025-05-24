@@ -26,6 +26,8 @@ import { ToastModule } from 'primeng/toast';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
+import { MessageModule } from 'primeng/message';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,9 @@ import { DropdownModule } from 'primeng/dropdown';
     ToastModule,
     ProgressSpinnerModule,
     CheckboxModule,
-    DropdownModule
+    DropdownModule,
+    CalendarModule,
+    MessageModule
   ],
   providers: [
     TrainingProgramService,
