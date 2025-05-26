@@ -86,14 +86,14 @@ class EmployeeController extends Controller
                 'first_name', 'last_name', 'phone', 'department_id', 'position', 
                 'hire_date', 'salary', 'birth_date', 'birth_location', 'marital_status',
                 'has_disabled_child', 'address', 'diploma', 'cin_number', 'cin_issue_date',
-                'cin_issue_location', 'cnss_number', 'bank_agency', 'bank_rib'
+                'cin_issue_location', 'cnss_number', 'bank_agency', 'bank_rib', 'pin'
             ]);
 
             Log::info('Creating employee with data:', $employeeData);
             $employee = Employee::create($employeeData);
-            $PIN=  $this->AddUser($employee,"192.168.121.210",4370);
-            $employee->pin=$PIN;
-            $employee->update($request->all());
+            $PIN = $this->AddUser($employee, "192.168.121.210", 4370);
+            $employee->pin = $PIN;
+            $employee->save();
             Log::info('Employee created successfully:', ['employee_id' => $employee->id]);
 
             // If is_user is true, create a user account
@@ -281,7 +281,7 @@ class EmployeeController extends Controller
         return response()->json(['data' => $roles], 200);
     }
 
-    public function AddUser(Employe $emp,string $ip,int $port){
+    public function AddUser(Employee $emp, string $ip, int $port){
         try {
             $zk = new ZKTeco($ip, $port);
 
@@ -292,8 +292,8 @@ class EmployeeController extends Controller
                 ], 500);
             }
             $PIN = random_int(100000, 999999);
-            $zk->setUser($emp->id,$emp->id,$emp->nom,$PIN,0,0);
-             return $PIN;
+            $zk->setUser($emp->id, $emp->id, $emp->first_name . ' ' . $emp->last_name, $PIN, 0, 0);
+            return $PIN;
         } catch (\Throwable $e) {
             return 0;
         }

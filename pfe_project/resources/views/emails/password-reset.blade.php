@@ -52,7 +52,6 @@
             <p><strong>New Password:</strong> {{ $password }}</p>
         </div>
         
-        <p class="warning">For security reasons, please change your password after logging in.</p>
         
         <p>If you did not request this password reset, please contact your system administrator immediately.</p>
         

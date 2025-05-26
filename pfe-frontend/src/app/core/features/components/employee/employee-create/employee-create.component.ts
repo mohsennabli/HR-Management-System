@@ -259,7 +259,7 @@ export class EmployeeCreateComponent implements OnInit {
       departmentId: ['', Validators.required],
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
-      salary: ['', [Validators.required, Validators.min(0)]],
+      salary: ['', Validators.required],
       birthDate: [''],
       birthLocation: [''],
       maritalStatus: [''],
@@ -272,9 +272,10 @@ export class EmployeeCreateComponent implements OnInit {
       cnssNumber: [''],
       bankAgency: [''],
       bankRib: [''],
+      pin: [''],
       isUser: [false],
       email: [''],
-      roleId: [''],
+      roleId: ['']
     });
     
     this.items = [
@@ -428,6 +429,7 @@ export class EmployeeCreateComponent implements OnInit {
         cnss_number: formValue.cnssNumber,
         bank_agency: formValue.bankAgency,
         bank_rib: formValue.bankRib,
+        pin: formValue.pin,
         is_user: formValue.isUser,
         email: formValue.isUser ? formValue.email : null,
         role_id: formValue.isUser ? formValue.roleId : null

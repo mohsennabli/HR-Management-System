@@ -28,7 +28,8 @@ class Employee extends Model
         'cin_issue_location',
         'cnss_number',
         'bank_agency',
-        'bank_rib'
+        'bank_rib',
+        'pin'
     ];
 
     protected $casts = [
