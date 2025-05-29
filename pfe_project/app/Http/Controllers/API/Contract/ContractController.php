@@ -40,7 +40,7 @@ class ContractController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'pattern' => 'required|in:full-time,part-time',
+            'pattern' => 'required|in:full_time,part_time',
             'duration' => 'required|integer',
             'sign' => 'required|string',
             'breakup' => 'required|string'
@@ -70,46 +70,47 @@ class ContractController extends Controller
     }
 
     public function storeMedysis(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'employee_id' => 'required|exists:employees,id',
-        'start_date' => 'required|date',
-        'end_date' => 'required|date|after:start_date',
-        'pattern' => 'required|in:full-time,part-time',
-        'type' => 'required|in:permanent,temporary,internship'
-    ]);
+    {
+        $validator = Validator::make($request->all(), [
+            'employee_id' => 'required|exists:employees,id',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+            'pattern' => 'required|in:full_time,part_time',
+            'type' => 'required|in:permanent,temporary,internship'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Validation failed',
-            'errors' => $validator->errors()
-        ], 422);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $data = $request->only(['employee_id', 'start_date', 'end_date', 'pattern', 'type']);
+            
+            // Format dates properly
+            $data['start_date'] = date('Y-m-d', strtotime($data['start_date']));
+            $data['end_date'] = date('Y-m-d', strtotime($data['end_date']));
+
+            $contract = MedysisContract::create($data);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Medysis contract created successfully',
+                'data' => $contract
+            ], 201);
+        } catch (\Exception $e) {
+            \Log::error('Medysis Contract Creation Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create Medysis contract',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    try {
-        $data = $request->only(['employee_id', 'start_date', 'end_date', 'pattern', 'type']);
-        
-        // Format dates properly
-        $data['start_date'] = date('Y-m-d', strtotime($data['start_date']));
-        $data['end_date'] = date('Y-m-d', strtotime($data['end_date']));
-
-        $contract = MedysisContract::create($data);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Medysis contract created successfully',
-            'data' => $contract
-        ], 201);
-    } catch (\Exception $e) {
-        \Log::error('Medysis Contract Creation Error: ' . $e->getMessage());
-        return response()->json([
-            'status' => 'error',
-            'message' => 'Failed to create Medysis contract',
-            'error' => $e->getMessage()
-        ], 500);
-    }
-}
     public function show($id)
     {
         try {
@@ -147,7 +148,7 @@ class ContractController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'pattern' => 'required|in:full-time,part-time'
+            'pattern' => 'required|in:full_time,part_time'
         ]);
 
         if ($validator->fails()) {

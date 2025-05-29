@@ -19,19 +19,19 @@ import { MessageService } from 'primeng/api';
         <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="space-y-6">
           <!-- Program Name -->
           <div class="field">
-            <label for="programName" class="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
             <span class="p-input-icon-left w-full">
               <i class="pi pi-bookmark"></i>
               <input 
                 pInputText 
-                id="programName" 
-                formControlName="programName" 
+                id="name" 
+                formControlName="name" 
                 placeholder="Enter program name"
                 class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']}"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('name')?.touched && trainingForm.get('name')?.errors?.['required']}"
               >
             </span>
-            <small class="text-red-500" *ngIf="trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']">
+            <small class="text-red-500" *ngIf="trainingForm.get('name')?.touched && trainingForm.get('name')?.errors?.['required']">
               Program name is required
             </small>
           </div>
@@ -56,35 +56,35 @@ import { MessageService } from 'primeng/api';
           <!-- Date Range -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="field">
-              <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
               <p-calendar 
-                id="startDate" 
-                formControlName="startDate" 
+                id="start_date" 
+                formControlName="start_date" 
                 [showIcon]="true"
                 dateFormat="yy-mm-dd"
                 [readonlyInput]="true"
                 placeholder="Select start date"
                 class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']}"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('start_date')?.touched && trainingForm.get('start_date')?.errors?.['required']}"
               ></p-calendar>
-              <small class="text-red-500" *ngIf="trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']">
+              <small class="text-red-500" *ngIf="trainingForm.get('start_date')?.touched && trainingForm.get('start_date')?.errors?.['required']">
                 Start date is required
               </small>
             </div>
 
             <div class="field">
-              <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
               <p-calendar 
-                id="endDate" 
-                formControlName="endDate" 
+                id="end_date" 
+                formControlName="end_date" 
                 [showIcon]="true"
                 dateFormat="yy-mm-dd"
                 [readonlyInput]="true"
                 placeholder="Select end date"
                 class="w-full"
-                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']}"
+                [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('end_date')?.touched && trainingForm.get('end_date')?.errors?.['required']}"
               ></p-calendar>
-              <small class="text-red-500" *ngIf="trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']">
+              <small class="text-red-500" *ngIf="trainingForm.get('end_date')?.touched && trainingForm.get('end_date')?.errors?.['required']">
                 End date is required
               </small>
             </div>
@@ -190,10 +190,10 @@ export class TrainingCreateComponent implements OnInit {
 
   private initializeForm(): void {
     this.trainingForm = this.fb.group({
-      programName: ['', Validators.required],
+      name: ['', Validators.required],
       description: ['', Validators.required],
-      startDate: ['', Validators.required],
-      endDate: ['', Validators.required],
+      start_date: ['', Validators.required],
+      end_date: ['', Validators.required],
       capacity: ['', [Validators.required, Validators.min(1)]],
       instructor: ['', Validators.required],
       location: ['', Validators.required],
@@ -202,29 +202,29 @@ export class TrainingCreateComponent implements OnInit {
   }
 
   private setupDateChangeListeners(): void {
-    this.trainingForm.get('startDate')?.valueChanges.subscribe(() => {
+    this.trainingForm.get('start_date')?.valueChanges.subscribe(() => {
       this.validateDates();
     });
 
-    this.trainingForm.get('endDate')?.valueChanges.subscribe(() => {
+    this.trainingForm.get('end_date')?.valueChanges.subscribe(() => {
       this.validateDates();
     });
   }
 
   private validateDates(): void {
-    const startDate = this.trainingForm.get('startDate')?.value;
-    const endDate = this.trainingForm.get('endDate')?.value;
+    const startDate = this.trainingForm.get('start_date')?.value;
+    const endDate = this.trainingForm.get('end_date')?.value;
 
     if (startDate && endDate) {
       if (new Date(startDate) > new Date(endDate)) {
-        this.trainingForm.get('endDate')?.setErrors({ invalidDate: true });
+        this.trainingForm.get('end_date')?.setErrors({ invalidDate: true });
         this.messageService.add({
           severity: 'error',
           summary: 'Invalid Date',
           detail: 'End date must be after start date'
         });
       } else {
-        this.trainingForm.get('endDate')?.setErrors(null);
+        this.trainingForm.get('end_date')?.setErrors(null);
       }
     }
   }
@@ -239,7 +239,7 @@ export class TrainingCreateComponent implements OnInit {
             summary: 'Success',
             detail: 'Training program created successfully'
           });
-          this.router.navigate(['/training']);
+          this.router.navigate(['/dashboard/training']);
         },
         error: (error) => {
           this.isSubmitting = false;
@@ -257,6 +257,6 @@ export class TrainingCreateComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/training']);
+    this.router.navigate(['/dashboard/training']);
   }
 }

@@ -40,17 +40,7 @@ import { DashboardSidebarComponent } from 'src/app/core/sidebar/sidebar.componen
                 styleClass="border-none"
               ></p-breadcrumb>
             </div>
-            <div class="flex items-center space-x-4">
-              <button 
-                pButton 
-                type="button"
-                [icon]="(isDarkMode$ | async) ? 'pi pi-sun' : 'pi pi-moon'"
-                class="p-button-text p-button-rounded"
-                (click)="toggleTheme()"
-                pTooltip="Toggle theme"
-                tooltipPosition="bottom"
-              ></button>
-            </div>
+           
           </div>
         </header>
 

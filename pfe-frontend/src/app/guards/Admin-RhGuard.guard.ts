@@ -11,10 +11,6 @@ role_id=0;
     if (this.role_id!=2) {
       return true;
     }
-    
-    // Clear any existing auth data
-    
-    
     // Redirect to login
     this.router.navigate(['/dashboard/profile']);
     return false;

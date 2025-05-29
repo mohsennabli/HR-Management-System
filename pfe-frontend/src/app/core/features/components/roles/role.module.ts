@@ -10,6 +10,12 @@ import { ChipModule } from 'primeng/chip';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+
 @NgModule({
   declarations: [
     RoleListComponent,
@@ -24,7 +30,12 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     ChipModule,
     ButtonModule,
     MessageModule,
-    ProgressSpinnerModule
-  ]
+    ProgressSpinnerModule,
+    ToastModule,
+    ConfirmDialogModule,
+    CheckboxModule,
+    InputTextModule
+  ],
+  providers: [MessageService, ConfirmationService]
 })
 export class RoleModule { }

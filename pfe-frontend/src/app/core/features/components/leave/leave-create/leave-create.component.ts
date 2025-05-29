@@ -43,12 +43,11 @@ export class LeaveCreateComponent {
 
   private initializeForm(): void {
     this.leaveForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(50)]],
-      description: ['', [Validators.required, Validators.maxLength(200)]],
+      name: ['', [Validators.required, Validators.maxLength(255)]],
+      description: ['', Validators.required],
       daysAllowed: ['', [
         Validators.required,
-        Validators.min(1),
-        Validators.max(365)
+        Validators.min(1)
       ]],
       isPaid: [false],
       carryOver: [false],
@@ -68,13 +67,14 @@ export class LeaveCreateComponent {
   }
 
   private prepareLeaveTypeData(): any {
+    const formData = this.leaveForm.value;
     return {
-      name: this.leaveForm.value.name,
-      description: this.leaveForm.value.description,
-      days_allowed: Number(this.leaveForm.value.daysAllowed),
-      is_paid: this.leaveForm.value.isPaid,
-      carry_over: this.leaveForm.value.carryOver,
-      max_carry_over: this.leaveForm.value.carryOver ? Number(this.leaveForm.value.maxCarryOver) : 0
+      name: formData.name,
+      description: formData.description,
+      days_allowed: Number(formData.daysAllowed),
+      is_paid: Boolean(formData.isPaid),
+      carry_over: Boolean(formData.carryOver),
+      max_carry_over: formData.carryOver ? Number(formData.maxCarryOver) : 0
     };
   }
 

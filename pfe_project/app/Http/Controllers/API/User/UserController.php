@@ -96,4 +96,15 @@ class UserController extends Controller
             'message' => 'User deleted successfully'
         ], 200);
     }
+
+    public function getUsersByRole($roleId)
+    {
+        $users = User::where('role_id', $roleId)->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $users,
+            'message' => 'Users retrieved successfully'
+        ]);
+    }
 }

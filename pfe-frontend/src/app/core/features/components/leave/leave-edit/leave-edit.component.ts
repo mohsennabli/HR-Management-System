@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LeaveTypeService } from 'src/app/core/features/components/leave/leave-type.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-leave-edit',
@@ -18,15 +19,15 @@ export class LeaveEditComponent implements OnInit {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private leaveTypeService: LeaveTypeService
+    private leaveTypeService: LeaveTypeService,
+    private messageService: MessageService
   ) {
     this.leaveForm = this.fb.group({
-      name: ['', [Validators.required, Validators.maxLength(50)]],
-      description: ['', [Validators.required, Validators.maxLength(200)]],
+      name: ['', [Validators.required, Validators.maxLength(255)]],
+      description: ['', Validators.required],
       daysAllowed: ['', [
         Validators.required,
-        Validators.min(1),
-        Validators.max(365)
+        Validators.min(1)
       ]],
       isPaid: [false],
       carryOver: [false],
@@ -86,23 +87,34 @@ export class LeaveEditComponent implements OnInit {
     if (this.leaveForm.invalid || this.isSubmitting) return;
 
     this.isSubmitting = true;
+    const formData = this.leaveForm.value;
     const leaveTypeData = {
-      name: this.leaveForm.value.name,
-      description: this.leaveForm.value.description,
-      days_allowed: Number(this.leaveForm.value.daysAllowed),
-      is_paid: this.leaveForm.value.isPaid,
-      carry_over: this.leaveForm.value.carryOver,
-      max_carry_over: this.leaveForm.value.carryOver ? Number(this.leaveForm.value.maxCarryOver) : 0
+      name: formData.name,
+      description: formData.description,
+      days_allowed: Number(formData.daysAllowed),
+      is_paid: Boolean(formData.isPaid),
+      carry_over: Boolean(formData.carryOver),
+      max_carry_over: formData.carryOver ? Number(formData.maxCarryOver) : 0
     };
 
     this.leaveTypeService.update(this.leaveId, leaveTypeData).subscribe({
-      next: () => {
-        this.router.navigate(['/dashboard/leave']);
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Leave type updated successfully'
+        });
+        setTimeout(() => {
+          this.router.navigate(['/dashboard/leave']);
+        }, 1500);
       },
       error: (error) => {
-        console.error('Update error:', error);
-        this.errorMessage = error.error?.message || 'Failed to update leave type';
         this.isSubmitting = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.error?.message || 'Failed to update leave type'
+        });
       }
     });
   }

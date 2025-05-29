@@ -1,23 +1,25 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContractService } from '../contract.service';
 import { EmployeeService } from '../../employee/employee.service';
 import { MessageService } from 'primeng/api';
 import { Contract, SIVPContract, MedysisContract } from '../contract.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-contract-form',
   templateUrl: './contract-form.component.html',
   providers: [MessageService]
 })
-export class ContractFormComponent implements OnInit {
+export class ContractFormComponent implements OnInit, OnDestroy {
   contractForm: FormGroup;
   employees: any[] = [];
   loading: boolean = false;
   isEditMode: boolean = false;
   contractId: number | null = null;
   contractType: 'sivp' | 'medysis' = 'sivp';
+  private dateSubscription: Subscription | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -31,9 +33,9 @@ export class ContractFormComponent implements OnInit {
       employee_id: ['', Validators.required],
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],
-      pattern: ['full-time', Validators.required],
+      pattern: ['full_time', Validators.required],
       // SIVP specific fields
-      duration: [null],
+      duration: [{value: null, disabled: true}],
       sign: [''],
       breakup: [''],
       // Medysis specific fields
@@ -55,6 +57,41 @@ export class ContractFormComponent implements OnInit {
       this.contractType = params['type'] || 'sivp';
       this.updateFormValidation();
     });
+
+    // Subscribe to date changes to calculate duration
+    this.dateSubscription = this.contractForm.valueChanges.subscribe(() => {
+      this.calculateDuration();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.dateSubscription) {
+      this.dateSubscription.unsubscribe();
+    }
+  }
+
+  calculateDuration(): void {
+    const startDate = this.contractForm.get('start_date')?.value;
+    const endDate = this.contractForm.get('end_date')?.value;
+
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      // Calculate months between dates
+      const months = (end.getFullYear() - start.getFullYear()) * 12 + 
+                    (end.getMonth() - start.getMonth());
+      
+      // Add partial month if end date is not at the start of the month
+      const partialMonth = end.getDate() > start.getDate() ? 1 : 0;
+      
+      const totalMonths = months + partialMonth;
+      
+      // Update duration field if it's a valid number
+      if (totalMonths > 0) {
+        this.contractForm.get('duration')?.setValue(totalMonths, { emitEvent: false });
+      }
+    }
   }
 
   updateFormValidation(): void {
@@ -115,7 +152,7 @@ export class ContractFormComponent implements OnInit {
   onSubmit(): void {
     if (this.contractForm.valid) {
       this.loading = true;
-      const formData = { ...this.contractForm.value };
+      const formData = { ...this.contractForm.getRawValue() };
 
       // Extract employee_id if it's an object
       if (formData.employee_id && typeof formData.employee_id === 'object') {

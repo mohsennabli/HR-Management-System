@@ -8,146 +8,172 @@ import { MenuItem } from 'primeng/api';
 @Component({
   selector: 'app-employee-profile',
   template: `
-    <div class="p-4 bg-gray-50 min-h-screen">
-      <div class="max-w-6xl mx-auto">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-semibold text-gray-800">My Profile</h2>
-          <p-toast></p-toast>
+    <div class="p-4 md:p-6 bg-gray-50 min-h-screen">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header Section -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-800">My Profile</h2>
+            <p class="text-gray-600 mt-1">View and manage your professional information</p>
+          </div>
+          <p-toast position="top-right"></p-toast>
         </div>
 
+        <!-- Loading State -->
         <div *ngIf="isLoading" class="flex justify-center items-center h-64">
-          <p-progressSpinner></p-progressSpinner>
+          <p-progressSpinner strokeWidth="4"></p-progressSpinner>
         </div>
 
-        <div *ngIf="!isLoading && employee" class="space-y-6">
+        <div *ngIf="!isLoading && employee" class="space-y-8">
           <!-- Profile Overview Card -->
-          <p-card styleClass="h-full">
+          <p-card styleClass="h-full shadow-lg hover:shadow-xl transition-shadow duration-300">
             <ng-template pTemplate="header">
-              <div class="bg-blue-50 p-6 text-center">
-                <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-                  <i class="pi pi-user text-6xl text-blue-500"></i>
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 text-center">
+                <div class="w-32 h-32 mx-auto mb-4 rounded-full bg-white shadow-md flex items-center justify-center border-4 border-white">
+                  <i class="pi pi-user text-6xl text-blue-600"></i>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800">{{ employee.first_name }} {{ employee.last_name }}</h3>
-                <p class="text-gray-600">{{ employee.position || 'No Position' }}</p>
-                <p-tag *ngIf="employee.department?.name" [value]="employee.department?.name" severity="info" class="mt-2"></p-tag>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">{{ employee.first_name }} {{ employee.last_name }}</h3>
+                <p class="text-gray-600 text-lg mb-3">{{ employee.position || 'No Position' }}</p>
+                <div class="flex justify-center gap-2">
+                  <p-tag *ngIf="employee.department?.name" [value]="employee.department?.name" severity="info" styleClass="text-sm px-3 py-1"></p-tag>
+                </div>
               </div>
             </ng-template>
 
-            <div class="space-y-4">
-              <div class="flex items-center text-gray-600">
-                <i class="pi pi-envelope mr-2"></i>
-                <span>{{ employee.email }}</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+              <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                <i class="pi pi-envelope text-blue-600 text-xl mr-3"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Email</p>
+                  <p class="font-medium">{{ employee.email }}</p>
+                </div>
               </div>
-              <div class="flex items-center text-gray-600">
-                <i class="pi pi-phone mr-2"></i>
-                <span>{{ employee.phone || 'No phone number' }}</span>
+              <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                <i class="pi pi-phone text-blue-600 text-xl mr-3"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Phone</p>
+                  <p class="font-medium">{{ employee.phone || 'Not provided' }}</p>
+                </div>
               </div>
-              <div class="flex items-center text-gray-600">
-                <i class="pi pi-calendar mr-2"></i>
-                <span>Hired: {{ employee.hire_date | date:'mediumDate' }}</span>
+              <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                <i class="pi pi-calendar text-blue-600 text-xl mr-3"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Hire Date</p>
+                  <p class="font-medium">{{ employee.hire_date | date:'mediumDate' }}</p>
+                </div>
               </div>
-              <div class="flex items-center text-gray-600">
-                <i class="pi pi-map-marker mr-2"></i>
-                <span>{{ employee.address || 'No address' }}</span>
+              <div class="flex items-center p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                <i class="pi pi-map-marker text-blue-600 text-xl mr-3"></i>
+                <div>
+                  <p class="text-sm text-gray-500">Address</p>
+                  <p class="font-medium">{{ employee.address || 'Not provided' }}</p>
+                </div>
               </div>
             </div>
           </p-card>
 
           <!-- Stepper Navigation -->
-          <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false" styleClass="mb-4"></p-steps>
+          <div class="bg-white rounded-xl shadow-lg p-4">
+            <p-steps [model]="steps" [activeIndex]="activeIndex" [readonly]="false" styleClass="mb-4"></p-steps>
+          </div>
 
           <!-- Content Sections -->
-          <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
             <!-- Personal Information -->
-            <div *ngIf="activeIndex === 0">
+            <div *ngIf="activeIndex === 0" class="space-y-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b">Personal Information</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Birth Date</label>
-                  <p class="text-gray-900">{{ employee.birth_date ? (employee.birth_date | date:'mediumDate') : 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.birth_date ? (employee.birth_date | date:'mediumDate') : 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Birth Location</label>
-                  <p class="text-gray-900">{{ employee.birth_location || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.birth_location || 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Marital Status</label>
-                  <p class="text-gray-900">{{ employee.marital_status || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.marital_status || 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Disabled Child</label>
                   <p-tag [value]="employee.has_disabled_child ? 'Yes' : 'No'" 
-                        [severity]="employee.has_disabled_child ? 'warning' : 'success'">
+                        [severity]="employee.has_disabled_child ? 'warning' : 'success'"
+                        styleClass="text-sm px-3 py-1">
                   </p-tag>
                 </div>
               </div>
             </div>
 
             <!-- Professional Information -->
-            <div *ngIf="activeIndex === 1">
+            <div *ngIf="activeIndex === 1" class="space-y-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b">Professional Information</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Department</label>
-                  <p class="text-gray-900">{{ employee.department?.name || 'Not assigned' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.department?.name || 'Not assigned' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Position</label>
-                  <p class="text-gray-900">{{ employee.position || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.position || 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Salary</label>
-                  <p class="text-gray-900">{{ employee.salary ? (employee.salary | currency:'MAD':'symbol-narrow':'1.2-2') : 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.salary ? (employee.salary | currency:'MAD':'symbol-narrow':'1.2-2') : 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Diploma</label>
-                  <p class="text-gray-900">{{ employee.diploma || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.diploma || 'Not specified' }}</p>
                 </div>
               </div>
             </div>
 
             <!-- Identification Information -->
-            <div *ngIf="activeIndex === 2">
+            <div *ngIf="activeIndex === 2" class="space-y-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b">Identification Information</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">CIN Number</label>
-                  <p class="text-gray-900">{{ employee.cin_number || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.cin_number || 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">CIN Issue Date</label>
-                  <p class="text-gray-900">{{ employee.cin_issue_date ? (employee.cin_issue_date | date:'mediumDate') : 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.cin_issue_date ? (employee.cin_issue_date | date:'mediumDate') : 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">CIN Issue Location</label>
-                  <p class="text-gray-900">{{ employee.cin_issue_location || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.cin_issue_location || 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">CNSS Number</label>
-                  <p class="text-gray-900">{{ employee.cnss_number || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.cnss_number || 'Not specified' }}</p>
                 </div>
               </div>
             </div>
 
             <!-- Banking Information -->
-            <div *ngIf="activeIndex === 3">
+            <div *ngIf="activeIndex === 3" class="space-y-6">
+              <h3 class="text-xl font-semibold text-gray-800 mb-6 pb-2 border-b">Banking Information</h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Bank Agency</label>
-                  <p class="text-gray-900">{{ employee.bank_agency || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.bank_agency || 'Not specified' }}</p>
                 </div>
-                <div>
+                <div class="p-4 rounded-lg bg-gray-50">
                   <label class="block text-sm font-medium text-gray-600 mb-1">Bank RIB</label>
-                  <p class="text-gray-900">{{ employee.bank_rib || 'Not specified' }}</p>
+                  <p class="text-gray-900 font-medium">{{ employee.bank_rib || 'Not specified' }}</p>
                 </div>
               </div>
             </div>
 
             <!-- Navigation Buttons -->
-            <div class="flex justify-between mt-6">
+            <div class="flex justify-between mt-8 pt-4 border-t">
               <p-button 
                 *ngIf="activeIndex > 0"
                 label="Previous" 
                 icon="pi pi-arrow-left" 
                 (onClick)="prevStep()"
-                styleClass="p-button-secondary">
+                styleClass="p-button-secondary p-button-outlined">
               </p-button>
               <p-button 
                 *ngIf="activeIndex < steps.length - 1"
@@ -155,14 +181,17 @@ import { MenuItem } from 'primeng/api';
                 icon="pi pi-arrow-right" 
                 iconPos="right"
                 (onClick)="nextStep()"
-                styleClass="p-button-primary">
+                styleClass="p-button">
               </p-button>
             </div>
           </div>
         </div>
 
-        <div *ngIf="!isLoading && !employee" class="text-center py-8">
-          <p class="text-gray-500">Unable to load profile information</p>
+        <!-- Error State -->
+        <div *ngIf="!isLoading && !employee" class="text-center py-12 bg-white rounded-xl shadow-lg">
+          <i class="pi pi-exclamation-circle text-5xl text-red-500 mb-4"></i>
+          <p class="text-xl text-gray-700 mb-2">Unable to load profile information</p>
+          <p class="text-gray-500">Please try refreshing the page or contact support if the problem persists.</p>
         </div>
       </div>
     </div>
@@ -174,23 +203,75 @@ import { MenuItem } from 'primeng/api';
         height: 50px;
       }
       .p-card {
-        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        border-radius: 1rem;
+        overflow: hidden;
       }
       .p-card .p-card-header {
-        background-color: #f8fafc;
-        border-bottom: 1px solid #e2e8f0;
+        padding: 0;
       }
-      .p-card .p-card-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #1e293b;
+      .p-steps {
+        .p-steps-item {
+          .p-steps-number {
+            background: #3b82f6;
+            color: #ffffff;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1.25rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+          }
+          .p-steps-title {
+            font-weight: 500;
+            color: #4b5563;
+            margin-top: 0.5rem;
+          }
+          &.p-highlight {
+            .p-steps-number {
+              background: #2563eb;
+              box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+            }
+            .p-steps-title {
+              color: #1e40af;
+              font-weight: 600;
+            }
+          }
+        }
       }
-      .p-steps .p-steps-item .p-steps-number {
-        background: #3b82f6;
-        color: #ffffff;
+      .p-button {
+        &.p-button-primary {
+          background: #3b82f6;
+          &:hover {
+            background: #2563eb;
+          }
+        }
+        &.p-button-secondary {
+          &.p-button-outlined {
+            border-color: #6b7280;
+            color: #4b5563;
+            &:hover {
+              background: #f3f4f6;
+            }
+          }
+        }
       }
-      .p-steps .p-steps-item.p-highlight .p-steps-number {
-        background: #2563eb;
+      .p-tag {
+        border-radius: 9999px;
+        &.p-tag-info {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+        &.p-tag-success {
+          background: #dcfce7;
+          color: #166534;
+        }
+        &.p-tag-warning {
+          background: #fef3c7;
+          color: #92400e;
+        }
       }
     }
   `]

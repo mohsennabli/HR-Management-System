@@ -42,4 +42,8 @@ export class UserService {
   deleteUser(id: number): Observable<ApiResponse<void>> {
     return this.api.delete<ApiResponse<void>>(`${this.endpoint}/${id}`);
   }
+
+  getUsersByRole(roleId: number): Observable<ApiResponse<User[]>> {
+    return this.api.get<ApiResponse<User[]>>(`${this.endpoint}/by-role/${roleId}`);
+  }
 }

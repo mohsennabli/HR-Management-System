@@ -59,8 +59,8 @@
                         <div class="field">
                             <label for="pattern">Pattern</label>
                             <p-dropdown id="pattern" formControlName="pattern" [options]="[
-                                {label: 'Full Time', value: 'full-time'},
-                                {label: 'Part Time', value: 'part-time'}
+                                {label: 'Full Time', value: 'full_time'},
+                                {label: 'Part Time', value: 'part_time'}
                             ]" placeholder="Select a pattern"></p-dropdown>
                             <small class="p-error" *ngIf="contractForm.get('pattern')?.invalid && contractForm.get('pattern')?.touched">
                                 Pattern is required
@@ -80,7 +80,9 @@
                         <div class="col-12 md:col-6">
                             <div class="field">
                                 <label for="duration">Duration (months)</label>
-                                <p-inputNumber id="duration" formControlName="duration" [min]="1"></p-inputNumber>
+                                <p-inputNumber id="duration" formControlName="duration" [readonly]="true" 
+                                    pTooltip="Duration is automatically calculated from start and end dates"
+                                    tooltipPosition="top"></p-inputNumber>
                                 <small class="p-error" *ngIf="contractForm.get('duration')?.invalid && contractForm.get('duration')?.touched">
                                     Duration is required
                                 </small>

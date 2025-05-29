@@ -4,15 +4,27 @@ import { LeaveTypeService } from '../leave-type.service';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FilterService } from 'primeng/api';
 
+interface LeaveType {
+  id: number;
+  name: string;
+  description: string;
+  days_allowed: number;
+  is_paid: boolean;
+  carry_over: boolean;
+  max_carry_over: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 @Component({
   selector: 'app-leave-list',
   templateUrl: './leave-list.component.html',
   providers: [MessageService, ConfirmationService, FilterService]
 })
 export class LeaveListComponent implements OnInit {
-  leaveTypes: any[] = [];
+  leaveTypes: LeaveType[] = [];
   loading = true;
-  error: string | null = null;
+  error: string | undefined = undefined;
 
   constructor(
     private leaveTypeService: LeaveTypeService,
@@ -29,12 +41,13 @@ export class LeaveListComponent implements OnInit {
   loadLeaveTypes(): void {
     this.loading = true;
     this.leaveTypeService.getAll().subscribe({
-      next: (data) => {
-        this.leaveTypes = data;
+      next: (response: any) => {
+        // Ensure we're accessing the data property if response is wrapped
+        this.leaveTypes = response.data || response;
         this.loading = false;
       },
       error: (error) => {
-        this.error = 'Failed to load leave types';
+        this.error = error.error?.message || 'Failed to load leave types';
         this.loading = false;
         this.messageService.add({
           severity: 'error',
@@ -49,11 +62,11 @@ export class LeaveListComponent implements OnInit {
     this.router.navigate(['/dashboard/leave/create']);
   }
 
-  onEdit(leaveType: any): void {
+  onEdit(leaveType: LeaveType): void {
     this.router.navigate(['/dashboard/leave/edit', leaveType.id]);
   }
 
-  onDelete(leaveType: any): void {
+  onDelete(leaveType: LeaveType): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete ${leaveType.name}?`,
       header: 'Delete Confirmation',
@@ -72,7 +85,7 @@ export class LeaveListComponent implements OnInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Error',
-              detail: 'Failed to delete leave type'
+              detail: error.error?.message || 'Failed to delete leave type'
             });
           }
         });
