@@ -6,40 +6,107 @@ import { FormsModule } from '@angular/forms';
 import { CalendarModule } from 'primeng/calendar';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-working-hours',
   templateUrl: './working-hours.component.html',
   standalone: true,
-  imports: [CommonModule, FormsModule, CalendarModule, TableModule]
+  imports: [CommonModule, FormsModule, CalendarModule, TableModule, InputTextModule]
 })
 export class WorkingHoursComponent implements OnInit {
   workHours: WorkHours[] = [];
   isLoading = false;
+  errorMessage = '';
   selectedDate = new Date();
   weekRange = '';
-  private profile = JSON.parse(localStorage.getItem('profile') as string);
-  userId = this.profile?.id_employe;
-  isEmployee = this.profile?.role_id === 4;
+  selectedUserId = '';
+  role_id = 0;
+  
+  // Role-based access control
+  isAdmin = false;
+  isManager = false;
+  isEmployee = false;
 
-  constructor(private attendanceService: AttendanceService) {}
+  constructor(private attendanceService: AttendanceService) {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        console.error('No user data found in localStorage');
+        this.role_id = 0;
+        this.selectedUserId = '';
+      } else {
+        const user = JSON.parse(userStr);
+        this.role_id = user?.role_id || 0;
+        this.selectedUserId = user?.employee_id || '';
+        
+        console.log('User data loaded:', {
+          user,
+          role_id: this.role_id,
+          employee_id: this.selectedUserId
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user data from localStorage:', error);
+      this.role_id = 0;
+      this.selectedUserId = '';
+    }
+
+    // Set role-based flags
+    this.isAdmin = this.role_id === 1;      // Admin role
+    this.isManager = this.role_id === 3;    // Manager role
+    this.isEmployee = this.role_id === 2;   // Employee role
+
+    if (this.role_id === 0) {
+      console.error('Invalid role_id detected:', this.role_id);
+    }
+
+    console.log('User Role Configuration:', {
+      role_id: this.role_id,
+      isAdmin: this.isAdmin,
+      isManager: this.isManager,
+      isEmployee: this.isEmployee,
+      employee_id: this.selectedUserId
+    });
+  }
 
   ngOnInit(): void {
-    console.log('Initial date:', this.selectedDate.toISOString());
+    // Verify user data is still valid
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.role_id || !user.employee_id) {
+        console.error('Invalid user data in ngOnInit:', user);
+        this.errorMessage = 'Invalid user data. Please log in again.';
+        return;
+      }
+
+      // For employees and managers, always use their ID
+      if (this.isEmployee || this.isManager) {
+        this.selectedUserId = user.employee_id;
+        console.log('Setting user ID for employee/manager:', {
+          userId: this.selectedUserId,
+          role: this.isEmployee ? 'Employee' : 'Manager',
+          role_id: this.role_id
+        });
+      }
+    } catch (error) {
+      console.error('Error verifying user data in ngOnInit:', error);
+      this.errorMessage = 'Error loading user data. Please log in again.';
+      return;
+    }
+
     this.updateWeekRange();
     this.loadWorkHours();
   }
 
-  onDateChange(event: any): void {
-    console.log('Date changed via onChange:', event);
-    // The selectedDate is already updated via ngModel
+  onDateChange(): void {
+    console.log('Date changed:', this.selectedDate.toISOString());
     this.updateWeekRange();
     this.loadWorkHours();
   }
 
   onDateSelect(): void {
-    console.log('Date selected via onSelect:', this.selectedDate.toISOString());
-    // The selectedDate is already updated via ngModel
+    console.log('Date selected:', this.selectedDate.toISOString());
     this.updateWeekRange();
     this.loadWorkHours();
   }
@@ -53,35 +120,75 @@ export class WorkingHoursComponent implements OnInit {
     
     this.weekRange = `${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`;
     console.log('Week range:', this.weekRange);
-    console.log('Start of week:', startOfWeek.toISOString());
-    console.log('End of week:', endOfWeek.toISOString());
   }
 
-  private async loadWorkHours(): Promise<void> {
+  public async loadWorkHours(): Promise<void> {
+    if (!this.selectedUserId && (this.isEmployee || this.isManager)) {
+      console.error('No user ID available for employee/manager');
+      this.errorMessage = 'Unable to load working hours: Invalid user data';
+      return;
+    }
+
     this.isLoading = true;
-    const dateStr = this.selectedDate.toISOString().substring(0, 10);
-    console.log('Loading work hours for date:', dateStr);
-    
-   await this.attendanceService.synchroniseAttendance();
-     console.log('Attendance synchronized, fetching work hours...');
-        this.attendanceService
-          .getWorkHours(dateStr, this.isEmployee ? this.userId : undefined)
-          .subscribe({
-            next: res => {
-              console.log('Work hours response:', res);
-              if (res.success && res.logOfToday.length) {
-                this.workHours = res.logOfToday[0];
-                console.log('Processed work hours:', this.workHours);
+    this.errorMessage = '';
+
+    // For employees and managers, always use their ID regardless of what's in selectedUserId
+    const userId = (this.isEmployee || this.isManager) ? 
+      JSON.parse(localStorage.getItem('user') || '{}')?.employee_id : 
+      this.selectedUserId;
+
+    console.log('Loading work hours for user:', {
+      userId,
+      isEmployee: this.isEmployee,
+      isManager: this.isManager,
+      isAdmin: this.isAdmin,
+      role_id: this.role_id
+    });
+
+    try {
+      await this.attendanceService.synchroniseAttendance();
+      console.log('Attendance synchronized, fetching work hours...');
+      
+      this.attendanceService.getWorkHours(this.selectedDate.toISOString().substring(0, 10), userId)
+        .subscribe({
+          next: res => {
+            console.log('Work hours response:', res);
+            if (res.success && res.logOfToday.length) {
+              // Filter records based on role
+              if (this.isEmployee || this.isManager) {
+                // Employees and managers can only see their own records
+                this.workHours = res.logOfToday[0].filter((record: any) => 
+                  record.id === userId
+                );
+                console.log('Filtered work hours for employee/manager:', {
+                  totalRecords: res.logOfToday[0].length,
+                  filteredRecords: this.workHours.length,
+                  userId: userId
+                });
               } else {
-                console.log('No work hours data received');
+                // Admins can see all records
+                this.workHours = res.logOfToday[0];
+                console.log('Showing all records for admin:', {
+                  totalRecords: this.workHours.length
+                });
               }
-              this.isLoading = false;
-            },
-            error: (error) => {
-              console.error('Error fetching work hours:', error);
-              this.isLoading = false;
+            } else {
+              console.log('No work hours data received');
+              this.workHours = [];
             }
-          });
+            this.isLoading = false;
+          },
+          error: (error) => {
+            console.error('Error fetching work hours:', error);
+            this.errorMessage = 'Server connection error: ' + (error.message || 'Unknown error');
+            this.isLoading = false;
+          }
+        });
+    } catch (error) {
+      console.error('Error synchronizing attendance:', error);
+      this.errorMessage = 'Error synchronizing attendance: ' + (error instanceof Error ? error.message : 'Unknown error');
+      this.isLoading = false;
+    }
   }
 
   getTotal(row: WorkHours): string {

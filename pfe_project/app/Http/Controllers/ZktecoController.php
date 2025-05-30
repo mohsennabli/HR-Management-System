@@ -102,8 +102,8 @@ class ZktecoController extends Controller
            });
 
             if($request->has('idUser')){
-                $attendanceLog= array_filter($attendanceLog, function ($item) {
-            return $item['id']==2; // Keep only strings
+                $attendanceLog= array_filter($attendanceLog, function ($item) use($request) {
+            return $item['id']==$request->input("idUser"); // Keep only strings
             });
             }
              return response()->json([
@@ -283,7 +283,7 @@ class ZktecoController extends Controller
            });
          
 
-            if($request->input('idUser')){
+            if($request->has('idUser')){
                $employe = Employee::select('id', 'first_name','last_name')
                ->where('id',$request->input('idUser'))
                ->get(); 
@@ -298,30 +298,30 @@ class ZktecoController extends Controller
 
                   return $employe;
                 });
-              $MonAttend= array_filter($MonAttend, function ($item) {
+              $MonAttend= array_filter($MonAttend, function ($item) use($request) {
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
-              $TueAttend= array_filter($TueAttend, function ($item) {
+              $TueAttend= array_filter($TueAttend, function ($item) use($request){
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
-              $WedAttend= array_filter($WedAttend, function ($item) {
+              $WedAttend= array_filter($WedAttend, function ($item) use($request){
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
-              $ThuAttend= array_filter($ThuAttend, function ($item) {
+              $ThuAttend= array_filter($ThuAttend, function ($item)use($request) {
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
-              $FriAttend= array_filter($FriAttend, function ($item) {
+              $FriAttend= array_filter($FriAttend, function ($item) use($request){
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
-              $SatAttend= array_filter($SatAttend, function ($item) {
+              $SatAttend= array_filter($SatAttend, function ($item) use($request){
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
-              $SunAttend= array_filter($SunAttend, function ($item) {
+              $SunAttend= array_filter($SunAttend, function ($item) use($request){
               return $item['id']==$request->input('idUser'); // Keep only strings
               });
                 $employe->map(function ($employe) use ($MonAttend,$TueAttend,$WedAttend,$ThuAttend,$FriAttend,$SatAttend,$SunAttend) {
                           
-                       if ($MonAttend->has($employe->id)) {
+                       if ( in_array($employe->id, $MonAttend)) {
                           
                          
                             $value=array_values((array) $MonAttend[$employe->id])[0];
@@ -383,7 +383,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($TueAttend->has($employe->id)) {
+                       if ( in_array($employe->id, $TueAttend)) {
                                 $value=array_values((array) $TueAttend[$employe->id])[0];
                             Log::error("tue : " .json_encode(($value[0])));
                            
@@ -441,7 +441,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($WedAttend->has($employe->id)) {
+                       if (in_array($employe->id, $WedAttend)) {
                                $value=array_values((array) $WedAttend[$employe->id])[0];
                             Log::error("wed : " .json_encode(($value)));
                            
@@ -499,7 +499,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($ThuAttend->has($employe->id)) {
+                       if (in_array($employe->id, $ThuAttend)) {
                                $value=array_values((array) $ThuAttend[$employe->id])[0];
                             Log::error("thu : " .json_encode(($value[0])));
                            
@@ -557,7 +557,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($FriAttend->has($employe->id)) {
+                       if (in_array($employe->id, $FriAttend)) {
                                 $value=array_values((array) $FriAttend[$employe->id])[0];
                             Log::error("fri : " .json_encode(($value[0])));
                            
@@ -615,7 +615,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($SatAttend->has($employe->id)) {
+                       if (in_array($employe->id, $SatAttend)) {
                                $value=array_values((array) $SatAttend[$employe->id])[0];
                             Log::error("sat : " .json_encode(($value[0])));
                            
@@ -673,7 +673,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($SunAttend->has($employe->id)) {
+                       if (in_array($employe->id, $SunAttend)) {
                                $value=array_values((array) $SunAttend[$employe->id])[0];
                             Log::error("sun : " .json_encode(($value[0])));
                            
@@ -758,7 +758,7 @@ class ZktecoController extends Controller
             
               $employe->map(function ($employe) use ($MonAttend,$TueAttend,$WedAttend,$ThuAttend,$FriAttend,$SatAttend,$SunAttend) {
                           
-                       if ($MonAttend->has($employe->id)) {
+                       if ($MonAttend->contains('id', $employe->id)) {
                           
                          
                             $value=array_values((array) $MonAttend[$employe->id])[0];
@@ -820,7 +820,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($TueAttend->has($employe->id)) {
+                       if ($TueAttend->contains('id', $employe->id)) {
                                 $value=array_values((array) $TueAttend[$employe->id])[0];
                             Log::error("tue : " .json_encode(($value[0])));
                            
@@ -878,7 +878,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($WedAttend->has($employe->id)) {
+                       if ($WedAttend->contains('id', $employe->id)) {
                                $value=array_values((array) $WedAttend[$employe->id])[0];
                             Log::error("wed : " .json_encode(($value)));
                            
@@ -937,7 +937,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($ThuAttend->has($employe->id)) {
+                       if ($ThuAttend->contains('id', $employe->id)) {
                                $value=array_values((array) $ThuAttend[$employe->id])[0];
                             Log::error("thu : " .json_encode(($value[0])));
                            
@@ -995,7 +995,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($FriAttend->has($employe->id)) {
+                       if ($FriAttend->contains('id', $employe->id)) {
                                 $value=array_values((array) $FriAttend[$employe->id])[0];
                             Log::error("fri : " .json_encode(($value[0])));
                            
@@ -1053,7 +1053,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($SatAttend->has($employe->id)) {
+                       if ($SatAttend->contains('id', $employe->id)) {
                                $value=array_values((array) $SatAttend[$employe->id])[0];
                             Log::error("sat : " .json_encode(($value[0])));
                            
@@ -1111,7 +1111,7 @@ class ZktecoController extends Controller
                             }
                             }
                        } 
-                       if ($SunAttend->has($employe->id)) {
+                       if ($SunAttend->contains('id', $employe->id)) {
                                $value=array_values((array) $SunAttend[$employe->id])[0];
                             Log::error("sun : " .json_encode(($value[0])));
                            
