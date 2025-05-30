@@ -3,6 +3,7 @@
   <div class="card shadow-lg rounded-lg p-4">
     <h3 class="text-2xl font-semibold mb-4">Attendance Sheet</h3>
 
+    <!-- Date filter - visible to all -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label class="block text-sm font-medium mb-1" for="dateFilter">Date</label>
@@ -16,7 +17,8 @@
         />
       </div>
 
-      <div>
+      <!-- Employee filter - only visible to admin and manager -->
+      <div *ngIf="isAdmin || isManager">
         <label class="block text-sm font-medium mb-1" for="userFilter">Filter by Employee ID</label>
         <input
           id="userFilter"
@@ -30,7 +32,36 @@
       </div>
     </div>
 
-    <p-table [value]="attendances" [loading]="isLoading" *ngIf="!errorMessage">
+    <!-- Role-based message -->
+    <div *ngIf="isEmployee" class="mb-4 p-3 bg-blue-50 text-blue-700 rounded">
+      <i class="pi pi-info-circle mr-2"></i>
+      You are viewing your own attendance records.
+    </div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="isLoading" class="flex justify-center items-center p-4">
+      <i class="pi pi-spin pi-spinner text-2xl"></i>
+      <span class="ml-2">Loading attendance records...</span>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 text-red-800 rounded">
+      <i class="pi pi-exclamation-triangle mr-2"></i>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Attendance table -->
+    <p-table 
+      [value]="attendances" 
+      [loading]="isLoading" 
+      *ngIf="!errorMessage"
+      [paginator]="true"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      [rowsPerPageOptions]="[10,25,50]"
+      styleClass="p-datatable-sm">
+      
       <ng-template pTemplate="header">
         <tr>
           <th>ID</th>
@@ -41,6 +72,7 @@
           <th>Actions</th>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="body" let-att>
         <tr>
           <td>{{ att.uid }}</td>
@@ -50,36 +82,46 @@
           <td>
             <p-badge
               [value]="getTypeLabel(att.type)"
-              [severity]="att.type === 0 ? 'info' : att.type === 1 ? 'success' : 'warning'">
+              [severity]="att.type === '0' ? 'info' : att.type === '1' ? 'success' : 'warning'">
             </p-badge>
           </td>
           <td>
-            <button pButton 
+            <!-- Edit button - only show if user has permission -->
+            <button *ngIf="canEditRecord(att)"
+                    pButton 
                     icon="pi pi-pencil" 
                     class="p-button-rounded p-button-text p-button-sm"
                     (click)="openEditDialog(att)"
                     pTooltip="Edit attendance type">
             </button>
+            <!-- View only indicator for unauthorized users -->
+            <span *ngIf="!canEditRecord(att)" 
+                  class="text-gray-400"
+                  pTooltip="You don't have permission to edit this record">
+              <i class="pi pi-eye"></i>
+            </span>
           </td>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="6" class="text-center p-4">No records found for this date.</td>
+          <td colspan="6" class="text-center p-4">
+            <div class="flex flex-column align-items-center">
+              <i class="pi pi-calendar text-4xl text-gray-400 mb-2"></i>
+              <span class="text-gray-500">No attendance records found for this date.</span>
+            </div>
+          </td>
         </tr>
       </ng-template>
     </p-table>
-
-    <div *ngIf="errorMessage" class="mt-4 p-4 bg-red-100 text-red-800 rounded">
-      {{ errorMessage }}
-    </div>
   </div>
 </div>
 
 <!-- Edit Dialog -->
 <p-dialog 
   [(visible)]="showEditDialog" 
-  [style]="{width: '450px',height:'300px'}" 
+  [style]="{width: '450px', height:'300px'}" 
   header="Edit Attendance Type" 
   [modal]="true"
   [draggable]="false"
@@ -122,7 +164,7 @@
             icon="pi pi-check" 
             class="p-button-text" 
             (click)="saveAttendanceType()"
-            [disabled]="!selectedAttendanceType==null">
+            [disabled]="!selectedAttendanceType">
     </button>
   </ng-template>
 </p-dialog>

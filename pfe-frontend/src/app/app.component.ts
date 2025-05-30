@@ -34,11 +34,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private synchronizeAttendance(): void {
-    this.attendanceService.synchroniseAttendance()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        error: (error) => console.error('Attendance synchronization failed:', error)
-      });
+  private async synchronizeAttendance(): Promise<void> {
+   await  this.attendanceService.synchroniseAttendance()
+     
   }
 }

@@ -32,7 +32,8 @@ export class AttendanceListComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   selectedDate = new Date().toISOString().substring(0, 10);
-  selectedUserId = '';
+  selectedUserId = JSON.parse(localStorage.getItem('user') as string)?.employee_id || '';
+  role_id = JSON.parse(localStorage.getItem('user') as string)?.role_id || 0;
   
   // Edit dialog properties
   showEditDialog = false;
@@ -41,31 +42,148 @@ export class AttendanceListComponent implements OnInit {
   attendanceTypes = [
     { label: 'Entry', value: 0 },
     { label: 'Exit', value: 1 },
+    { label: 'Break', value: 2 }
   ];
 
-  constructor(private attendanceService: AttendanceService) {}
+  // Role-based access control
+  isAdmin = false;
+  isManager = false;
+  isEmployee = false;
+
+  constructor(private attendanceService: AttendanceService) {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        console.error('No user data found in localStorage');
+        this.role_id = 0;
+        this.selectedUserId = '';
+      } else {
+        const user = JSON.parse(userStr);
+        this.role_id = user?.role_id || 0;
+        this.selectedUserId = user?.employee_id || '';
+        
+        console.log('User data loaded:', {
+          user,
+          role_id: this.role_id,
+          employee_id: this.selectedUserId
+        });
+      }
+    } catch (error) {
+      console.error('Error loading user data from localStorage:', error);
+      this.role_id = 0;
+      this.selectedUserId = '';
+    }
+
+    // Set role-based flags - Updated role IDs
+    this.isAdmin = this.role_id === 1;      // Admin role
+    this.isManager = this.role_id === 3;    // Manager role
+    this.isEmployee = this.role_id === 2;   // Employee role
+
+    if (this.role_id === 0) {
+      console.error('Invalid role_id detected:', this.role_id);
+    }
+
+    console.log('User Role Configuration:', {
+      role_id: this.role_id,
+      isAdmin: this.isAdmin,
+      isManager: this.isManager,
+      isEmployee: this.isEmployee,
+      employee_id: this.selectedUserId,
+      userData: localStorage.getItem('user')
+    });
+  }
 
   ngOnInit(): void {
-    this.attendanceService.synchroniseAttendance().subscribe(() => {
-      this.loadAttendances();
+    // Verify user data is still valid
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.role_id || !user.employee_id) {
+        console.error('Invalid user data in ngOnInit:', user);
+        this.errorMessage = 'Invalid user data. Please log in again.';
+        return;
+      }
+
+      // For employees and managers, always use their ID
+      if (this.isEmployee || this.isManager) {
+        this.selectedUserId = user.employee_id;
+        console.log('Setting user ID for employee/manager:', {
+          userId: this.selectedUserId,
+          role: this.isEmployee ? 'Employee' : 'Manager',
+          role_id: this.role_id
+        });
+      }
+    } catch (error) {
+      console.error('Error verifying user data in ngOnInit:', error);
+      this.errorMessage = 'Error loading user data. Please log in again.';
+      return;
+    }
+    
+    // Handle synchronisation
+    this.isLoading = true;
+    this.attendanceService.synchroniseAttendance().subscribe({
+      next: () => {
+        this.loadAttendances();
+      },
+      error: (error: Error) => {
+        this.errorMessage = 'Error synchronizing attendance: ' + error.message;
+        this.isLoading = false;
+      }
     });
   }
 
   loadAttendances(): void {
+    if (!this.selectedUserId && (this.isEmployee || this.isManager)) {
+      console.error('No user ID available for employee/manager');
+      this.errorMessage = 'Unable to load attendance: Invalid user data';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
-    this.attendanceService.getTodayAttendances(this.selectedDate, this.selectedUserId)
+
+    // For employees and managers, always use their ID regardless of what's in selectedUserId
+    const userId = (this.isEmployee || this.isManager) ? 
+      JSON.parse(localStorage.getItem('user') || '{}')?.employee_id : 
+      this.selectedUserId;
+
+    console.log('Loading attendances for user:', {
+      userId,
+      isEmployee: this.isEmployee,
+      isManager: this.isManager,
+      isAdmin: this.isAdmin,
+      role_id: this.role_id,
+      userData: localStorage.getItem('user')
+    });
+
+    this.attendanceService.getTodayAttendances(this.selectedDate, userId)
       .subscribe({
         next: res => {
           if (res.success) {
-            this.attendances = res.logOfToday;
+            // Filter records based on role
+            if (this.isEmployee || this.isManager) {
+              // Employees and managers can only see their own records
+              this.attendances = res.logOfToday.filter((att: any) => 
+                att.id === userId
+              );
+              console.log('Filtered attendances for employee/manager:', {
+                totalRecords: res.logOfToday.length,
+                filteredRecords: this.attendances.length,
+                userId: userId
+              });
+            } else {
+              // Admins can see all records
+              this.attendances = res.logOfToday;
+              console.log('Showing all records for admin:', {
+                totalRecords: this.attendances.length
+              });
+            }
           } else {
             this.errorMessage = 'Error loading attendance.';
           }
           this.isLoading = false;
         },
-        error: () => {
-          this.errorMessage = 'Server connection error.';
+        error: (error) => {
+          this.errorMessage = 'Server connection error: ' + (error.message || 'Unknown error');
           this.isLoading = false;
         }
       });
@@ -81,13 +199,24 @@ export class AttendanceListComponent implements OnInit {
   }
 
   openEditDialog(attendance: any): void {
-    this.selectedAttendance = attendance;
-    this.selectedAttendanceType = parseInt(attendance.type);
-    this.showEditDialog = true;
+    // Only allow editing if user is admin or if it's their own record
+    if (this.isAdmin || (attendance.id === this.selectedUserId)) {
+      this.selectedAttendance = attendance;
+      this.selectedAttendanceType = parseInt(attendance.type);
+      this.showEditDialog = true;
+    } else {
+      this.errorMessage = 'You do not have permission to edit this record.';
+    }
   }
 
   saveAttendanceType(): void {
     if (!this.selectedAttendance || this.selectedAttendanceType === null) {
+      return;
+    }
+
+    // Additional permission check before saving
+    if (!this.isAdmin && this.selectedAttendance.id !== this.selectedUserId) {
+      this.errorMessage = 'You do not have permission to edit this record.';
       return;
     }
 
@@ -116,5 +245,10 @@ export class AttendanceListComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  // Helper method to check if user can edit a record
+  canEditRecord(attendance: any): boolean {
+    return this.isAdmin || attendance.id === this.selectedUserId;
   }
 }

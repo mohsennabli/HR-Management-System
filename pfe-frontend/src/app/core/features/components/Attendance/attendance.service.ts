@@ -42,13 +42,12 @@ export class AttendanceService {
     return this.http.get<any>(`${this.apiUrl}/zk-data`);
   }
 
-
-
-synchroniseAttendance(){
+  /**
+   * Synchronize attendance data from the device
+   */
+  synchroniseAttendance(): Observable<any> {
     return this.http.get(`${this.apiUrl}/AsynchroniseAttendance`);
   }
-
-
 
   /**
    * Fetch work hours summaries, optionally filtered by date and/or user ID.

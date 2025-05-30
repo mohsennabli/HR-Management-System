@@ -25,7 +25,7 @@ class ZktecoController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => "Unable to connect to device "
-                ], 500);
+                ], 200);
             }
         $attendanceLog = array_values((array) $zk->getAttendance($zk));
         if( $lastLocalAttendance){
@@ -62,14 +62,7 @@ class ZktecoController extends Controller
         $port = $request->input('port', 4370);
 
               try {  
-        $zk = new ZKTeco($ip, $port);
-
-            if (!$zk->connect()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Unable to connect to device "
-                ], 500);
-            }
+       
             Log::error("connected " .json_encode($ip));
               $attendanceLog =  Attendance::get()->toArray() ;
              $attendanceLog =array_map(   function ($item ) {
@@ -133,14 +126,7 @@ class ZktecoController extends Controller
         $port = $request->input('port', 4370);
 
                try {  
-        $zk = new ZKTeco($ip, $port);
-
-            if (!$zk->connect()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Unable to connect to device "
-                ], 500);
-            }
+      
             $attendanceLog =  Attendance::get()->toArray() ;
              $attendanceLog =array_map(   function ($item ) {
                 $employe=Employee::find($item['id']);

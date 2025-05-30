@@ -57,14 +57,13 @@ export class WorkingHoursComponent implements OnInit {
     console.log('End of week:', endOfWeek.toISOString());
   }
 
-  private loadWorkHours(): void {
+  private async loadWorkHours(): Promise<void> {
     this.isLoading = true;
     const dateStr = this.selectedDate.toISOString().substring(0, 10);
     console.log('Loading work hours for date:', dateStr);
     
-    this.attendanceService.synchroniseAttendance().subscribe({
-      next: () => {
-        console.log('Attendance synchronized, fetching work hours...');
+   await this.attendanceService.synchroniseAttendance();
+     console.log('Attendance synchronized, fetching work hours...');
         this.attendanceService
           .getWorkHours(dateStr, this.isEmployee ? this.userId : undefined)
           .subscribe({
@@ -83,12 +82,6 @@ export class WorkingHoursComponent implements OnInit {
               this.isLoading = false;
             }
           });
-      },
-      error: (error) => {
-        console.error('Error synchronizing attendance:', error);
-        this.isLoading = false;
-      }
-    });
   }
 
   getTotal(row: WorkHours): string {
