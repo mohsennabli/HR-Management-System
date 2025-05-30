@@ -11,6 +11,7 @@ use App\Models\TrainingProgram;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class StatisticsController extends Controller
 {
@@ -106,6 +107,89 @@ class StatisticsController extends Controller
         return response()->json([
             'months' => $months,
             'programs' => $programs
+        ]);
+    }
+
+    public function getAllStatistics()
+    {
+        // Get current month and year
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Get employee counts by type from contracts table
+        $employeeStats = [
+            'total' => Employee::count(),
+            'byType' => [
+                'fullTime' => DB::table('contracts')
+                    ->where('pattern', 'full-time')
+                    ->where('end_date', '>=', now())
+                    ->distinct('employee_id')
+                    ->count('employee_id'),
+                'partTime' => DB::table('contracts')
+                    ->where('pattern', 'part-time')
+                    ->where('end_date', '>=', now())
+                    ->distinct('employee_id')
+                    ->count('employee_id'),
+                'contract' => DB::table('contracts')
+                    ->where('contract_type', 'sivp')
+                    ->where('end_date', '>=', now())
+                    ->distinct('employee_id')
+                    ->count('employee_id')
+            ]
+        ];
+
+        // Get attendance stats for current month
+        $attendanceStats = [
+            'today' => Attendance::whereDate('timestamp', Carbon::today())->count(),
+            'thisMonth' => Attendance::whereMonth('timestamp', $currentMonth)
+                ->whereYear('timestamp', $currentYear)
+                ->count()
+        ];
+
+        // Get training program stats
+        $trainingStats = [
+            'total' => TrainingProgram::count(),
+            'active' => TrainingProgram::where('status', 'ongoing')->count(),
+            'thisMonth' => TrainingProgram::whereMonth('start_date', $currentMonth)
+                ->whereYear('start_date', $currentYear)
+                ->count()
+        ];
+
+        // Get disciplinary action stats
+        $disciplinaryStats = [
+            'total' => DisciplinaryAction::count(),
+            'thisMonth' => DisciplinaryAction::whereMonth('created_at', $currentMonth)
+                ->whereYear('created_at', $currentYear)
+                ->count()
+        ];
+
+        // Get department stats
+        $departmentStats = Department::withCount('employees')->get()
+            ->map(function ($department) {
+                return [
+                    'name' => $department->name,
+                    'count' => $department->employees_count
+                ];
+            });
+
+        // Get attendance trend (last 6 months)
+        $attendanceTrend = collect(range(0, 5))->map(function ($i) {
+            $month = Carbon::now()->subMonths($i);
+            return [
+                'month' => $month->format('M'),
+                'count' => Attendance::whereMonth('timestamp', $month->month)
+                    ->whereYear('timestamp', $month->year)
+                    ->count()
+            ];
+        })->reverse();
+
+        return response()->json([
+            'employeeStats' => $employeeStats,
+            'attendanceStats' => $attendanceStats,
+            'trainingStats' => $trainingStats,
+            'disciplinaryStats' => $disciplinaryStats,
+            'departmentStats' => $departmentStats,
+            'attendanceTrend' => $attendanceTrend
         ]);
     }
 } 

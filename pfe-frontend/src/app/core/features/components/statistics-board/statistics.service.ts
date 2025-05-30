@@ -1,56 +1,85 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { environment } from '../../../../../environments/environment';
+import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
+
+export interface EmployeeStats {
+  total: number;
+  byType: {
+    fullTime: number;
+    partTime: number;
+    contract: number;
+  };
+}
+
+export interface AttendanceStats {
+  today: number;
+  thisMonth: number;
+}
+
+export interface TrainingStats {
+  total: number;
+  active: number;
+  thisMonth: number;
+}
+
+export interface DisciplinaryStats {
+  total: number;
+  thisMonth: number;
+}
+
+export interface DepartmentStat {
+  name: string;
+  count: number;
+}
+
+export interface AttendanceTrend {
+  month: string;
+  count: number;
+}
+
+export interface AllStatistics {
+  employeeStats: EmployeeStats;
+  attendanceStats: AttendanceStats;
+  trainingStats: TrainingStats;
+  disciplinaryStats: DisciplinaryStats;
+  departmentStats: DepartmentStat[];
+  attendanceTrend: AttendanceTrend[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class StatisticsService {
-  private apiUrl = environment.apiUrl;
+  private apiUrl = `${environment.apiUrl}/statistics`;
 
   constructor(private http: HttpClient) {}
 
-  // Get overall statistics
-  getOverallStatistics(): Observable<any> {
-    return forkJoin({
-      employees: this.getEmployeeStatistics(),
-      leaves: this.getLeaveStatistics(),
-      departments: this.getDepartmentStatistics(),
-      disciplines: this.getDisciplinaryStatistics(),
-      attendance: this.getAttendanceStatistics(),
-      training: this.getTrainingStatistics()
-    });
+  getAllStatistics(): Observable<AllStatistics> {
+    return this.http.get<AllStatistics>(`${this.apiUrl}/all`);
   }
 
-  // Get employee statistics
   getEmployeeStatistics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/statistics/employees`);
+    return this.http.get(`${this.apiUrl}/employees`);
   }
 
-  // Get leave statistics
   getLeaveStatistics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/statistics/leaves`);
+    return this.http.get(`${this.apiUrl}/leaves`);
   }
 
-  // Get department statistics
   getDepartmentStatistics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/statistics/departments`);
+    return this.http.get(`${this.apiUrl}/departments`);
   }
 
-  // Get disciplinary statistics
   getDisciplinaryStatistics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/statistics/disciplinary`);
+    return this.http.get(`${this.apiUrl}/disciplinary`);
   }
 
-  // Get attendance statistics
   getAttendanceStatistics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/statistics/attendance`);
+    return this.http.get(`${this.apiUrl}/attendance`);
   }
 
-  // Get training statistics
   getTrainingStatistics(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/statistics/training`);
+    return this.http.get(`${this.apiUrl}/training`);
   }
 } 

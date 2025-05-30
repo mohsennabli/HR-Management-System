@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { KnobModule } from 'primeng/knob';
 import { RippleModule } from 'primeng/ripple';
 import { StatisticsService } from './statistics.service';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { StatisticsService } from './statistics.service';
     ProgressBarModule,
     KnobModule,
     RippleModule,
-    ToastModule
+    ToastModule,
+    ProgressSpinnerModule
   ],
   exports: [
     StatisticsBoardComponent

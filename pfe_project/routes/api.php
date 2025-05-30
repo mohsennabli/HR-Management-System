@@ -31,7 +31,6 @@ use App\Http\Controllers\API\StatisticsController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-Route::apiResource('employees', EmployeeController::class);
 
 // Protected routes
 Route::middleware('auth:api')->group(function () {
@@ -41,6 +40,7 @@ Route::middleware('auth:api')->group(function () {
     
     // Statistics Routes
     Route::prefix('statistics')->group(function () {
+        Route::get('/all', [StatisticsController::class, 'getAllStatistics']);
         Route::get('/employees', [StatisticsController::class, 'getEmployeeStatistics']);
         Route::get('/leaves', [StatisticsController::class, 'getLeaveStatistics']);
         Route::get('/departments', [StatisticsController::class, 'getDepartmentStatistics']);
@@ -57,7 +57,8 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('roles', RoleController::class);
     
     // Employee Management
-    
+    Route::apiResource('employees', EmployeeController::class);
+
     // Leave Management
     Route::apiResource('leave-types', LeaveTypeController::class);
     Route::apiResource('leave-requests', LeaveRequestController::class);
@@ -75,13 +76,9 @@ Route::middleware('auth:api')->group(function () {
     
     // Contract Management
     Route::apiResource('contracts', ContractController::class);
-});
-
-// Remove duplicate routes outside the middleware group
-// ... rest of existing code ...
-
-//Zkteco Routes
+    //Zkteco Routes
 Route::get('GetAllAttendance', [APIZk::class, 'getAllAttendanceOfToday']);
 Route::get('GetWorkHours',    [APIZk::class, 'getWorksHour']);
 Route::get('AsynchroniseAttendance', [APIZk::class, 'AsynchroniseAttendance']);
 Route::put('updateAttendanceType', [APIZk::class, 'updateAttendanceType']);
+});
