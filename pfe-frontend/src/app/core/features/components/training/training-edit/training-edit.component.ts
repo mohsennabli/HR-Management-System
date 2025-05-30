@@ -200,7 +200,7 @@ export class TrainingEditComponent implements OnInit {
   trainingId!: number;
   loading = false;
   errorMessage: string | null = null;
-  statusOptions = ['upcoming', 'ongoing', 'completed', 'cancelled'];
+  statusOptions = ['upcoming', 'ongoing', 'completed'];
 
   constructor(
     private fb: FormBuilder,

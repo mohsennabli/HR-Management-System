@@ -8,12 +8,11 @@ import { WorkingHoursComponent } from './working-hours/working-hours.component';
 import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { InputTextModule } from 'primeng/inputtext';
+import { CalendarModule } from 'primeng/calendar';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
-  declarations: [
-    AttendanceListComponent,
-    WorkingHoursComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     RouterModule,
@@ -22,7 +21,11 @@ import { InputTextModule } from 'primeng/inputtext';
     TableModule,
     BadgeModule,
     InputTextModule,
-    AttendanceRoutingModule
+    CalendarModule,
+    AttendanceRoutingModule,
+    WorkingHoursComponent,
+    AttendanceListComponent,
+    DialogModule
   ],
   providers: [DatePipe]
 })

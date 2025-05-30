@@ -76,8 +76,11 @@ class ZktecoController extends Controller
                 $employe=Employee::find($item['id']);
                if($employe){
 
-                   $department=Department::find($employe->departement_id);
-                   $AddedVaue= ['employe_name'=> $employe->first_name+' '+$employe->last_name , 'departement_name'=> $department->name];
+                   $department=Department::find($employe->department_id);
+       $AddedVaue = [
+        'employe_name' => $employe->first_name . ' ' . $employe->last_name,
+         'departement_name' => $department->name
+      ];
                 }
                 else{
                      $AddedVaue= [  ];
@@ -143,8 +146,8 @@ class ZktecoController extends Controller
                 $employe=Employee::find($item['id']);
                if($employe){
                   
-                   $department=Department::find($employe->departement_id);
-                   $AddedVaue= ['employe_name'=> $employe->first_name+' '+$employe->last_name, 'departement_name'=> $department->name ];
+                   $department=Department::find($employe->department_id);
+                   $AddedVaue= ['employe_name'=> $employe->first_name.' '.$employe->last_name, 'departement_name'=> $department->name ];
                 }
                 else{
                      $AddedVaue= [  ];
@@ -746,7 +749,7 @@ class ZktecoController extends Controller
                        });
               }
             else{
-               $employe = Employee::select('id', 'nom')->get();
+              $employe = Employee::select('id', 'first_name','last_name')->get();
                $employe->map(function ($employe) {
                   $employe->MonHours = null; 
                   $employe->TueHours = null; 
@@ -1191,6 +1194,90 @@ class ZktecoController extends Controller
         }
         catch(\Throwable $e){
              return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the type of an attendance record
+     */
+    public function updateAttendanceType(Request $request)
+    {
+        try {
+            $uid = $request->input('uid');
+            $type = $request->input('type');
+
+            Log::info('Updating attendance type', [
+                'uid' => $uid,
+                'type' => $type,
+                'request_data' => $request->all()
+            ]);
+
+            if (!isset($uid) || !isset($type)) {
+                Log::warning('Missing parameters in updateAttendanceType', [
+                    'uid' => $uid,
+                    'type' => $type
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Missing required parameters'
+                ], 400);
+            }
+
+            // Validate type value
+            if (!in_array($type, [0, 1, 2])) {
+                Log::warning('Invalid attendance type', [
+                    'type' => $type
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid attendance type'
+                ], 400);
+            }
+
+            $attendance = Attendance::find($uid);
+            if (!$attendance) {
+                Log::warning('Attendance record not found', [
+                    'uid' => $uid
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendance record not found'
+                ], 404);
+            }
+
+            Log::info('Found attendance record', [
+                'attendance' => $attendance->toArray()
+            ]);
+
+            $oldType = $attendance->type;
+            $attendance->type = $type;
+            $attendance->save();
+
+            Log::info('Successfully updated attendance type', [
+                'uid' => $uid,
+                'old_type' => $oldType,
+                'new_type' => $type
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attendance type updated successfully',
+                'data' => [
+                    'uid' => $uid,
+                    'old_type' => $oldType,
+                    'new_type' => $type
+                ]
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('Error updating attendance type', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
             ], 500);

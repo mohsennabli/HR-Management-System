@@ -38,7 +38,7 @@
           <th>Department</th>
           <th>Date/Time</th>
           <th>Type</th>
-          <th>Status</th>
+          <th>Actions</th>
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-att>
@@ -53,7 +53,14 @@
               [severity]="att.type === 0 ? 'info' : att.type === 1 ? 'success' : 'warning'">
             </p-badge>
           </td>
-          <td>{{ att.state }}</td>
+          <td>
+            <button pButton 
+                    icon="pi pi-pencil" 
+                    class="p-button-rounded p-button-text p-button-sm"
+                    (click)="openEditDialog(att)"
+                    pTooltip="Edit attendance type">
+            </button>
+          </td>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
@@ -68,3 +75,54 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Dialog -->
+<p-dialog 
+  [(visible)]="showEditDialog" 
+  [style]="{width: '450px',height:'300px'}" 
+  header="Edit Attendance Type" 
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false">
+  <div class="p-fluid">
+    <div class="field">
+      <label for="attendanceType">Attendance Type</label>
+      <p-dropdown 
+        id="attendanceType"
+        [(ngModel)]="selectedAttendanceType"
+        [options]="attendanceTypes"
+        optionLabel="label"
+        optionValue="value"
+        [showClear]="true"
+        [filter]="false"
+        [style]="{'width':'100%'}"
+        placeholder="Select a type">
+        <ng-template pTemplate="selectedItem">
+          <div *ngIf="selectedAttendanceType !== null">
+            {{ getTypeLabel(selectedAttendanceType.toString()) }}
+          </div>
+        </ng-template>
+        <ng-template let-option pTemplate="item">
+          <div>{{ option.label }}</div>
+        </ng-template>
+      </p-dropdown>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <button pButton 
+            pRipple 
+            label="Cancel" 
+            icon="pi pi-times" 
+            class="p-button-text" 
+            (click)="showEditDialog = false">
+    </button>
+    <button pButton 
+            pRipple 
+            label="Save" 
+            icon="pi pi-check" 
+            class="p-button-text" 
+            (click)="saveAttendanceType()"
+            [disabled]="!selectedAttendanceType==null">
+    </button>
+  </ng-template>
+</p-dialog>

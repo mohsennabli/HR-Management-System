@@ -31,6 +31,7 @@ use App\Http\Controllers\API\StatisticsController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::apiResource('employees', EmployeeController::class);
 
 // Protected routes
 Route::middleware('auth:api')->group(function () {
@@ -56,7 +57,6 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('roles', RoleController::class);
     
     // Employee Management
-    Route::apiResource('employees', EmployeeController::class);
     
     // Leave Management
     Route::apiResource('leave-types', LeaveTypeController::class);
@@ -65,6 +65,7 @@ Route::middleware('auth:api')->group(function () {
     // Training Management
     Route::apiResource('training-programs', TrainingProgramController::class);
     Route::apiResource('training-participants', TrainingParticipantController::class);
+    Route::get('training-participants/training/{trainingId}', [TrainingParticipantController::class, 'getByTrainingId']);
     
     // Discipline Management
     Route::apiResource('disciplinary-actions', DisciplinaryActionController::class);
@@ -83,3 +84,4 @@ Route::middleware('auth:api')->group(function () {
 Route::get('GetAllAttendance', [APIZk::class, 'getAllAttendanceOfToday']);
 Route::get('GetWorkHours',    [APIZk::class, 'getWorksHour']);
 Route::get('AsynchroniseAttendance', [APIZk::class, 'AsynchroniseAttendance']);
+Route::put('updateAttendanceType', [APIZk::class, 'updateAttendanceType']);

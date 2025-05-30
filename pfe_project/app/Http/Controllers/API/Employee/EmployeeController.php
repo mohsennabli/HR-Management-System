@@ -286,10 +286,7 @@ class EmployeeController extends Controller
             $zk = new ZKTeco($ip, $port);
 
             if (!$zk->connect()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Unable to connect to device at $ip:$port"
-                ], 500);
+                return null;
             }
             $PIN = random_int(100000, 999999);
             $zk->setUser($emp->id, $emp->id, $emp->first_name . ' ' . $emp->last_name, $PIN, 0, 0);

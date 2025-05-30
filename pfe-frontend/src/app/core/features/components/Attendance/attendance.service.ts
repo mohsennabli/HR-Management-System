@@ -4,6 +4,11 @@ import { Observable } from 'rxjs';
 import { Attendance } from 'src/app/models/attendance.model';
 import { WorkHours } from 'src/app/models/workhours.model';
 
+export interface UpdateAttendanceResponse {
+  success: boolean;
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -64,6 +69,16 @@ synchroniseAttendance(){
     return this.http.get<{ success: boolean, logOfToday: WorkHours[][] }>(
       `${this.apiUrl}/GetWorkHours`,
       { params }
+    );
+  }
+
+  /**
+   * Update the type of an attendance record
+   */
+  updateAttendanceType(uid: number, type: number): Observable<UpdateAttendanceResponse> {
+    return this.http.put<UpdateAttendanceResponse>(
+      `${this.apiUrl}/updateAttendanceType`,
+      { uid, type }
     );
   }
 }
