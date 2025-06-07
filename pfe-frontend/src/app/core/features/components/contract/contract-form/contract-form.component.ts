@@ -197,11 +197,11 @@ export class ContractFormComponent implements OnInit, OnDestroy {
         }
 
         // Ensure pattern is one of the valid values
-        if (!['full-time', 'part-time'].includes(formData.pattern)) {
+        if (!['full_time', 'part_time'].includes(formData.pattern)) {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Invalid pattern value'
+            detail: 'Invalid pattern value. Must be full_time or part_time'
           });
           this.loading = false;
           return;

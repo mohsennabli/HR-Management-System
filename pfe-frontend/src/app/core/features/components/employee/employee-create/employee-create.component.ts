@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EmployeeService } from 'src/app/core/features/components/employee/employee.service';
 import { RoleService } from 'src/app/core/features/components/roles/role.service';
@@ -97,6 +97,9 @@ import { MenuItem } from 'primeng/api';
                     <div class="field">
                       <label for="birthDate" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
                       <p-calendar id="birthDate" formControlName="birthDate" [showIcon]="true" dateFormat="yy-mm-dd" class="w-full"></p-calendar>
+                      <small class="text-red-500" *ngIf="employeeForm.get('birthDate')?.errors?.['minimumAge'] && employeeForm.get('birthDate')?.touched">
+                        Employee must be at least 18 years old
+                      </small>
                     </div>
 
                     <div class="field">
@@ -260,7 +263,7 @@ export class EmployeeCreateComponent implements OnInit {
       position: ['', Validators.required],
       hireDate: ['', Validators.required],
       salary: ['', Validators.required],
-      birthDate: [''],
+      birthDate: ['', [this.minimumAgeValidator.bind(this)]],
       birthLocation: [''],
       maritalStatus: [''],
       hasDisabledChild: [false],
@@ -288,23 +291,47 @@ export class EmployeeCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.messageService.add({ 
+      severity: 'info', 
+      summary: 'Loading', 
+      detail: 'Fetching departments and roles...'
+    });
+
     this.departmentService.getDepartments().subscribe({
       next: (res) => {
         this.departments = res.data;
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: 'Departments loaded successfully'
+        });
       },
       error: (err) => {
         console.error('Error fetching departments', err);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load departments' });
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error Loading Departments', 
+          detail: 'Failed to load departments. Please refresh the page or contact support.'
+        });
       }
     });
 
     this.roleService.getRoles().subscribe({
       next: (response) => {
         this.roles = response.data;
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Success', 
+          detail: 'Roles loaded successfully'
+        });
       },
       error: (error) => {
         console.error('Error loading roles:', error);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load roles' });
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error Loading Roles', 
+          detail: 'Failed to load roles. Please refresh the page or contact support.'
+        });
       }
     });
   }
@@ -316,6 +343,11 @@ export class EmployeeCreateComponent implements OnInit {
   prevStep(): void {
     if (this.activeIndex > 0) {
       this.activeIndex--;
+      this.messageService.add({ 
+        severity: 'info', 
+        summary: 'Previous Step', 
+        detail: `Returning to ${this.items[this.activeIndex].label}`
+      });
     }
   }
 
@@ -324,11 +356,16 @@ export class EmployeeCreateComponent implements OnInit {
       // Validate current step before proceeding
       if (this.isCurrentStepValid()) {
         this.activeIndex++;
+        this.messageService.add({ 
+          severity: 'info', 
+          summary: 'Step Completed', 
+          detail: `Moving to ${this.items[this.activeIndex].label}`
+        });
       } else {
         this.messageService.add({ 
           severity: 'warn', 
-          summary: 'Validation', 
-          detail: 'Please complete all required fields before proceeding.'
+          summary: 'Validation Required', 
+          detail: 'Please complete all required fields in the current step before proceeding.'
         });
         this.markFormGroupTouched(this.getCurrentStepFormGroup());
       }
@@ -387,11 +424,21 @@ export class EmployeeCreateComponent implements OnInit {
     if (isUser) {
       emailControl?.setValidators([Validators.required, Validators.email]);
       roleControl?.setValidators([Validators.required]);
+      this.messageService.add({ 
+        severity: 'info', 
+        summary: 'User Account', 
+        detail: 'Please provide email and role for the user account'
+      });
     } else {
       emailControl?.clearValidators();
       roleControl?.clearValidators();
       emailControl?.setValue('');
       roleControl?.setValue('');
+      this.messageService.add({ 
+        severity: 'info', 
+        summary: 'User Account', 
+        detail: 'User account creation disabled'
+      });
     }
 
     emailControl?.updateValueAndValidity();
@@ -400,7 +447,36 @@ export class EmployeeCreateComponent implements OnInit {
 
   onSubmit(): void {
     if (this.employeeForm.valid) {
+      // Check age validation before proceeding
+      const birthDate = this.employeeForm.get('birthDate')?.value;
+      if (birthDate) {
+        const birthDateObj = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
+          age--;
+        }
+
+        if (age < 18) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Age Restriction',
+            detail: 'Employee must be at least 18 years old.',
+            sticky: true
+          });
+          return;
+        }
+      }
+
       this.isSubmitting = true;
+      this.messageService.add({ 
+        severity: 'info', 
+        summary: 'Processing', 
+        detail: 'Creating employee record...'
+      });
+
       const formValue = this.employeeForm.value;
       
       // Format dates to YYYY-MM-DD
@@ -439,8 +515,8 @@ export class EmployeeCreateComponent implements OnInit {
       if (employeeData.is_user && (!employeeData.email || !employeeData.role_id)) {
         this.messageService.add({ 
           severity: 'error', 
-          summary: 'Validation Error', 
-          detail: 'Email and role are required when creating a user account.' 
+          summary: 'User Account Required', 
+          detail: 'Email and role are required when creating a user account. Please complete the user account section.' 
         });
         this.isSubmitting = false;
         return;
@@ -453,8 +529,8 @@ export class EmployeeCreateComponent implements OnInit {
           // Show success message for employee creation
           this.messageService.add({ 
             severity: 'success', 
-            summary: 'Success', 
-            detail: 'Employee created successfully'
+            summary: 'Employee Created', 
+            detail: `${employeeData.first_name} ${employeeData.last_name} has been successfully added to the system.`
           });
 
           // Show email status if user account was created
@@ -462,23 +538,55 @@ export class EmployeeCreateComponent implements OnInit {
             if (response.email_status.sent) {
               this.messageService.add({
                 severity: 'success',
-                summary: 'Email Sent',
-                detail: `Login credentials have been sent to ${response.email_status.email}`
+                summary: 'Login Credentials Sent',
+                detail: `Login credentials have been sent to ${response.email_status.email}. Please check the inbox.`
               });
             } else {
               this.messageService.add({
                 severity: 'warn',
-                summary: 'Email Not Sent',
-                detail: `Failed to send login credentials to ${response.email_status.email}. Please contact the administrator.`
+                summary: 'Email Delivery Failed',
+                detail: `Unable to send login credentials to ${response.email_status.email}. Please contact the system administrator for assistance.`
               });
             }
           }
 
-          this.router.navigate(['../'], { relativeTo: this.route });
+          // Add a final success message before navigation
+          this.messageService.add({ 
+            severity: 'success', 
+            summary: 'Complete', 
+            detail: 'Redirecting to employee list...'
+          });
+
+          setTimeout(() => {
+            this.router.navigate(['../'], { relativeTo: this.route });
+          }, 2000);
         },
         error: (error) => {
           this.isSubmitting = false;
           console.error('Error creating employee:', error);
+          
+          // Handle validation errors
+          if (error.error?.errors) {
+            const errorMessages = Object.entries(error.error.errors as Record<string, string[]>)
+              .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+              .join('\n');
+            
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Validation Error', 
+              detail: errorMessages,
+              sticky: true
+            });
+          } else {
+            // Handle general errors
+            this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Creation Failed', 
+              detail: error.error?.error || 'An unexpected error occurred while creating the employee. Please try again.'
+            });
+          }
+
+          // Mark form controls with errors
           if (error.error?.errors) {
             for (const key in error.error.errors) {
               if (this.employeeForm.controls[key]) {
@@ -486,18 +594,14 @@ export class EmployeeCreateComponent implements OnInit {
               }
             }
           }
-          this.messageService.add({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: error.error?.error || 'Failed to create employee' 
-          });
         }
       });
     } else {
       this.messageService.add({ 
         severity: 'error', 
-        summary: 'Validation Error', 
-        detail: 'Please complete all required fields before submitting.' 
+        summary: 'Form Incomplete', 
+        detail: 'Please complete all required fields and fix any validation errors before submitting.',
+        sticky: true
       });
       this.markAllFormGroupsTouched(this.employeeForm);
     }
@@ -508,5 +612,23 @@ export class EmployeeCreateComponent implements OnInit {
       const control = formGroup.get(key);
       control?.markAsTouched();
     });
+  }
+
+  // Add custom validator for minimum age
+  private minimumAgeValidator(control: AbstractControl): ValidationErrors | null {
+    if (!control.value) {
+      return null;
+    }
+
+    const birthDate = new Date(control.value);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age >= 18 ? null : { minimumAge: true };
   }
 }

@@ -15,7 +15,6 @@ export class LeaveRequestService {
  getAll(): Observable<any> {
   return this.api.get(this.endpoint).pipe(
     map((res: any) => {
-      // Handle both wrapped and unwrapped responses
       return res?.data || res || [];
     }),
     catchError(this.handleError)
@@ -32,7 +31,7 @@ export class LeaveRequestService {
 
   create(data: any): Observable<any> {
   return this.api.post(this.endpoint, data).pipe(
-    map((res: any) => res.data || res), // Handle both wrapped and unwrapped responses
+    map((res: any) => res.data || res), 
     catchError(this.handleError)
   );
 }
@@ -58,7 +57,6 @@ export class LeaveRequestService {
   }
 
   private handleError(error: any) {
-    // Here you can also handle global error display (toast/snackbar)
     let errorMsg = error?.error?.message || 'An unexpected error occurred.';
     return throwError(() => errorMsg);
   }

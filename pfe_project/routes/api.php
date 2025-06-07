@@ -53,7 +53,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::get('/users/by-role/{roleId}', [UserController::class, 'getUsersByRole']);
     
-    // Role/Permission Management
+    // Role
     Route::apiResource('roles', RoleController::class);
     
     // Employee Management

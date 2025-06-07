@@ -36,27 +36,37 @@ export class ContractService {
   }
 
   createSIVPContract(contract: SIVPContract): Observable<Contract> {
-    return this.http.post<any>(`${this.apiUrl}/sivp`, contract).pipe(
-      map(response => response.data)
+    // Add contract_type to identify this as a SIVP contract
+    const contractData = {
+      ...contract,
+      contract_type: 'sivp'
+    };
+    return this.http.post<any>(this.apiUrl, contractData).pipe(
+      map(response => response.data),
+      catchError(error => {
+        console.error('SIVP contract creation error:', error);
+        return throwError(() => error);
+      })
     );
   }
 
   createMedysisContract(contract: MedysisContract): Observable<Contract> {
-    // Ensure dates are formatted correctly
-    const formattedContract = {
-        ...contract,
-        start_date: new Date(contract.start_date).toISOString().split('T')[0],
-        end_date: new Date(contract.end_date).toISOString().split('T')[0]
+    // Add contract_type to identify this as a Medysis contract
+    const contractData = {
+      ...contract,
+      contract_type: 'medysis',
+      start_date: new Date(contract.start_date).toISOString().split('T')[0],
+      end_date: new Date(contract.end_date).toISOString().split('T')[0]
     };
     
-    return this.http.post<any>(`${this.apiUrl}/medysis`, formattedContract).pipe(
-        map(response => response.data),
-        catchError(error => {
-            console.error('Medysis contract creation error:', error);
-            return throwError(() => error);
-        })
+    return this.http.post<any>(this.apiUrl, contractData).pipe(
+      map(response => response.data),
+      catchError(error => {
+        console.error('Medysis contract creation error:', error);
+        return throwError(() => error);
+      })
     );
-}
+  }
 
   updateContract(id: number, contract: Contract): Observable<Contract> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, contract).pipe(

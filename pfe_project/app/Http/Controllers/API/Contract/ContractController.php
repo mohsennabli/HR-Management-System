@@ -34,16 +34,14 @@ class ContractController extends Controller
         }
     }
 
-    public function storeSIVP(Request $request)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required|exists:employees,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
             'pattern' => 'required|in:full_time,part_time',
-            'duration' => 'required|integer',
-            'sign' => 'required|string',
-            'breakup' => 'required|string'
+            'contract_type' => 'required|in:sivp,medysis'
         ]);
 
         if ($validator->fails()) {
@@ -55,58 +53,57 @@ class ContractController extends Controller
         }
 
         try {
-            $contract = SIVPContract::create($request->all());
-            return response()->json([
-                'status' => 'success',
-                'message' => 'SIVP contract created successfully',
-                'data' => $contract
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to create SIVP contract: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function storeMedysis(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'employee_id' => 'required|exists:employees,id',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
-            'pattern' => 'required|in:full_time,part_time',
-            'type' => 'required|in:permanent,temporary,internship'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $data = $request->only(['employee_id', 'start_date', 'end_date', 'pattern', 'type']);
+            $contractType = $request->input('contract_type');
             
-            // Format dates properly
-            $data['start_date'] = date('Y-m-d', strtotime($data['start_date']));
-            $data['end_date'] = date('Y-m-d', strtotime($data['end_date']));
+            // Additional validation based on contract type
+            if ($contractType === 'sivp') {
+                $sivpValidator = Validator::make($request->all(), [
+                    'duration' => 'required|integer',
+                    'sign' => 'required|string',
+                    'breakup' => 'required|string'
+                ]);
 
-            $contract = MedysisContract::create($data);
+                if ($sivpValidator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'SIVP contract validation failed',
+                        'errors' => $sivpValidator->errors()
+                    ], 422);
+                }
+
+                $contract = SIVPContract::create($request->all());
+                $message = 'SIVP contract created successfully';
+            } else {
+                $medysisValidator = Validator::make($request->all(), [
+                    'type' => 'required|in:permanent,temporary,internship'
+                ]);
+
+                if ($medysisValidator->fails()) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Medysis contract validation failed',
+                        'errors' => $medysisValidator->errors()
+                    ], 422);
+                }
+
+                $data = $request->only(['employee_id', 'start_date', 'end_date', 'pattern', 'type']);
+                $data['start_date'] = date('Y-m-d', strtotime($data['start_date']));
+                $data['end_date'] = date('Y-m-d', strtotime($data['end_date']));
+                
+                $contract = MedysisContract::create($data);
+                $message = 'Medysis contract created successfully';
+            }
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Medysis contract created successfully',
+                'message' => $message,
                 'data' => $contract
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('Medysis Contract Creation Error: ' . $e->getMessage());
+            \Log::error('Contract Creation Error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => 'Failed to create Medysis contract',
-                'error' => $e->getMessage()
+                'message' => 'Failed to create contract: ' . $e->getMessage()
             ], 500);
         }
     }
