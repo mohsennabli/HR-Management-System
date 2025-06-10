@@ -36,7 +36,6 @@ export class ContractService {
   }
 
   createSIVPContract(contract: SIVPContract): Observable<Contract> {
-    // Add contract_type to identify this as a SIVP contract
     const contractData = {
       ...contract,
       contract_type: 'sivp'
@@ -51,7 +50,6 @@ export class ContractService {
   }
 
   createMedysisContract(contract: MedysisContract): Observable<Contract> {
-    // Add contract_type to identify this as a Medysis contract
     const contractData = {
       ...contract,
       contract_type: 'medysis',

@@ -16,16 +16,7 @@ use App\Http\Controllers\API\Contract\ContractController;
 //use App\Http\Controllers\ZktecoController;
 use App\Http\Controllers\ZktecoController as APIZk;
 use App\Http\Controllers\API\StatisticsController;
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+
 
 // Public routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -62,11 +53,13 @@ Route::middleware('auth:api')->group(function () {
     // Leave Management
     Route::apiResource('leave-types', LeaveTypeController::class);
     Route::apiResource('leave-requests', LeaveRequestController::class);
+    Route::patch('leave-requests/{id}/status', [LeaveRequestController::class, 'updateStatus']);
     
     // Training Management
     Route::apiResource('training-programs', TrainingProgramController::class);
     Route::apiResource('training-participants', TrainingParticipantController::class);
     Route::get('training-participants/training/{trainingId}', [TrainingParticipantController::class, 'getByTrainingId']);
+    Route::post('training-participants/assign', [TrainingParticipantController::class, 'assignEmployees']);
     
     // Discipline Management
     Route::apiResource('disciplinary-actions', DisciplinaryActionController::class);
@@ -77,8 +70,8 @@ Route::middleware('auth:api')->group(function () {
     // Contract Management
     Route::apiResource('contracts', ContractController::class);
     //Zkteco Routes
-Route::get('GetAllAttendance', [APIZk::class, 'getAllAttendanceOfToday']);
-Route::get('GetWorkHours',    [APIZk::class, 'getWorksHour']);
-Route::get('AsynchroniseAttendance', [APIZk::class, 'AsynchroniseAttendance']);
-Route::put('updateAttendanceType', [APIZk::class, 'updateAttendanceType']);
+    Route::get('GetAllAttendance', [APIZk::class, 'getAllAttendanceOfToday']);
+    Route::get('GetWorkHours',    [APIZk::class, 'getWorksHour']);
+    Route::get('AsynchroniseAttendance', [APIZk::class, 'AsynchroniseAttendance']);
+    Route::put('updateAttendanceType', [APIZk::class, 'updateAttendanceType']);
 });

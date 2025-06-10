@@ -9,11 +9,11 @@ class Attendance extends Model
 {
     use HasFactory;
 
-    protected $table = 'attendance'; // explicitly set the table name
+    protected $table = 'attendance'; 
 
     protected $primaryKey = 'uid';
-    public $incrementing = false; // 'uid' is not auto-incrementing
-    protected $keyType = 'int';   // 'uid' is of integer type
+    public $incrementing = false; 
+    protected $keyType = 'int';   
 
     protected $fillable = [
         'uid',

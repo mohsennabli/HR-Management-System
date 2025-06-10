@@ -19,7 +19,7 @@ interface LeaveRequest {
 @Component({
   selector: 'app-leave-requests',
   templateUrl: './leave-requests.component.html',
-  styleUrls: ['./leave-requests.component.scss']
+  styleUrls: ['./leave-requests.component.css']
 })
 export class LeaveRequestsComponent implements OnInit {
   filters = [

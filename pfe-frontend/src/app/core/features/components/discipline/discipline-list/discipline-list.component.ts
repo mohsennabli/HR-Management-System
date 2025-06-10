@@ -15,7 +15,7 @@ interface Department {
 @Component({
   selector: 'app-discipline-list',
   templateUrl: './discipline-list.component.html',
-  styleUrls: ['./discipline-list.component.scss'],
+  styleUrls: ['./discipline-list.component.css'],
   providers: [MessageService, ConfirmationService]
 })
 export class DisciplineListComponent implements OnInit {

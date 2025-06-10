@@ -8,7 +8,7 @@ import { Role } from 'src/app/models/role.model';
 @Component({
   selector: 'app-user-create',
   templateUrl: './user-create.component.html',
-  styleUrls: ['./user-create.component.scss']
+  styleUrls: ['./user-create.component.css']
 })
 export class UserCreateComponent implements OnInit {
   user: User = { 

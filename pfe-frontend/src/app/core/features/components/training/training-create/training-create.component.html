@@ -1,32 +1,24 @@
 <div class="flex flex-col gap-6 p-6 max-w-4xl mx-auto">
     <!-- Header -->
     <div class="flex items-center gap-3">
-      <h2 class="text-2xl font-semibold text-gray-800">Edit Training Program</h2>
+      <h2 class="text-2xl font-semibold text-gray-800">Add New Training Program</h2>
     </div>
-
-    <!-- Loading State -->
-    <div *ngIf="loading" class="flex justify-center items-center py-8">
-      <p-progressSpinner strokeWidth="4"></p-progressSpinner>
-    </div>
-
-    <!-- Error Message -->
-    <p-message *ngIf="errorMessage" severity="error" [text]="errorMessage" styleClass="w-full"></p-message>
 
     <!-- Form Card -->
-    <p-card *ngIf="!loading" styleClass="shadow-none border">
+    <p-card styleClass="shadow-none border">
       <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="space-y-6">
         <!-- Program Name -->
         <div class="field">
-          <label for="programName" class="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
           <input 
             pInputText 
-            id="programName" 
-            formControlName="programName" 
+            id="name" 
+            formControlName="name" 
             placeholder="Enter program name"
             class="w-full"
-            [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']}"
+            [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('name')?.touched && trainingForm.get('name')?.errors?.['required']}"
           >
-          <small class="text-red-500" *ngIf="trainingForm.get('programName')?.touched && trainingForm.get('programName')?.errors?.['required']">
+          <small class="text-red-500" *ngIf="trainingForm.get('name')?.touched && trainingForm.get('name')?.errors?.['required']">
             Program name is required
           </small>
         </div>
@@ -51,35 +43,35 @@
         <!-- Date Range -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="field">
-            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+            <label for="start_date" class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
             <p-calendar 
-              id="startDate" 
-              formControlName="startDate" 
+              id="start_date" 
+              formControlName="start_date" 
               [showIcon]="false"
               dateFormat="yy-mm-dd"
               [readonlyInput]="true"
               placeholder="Select start date"
               class="w-full"
-              [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']}"
+              [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('start_date')?.touched && trainingForm.get('start_date')?.errors?.['required']}"
             ></p-calendar>
-            <small class="text-red-500" *ngIf="trainingForm.get('startDate')?.touched && trainingForm.get('startDate')?.errors?.['required']">
+            <small class="text-red-500" *ngIf="trainingForm.get('start_date')?.touched && trainingForm.get('start_date')?.errors?.['required']">
               Start date is required
             </small>
           </div>
 
           <div class="field">
-            <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+            <label for="end_date" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
             <p-calendar 
-              id="endDate" 
-              formControlName="endDate" 
+              id="end_date" 
+              formControlName="end_date" 
               [showIcon]="false"
               dateFormat="yy-mm-dd"
               [readonlyInput]="true"
               placeholder="Select end date"
               class="w-full"
-              [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']}"
+              [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('end_date')?.touched && trainingForm.get('end_date')?.errors?.['required']}"
             ></p-calendar>
-            <small class="text-red-500" *ngIf="trainingForm.get('endDate')?.touched && trainingForm.get('endDate')?.errors?.['required']">
+            <small class="text-red-500" *ngIf="trainingForm.get('end_date')?.touched && trainingForm.get('end_date')?.errors?.['required']">
               End date is required
             </small>
           </div>
@@ -135,22 +127,6 @@
           </small>
         </div>
 
-        <!-- Status -->
-        <div class="field">
-          <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          <p-dropdown
-            id="status"
-            formControlName="status"
-            [options]="statusOptions"
-            placeholder="Select status"
-            class="w-full"
-            [ngClass]="{'ng-invalid ng-dirty': trainingForm.get('status')?.touched && trainingForm.get('status')?.errors?.['required']}"
-          ></p-dropdown>
-          <small class="text-red-500" *ngIf="trainingForm.get('status')?.touched && trainingForm.get('status')?.errors?.['required']">
-            Status is required
-          </small>
-        </div>
-
         <!-- Form Actions -->
         <div class="flex justify-end gap-3 pt-4 border-t">
           <p-button 
@@ -159,10 +135,10 @@
             (onClick)="onCancel()"
           ></p-button>
           <p-button 
-            label="Save Changes" 
+            label="Create Program" 
             type="submit"
-            [disabled]="!trainingForm.valid || loading"
-            [loading]="loading"
+            [disabled]="!trainingForm.valid || isSubmitting"
+            [loading]="isSubmitting"
           ></p-button>
         </div>
       </form>

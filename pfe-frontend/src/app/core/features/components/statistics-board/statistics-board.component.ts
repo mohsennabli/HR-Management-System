@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-statistics-board',
   templateUrl: './statistics-board.component.html',
-  styleUrls: ['./statistics-board.component.scss']
+  styleUrls: ['./statistics-board.component.css']
 })
 export class StatisticsBoardComponent implements OnInit, OnDestroy {
   statistics: AllStatistics | null = null;

@@ -1,4 +1,3 @@
-// src/app/services/hr/discipline.service.ts
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../../../services/api.service';
 import { Observable } from 'rxjs';

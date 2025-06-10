@@ -14,7 +14,7 @@ export interface UpdateAttendanceResponse {
 })
 export class AttendanceService {
 
-  private apiUrl = 'http://localhost:8000/api'; // Replace with your API base URL
+  private apiUrl = 'http://localhost:8000/api'; 
 
   constructor(private http: HttpClient) { }
 

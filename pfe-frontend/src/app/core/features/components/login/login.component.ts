@@ -64,6 +64,13 @@ export class LoginComponent {
     }
 
     this.isSubmitting = true;
+    
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Sending',
+      detail: 'Sending password reset email...'
+    });
+    
     this.auth.resetPassword(this.email).subscribe({
       next: (response: ResetPasswordResponse) => {
         this.isSubmitting = false;

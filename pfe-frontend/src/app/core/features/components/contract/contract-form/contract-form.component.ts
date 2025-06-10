@@ -10,6 +10,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-contract-form',
   templateUrl: './contract-form.component.html',
+  styleUrls: ['./contract-form.component.css'],
   providers: [MessageService]
 })
 export class ContractFormComponent implements OnInit, OnDestroy {

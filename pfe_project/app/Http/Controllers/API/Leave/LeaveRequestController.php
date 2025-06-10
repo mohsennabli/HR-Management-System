@@ -17,7 +17,8 @@ class LeaveRequestController extends Controller
  public function index()
 {
     $requests = LeaveRequest::with(['employee', 'leaveType'])->get();
-    return response()->json($requests); // Remove the 'data' wrapper if not needed
+    return response()->json($requests); 
+    
 }
 
 
@@ -32,14 +33,48 @@ class LeaveRequestController extends Controller
     $validator = Validator::make($request->all(), [
         'employee_id' => 'required|exists:employees,id',
         'leave_type_id' => 'required|exists:leave_types,id',
-        'start_date' => 'required|date',
+        'start_date' => 'required|date|after:today',  
         'end_date' => 'required|date|after_or_equal:start_date',
         'days' => 'required|integer|min:1',
-        'reason' => 'nullable|string'
+        'reason' => 'nullable|string|max:500'
     ]);
 
     if ($validator->fails()) {
         return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+    }
+
+    // Get employee and leave type
+    $employee = \App\Models\Employee::findOrFail($request->employee_id);
+    $leaveType = \App\Models\LeaveType::findOrFail($request->leave_type_id);
+
+    // Check if employee is currently on leave
+    $isOnLeave = $this->checkIfEmployeeOnLeave($request->employee_id);
+    if ($isOnLeave) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Employee is currently on leave.'
+        ], 422);
+    }
+
+    // Check minimum notice period (e.g., 3 days)
+    $startDate = \Carbon\Carbon::parse($request->start_date);
+    $noticePeriod = $startDate->diffInDays(now());
+    if ($noticePeriod < 3) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Leave requests must be submitted at least 3 days in advance.'
+        ], 422);
+    }
+
+    // Check leave balance
+    $usedDays = $this->getUsedLeaveDays($request->employee_id, $request->leave_type_id);
+    $remainingDays = $leaveType->days_allowed - $usedDays;
+    
+    if ($request->days > $remainingDays) {
+        return response()->json([
+            'success' => false,
+            'message' => "Insufficient leave balance. You have {$remainingDays} days remaining."
+        ], 422);
     }
 
     // Check for overlapping leave requests
@@ -51,18 +86,29 @@ class LeaveRequestController extends Controller
 
     if ($hasOverlap) {
         return response()->json([
-            'success' => false, 
+            'success' => false,
             'message' => 'You already have a leave request that overlaps with these dates.'
         ], 422);
     }
 
-    // Check logique sécurité API
+    // Validate date range against entered days
     $start = \Carbon\Carbon::parse($request->start_date);
     $end = \Carbon\Carbon::parse($request->end_date);
-    $diffDays = $start->diffInDays($end) + 1;
+    $diffDays = $this->calculateWorkingDays($start, $end);
 
     if ($diffDays > $request->days) {
-        return response()->json(['success' => false, 'message' => 'Date range cannot exceed entered days.'], 422);
+        return response()->json([
+            'success' => false,
+            'message' => 'Date range exceeds the entered number of days.'
+        ], 422);
+    }
+
+    // Check maximum leave duration (e.g., 30 days)
+    if ($diffDays > 30) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Maximum leave duration is 30 days.'
+        ], 422);
     }
 
     $leaveRequest = LeaveRequest::create($request->only([
@@ -94,10 +140,59 @@ private function checkOverlappingLeaveRequests($employeeId, $startDate, $endDate
                     });
             });
         })
-        ->where('status', '!=', 'rejected') // Don't consider rejected requests
+        ->where('status', '!=', 'rejected') 
         ->exists();
 }
 
+/**
+ * Check if employee is currently on leave
+ */
+private function checkIfEmployeeOnLeave($employeeId)
+{
+    return LeaveRequest::where('employee_id', $employeeId)
+        ->where('status', 'approved')
+        ->where(function ($query) {
+            $query->whereBetween('start_date', [now(), now()->addDays(30)])
+                ->orWhereBetween('end_date', [now(), now()->addDays(30)])
+                ->orWhere(function ($q) {
+                    $q->where('start_date', '<=', now())
+                        ->where('end_date', '>=', now());
+                });
+        })
+        ->exists();
+}
+
+/**
+ * Get used leave days for an employee for a specific leave type
+ */
+private function getUsedLeaveDays($employeeId, $leaveTypeId)
+{
+    $currentYear = now()->year;
+    return LeaveRequest::where('employee_id', $employeeId)
+        ->where('leave_type_id', $leaveTypeId)
+        ->where('status', 'approved')
+        ->whereYear('start_date', $currentYear)
+        ->sum('days');
+}
+
+/**
+ * Calculate working days between two dates (excluding weekends)
+ */
+private function calculateWorkingDays($start, $end)
+{
+    $days = 0;
+    $current = $start->copy();
+
+    while ($current <= $end) {
+        // Skip weekends (5 = Saturday, 6 = Sunday)
+        if ($current->dayOfWeek !== 5 && $current->dayOfWeek !== 6) {
+            $days++;
+        }
+        $current->addDay();
+    }
+
+    return $days;
+}
 
     /**
      * Display the specified resource.

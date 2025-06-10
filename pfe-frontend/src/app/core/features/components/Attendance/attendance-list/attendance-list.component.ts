@@ -1,4 +1,3 @@
-// src/app/features/attendance/attendance-list/attendance-list.component.ts
 import { Component, OnInit } from '@angular/core';
 import { AttendanceService, UpdateAttendanceResponse } from 'src/app/core/features/components/Attendance/attendance.service';
 import { DialogModule } from 'primeng/dialog';
@@ -74,10 +73,9 @@ export class AttendanceListComponent implements OnInit {
       this.selectedUserId = '';
     }
 
-    // Set role-based flags - Updated role IDs
-    this.isAdmin = this.role_id === 1;      // Admin role
-    this.isManager = this.role_id === 3;    // Manager role
-    this.isEmployee = this.role_id === 2;   // Employee role
+    this.isAdmin = this.role_id === 1;      
+    this.isManager = this.role_id === 3;    
+    this.isEmployee = this.role_id === 2;   
 
     if (this.role_id === 0) {
       console.error('Invalid role_id detected:', this.role_id);
@@ -94,7 +92,6 @@ export class AttendanceListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Verify user data is still valid
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       if (!user.role_id || !user.employee_id) {
@@ -103,7 +100,6 @@ export class AttendanceListComponent implements OnInit {
         return;
       }
 
-      // For employees and managers, always use their ID
       if (this.isEmployee || this.isManager) {
         this.selectedUserId = user.employee_id;
         console.log('Setting user ID for employee/manager:', {
@@ -141,7 +137,6 @@ export class AttendanceListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // For employees and managers, always use their ID regardless of what's in selectedUserId
     const userId = (this.isEmployee || this.isManager) ? 
       JSON.parse(localStorage.getItem('user') || '{}')?.employee_id : 
       this.selectedUserId;
@@ -214,7 +209,6 @@ export class AttendanceListComponent implements OnInit {
       return;
     }
 
-    // Additional permission check before saving
     if (!this.isAdmin && this.selectedAttendance.id !== this.selectedUserId) {
       this.errorMessage = 'You do not have permission to edit this record.';
       return;
@@ -247,7 +241,6 @@ export class AttendanceListComponent implements OnInit {
     });
   }
 
-  // Helper method to check if user can edit a record
   canEditRecord(attendance: any): boolean {
     return this.isAdmin || attendance.id === this.selectedUserId;
   }

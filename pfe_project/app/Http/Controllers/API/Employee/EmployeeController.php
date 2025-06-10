@@ -81,13 +81,23 @@ class EmployeeController extends Controller
         }
 
         try {
-            // Create the employee record
+            // Find the lowest available ID
+            $usedIds = Employee::pluck('id')->toArray();
+            $newId = 1;
+            while (in_array($newId, $usedIds)) {
+                $newId++;
+            }
+
+            // Create the employee record with the specific ID
             $employeeData = $request->only([
                 'first_name', 'last_name', 'phone', 'department_id', 'position', 
                 'hire_date', 'salary', 'birth_date', 'birth_location', 'marital_status',
                 'has_disabled_child', 'address', 'diploma', 'cin_number', 'cin_issue_date',
                 'cin_issue_location', 'cnss_number', 'bank_agency', 'bank_rib', 'pin'
             ]);
+            
+            // Set the ID explicitly
+            $employeeData['id'] = $newId;
 
             Log::info('Creating employee with data:', $employeeData);
             $employee = Employee::create($employeeData);

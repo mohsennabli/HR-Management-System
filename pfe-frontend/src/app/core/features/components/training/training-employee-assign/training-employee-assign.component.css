@@ -1,0 +1,12 @@
+:host ::ng-deep {
+    .p-checkbox {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    .p-checkbox .p-checkbox-box {
+      border-radius: 0.25rem;
+    }
+    .p-dropdown {
+      width: 100%;
+    }
+  }

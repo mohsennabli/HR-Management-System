@@ -1,4 +1,3 @@
-// src/app/features/attendance/working-hours/working-hours.component.ts
 import { Component, OnInit } from '@angular/core';
 import { AttendanceService } from 'src/app/core/features/components/Attendance/attendance.service';
 import { WorkHours } from 'src/app/models/workhours.model';
@@ -23,7 +22,6 @@ export class WorkingHoursComponent implements OnInit {
   selectedUserId = '';
   role_id = 0;
   
-  // Role-based access control
   isAdmin = false;
   isManager = false;
   isEmployee = false;
@@ -52,10 +50,10 @@ export class WorkingHoursComponent implements OnInit {
       this.selectedUserId = '';
     }
 
-    // Set role-based flags
-    this.isAdmin = this.role_id === 1;      // Admin role
-    this.isManager = this.role_id === 3;    // Manager role
-    this.isEmployee = this.role_id === 2;   // Employee role
+    
+    this.isAdmin = this.role_id === 1; 
+    this.isManager = this.role_id === 3;   
+    this.isEmployee = this.role_id === 2;   
 
     if (this.role_id === 0) {
       console.error('Invalid role_id detected:', this.role_id);
@@ -71,7 +69,7 @@ export class WorkingHoursComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Verify user data is still valid
+    
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       if (!user.role_id || !user.employee_id) {
@@ -132,7 +130,6 @@ export class WorkingHoursComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // For employees and managers, always use their ID regardless of what's in selectedUserId
     const userId = (this.isEmployee || this.isManager) ? 
       JSON.parse(localStorage.getItem('user') || '{}')?.employee_id : 
       this.selectedUserId;
