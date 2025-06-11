@@ -24,6 +24,6 @@ class Attendance extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'id'); // 'id' refers to the employee foreign key
+        return $this->belongsTo(Employee::class, 'id'); 
     }
 }

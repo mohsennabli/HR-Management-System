@@ -30,11 +30,16 @@ export class LeaveRequestService {
   }
 
   create(data: any): Observable<any> {
-  return this.api.post(this.endpoint, data).pipe(
-    map((res: any) => res.data || res), 
-    catchError(this.handleError)
-  );
-}
+    return this.api.post(this.endpoint, data).pipe(
+      map((res: any) => res.data || res),
+      catchError((error) => {
+        console.log('Service error caught:', error);
+        console.log('Error structure in service:', JSON.stringify(error, null, 2));
+        // Preserve the original error structure
+        return throwError(() => error);
+      })
+    );
+  }
 
   update(id: number, data: any): Observable<any> {
     return this.api.put(`${this.endpoint}/${id}`, data).pipe(
@@ -57,7 +62,7 @@ export class LeaveRequestService {
   }
 
   private handleError(error: any) {
-    let errorMsg = error?.error?.message || 'An unexpected error occurred.';
-    return throwError(() => errorMsg);
+    // Preserve the original error structure so the component can access err.error.message
+    return throwError(() => error);
   }
 }

@@ -15,7 +15,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('role')->get(); // Ensure 'role' relationship is loaded
+        $users = User::with('role')->get();
 
         return response()->json([
             'data' => $users

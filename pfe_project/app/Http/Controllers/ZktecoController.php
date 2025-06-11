@@ -15,7 +15,7 @@ class ZktecoController extends Controller
 {
     
   public function AsynchroniseAttendance(Request $request){
-        $ip = $request->input('ip', '192.168.121.210'); // Default IP, replace or pass from Angular
+        $ip = $request->input('ip', '192.168.121.210'); 
         $port = $request->input('port', 4370);
         $lastLocalAttendance=Attendance::orderBy('uid','desc')->first();
         Log::error("lastLocalAttendance : " .json_encode( $lastLocalAttendance));
@@ -51,14 +51,9 @@ class ZktecoController extends Controller
 }
 
 
-
-
-
-
-    
-    //liste pointage par jour
+    //Attendance list per day
     public function getAllAttendanceOfToday(Request $request){
-         $ip = $request->input('ip', '192.168.121.210'); // Default IP, replace or pass from Angular
+         $ip = $request->input('ip', '192.168.121.210');
         $port = $request->input('port', 4370);
 
               try {  
@@ -122,7 +117,7 @@ class ZktecoController extends Controller
 
 
    public function getWorksHour(Request $request){
-         $ip = $request->input('ip', '192.168.121.210'); // Default IP, replace or pass from Angular
+         $ip = $request->input('ip', '192.168.121.210'); 
         $port = $request->input('port', 4370);
 
                try {  
@@ -260,33 +255,125 @@ class ZktecoController extends Controller
             default:
             return 'Invalid day';
          }
+             
+             // Filter attendance by day
              $MonAttend=array_filter($attendanceLog, function ($item)use ($Mon) {
-               return Carbon::parse($item['timestamp'])->toDateString() === $Mon->toDateString(); // Keep only strings
+               return Carbon::parse($item['timestamp'])->toDateString() === $Mon->toDateString();
              });
              $TueAttend=array_filter($attendanceLog, function ($item)use ($Tue) {
-              return Carbon::parse($item['timestamp'])->toDateString() === $Tue->toDateString(); // Keep only strings
+              return Carbon::parse($item['timestamp'])->toDateString() === $Tue->toDateString();
              });
             $WedAttend=array_filter($attendanceLog, function ($item)use ($Wed) {
-            return Carbon::parse($item['timestamp'])->toDateString() === $Wed->toDateString(); // Keep only strings
+            return Carbon::parse($item['timestamp'])->toDateString() === $Wed->toDateString();
            });
             $ThuAttend=array_filter($attendanceLog, function ($item)use ($Thu) {
-            return Carbon::parse($item['timestamp'])->toDateString() === $Thu->toDateString(); // Keep only strings
+            return Carbon::parse($item['timestamp'])->toDateString() === $Thu->toDateString();
            });
             $FriAttend=array_filter($attendanceLog, function ($item)use ($Fri) {
-            return Carbon::parse($item['timestamp'])->toDateString() === $Fri->toDateString(); // Keep only strings
+            return Carbon::parse($item['timestamp'])->toDateString() === $Fri->toDateString();
            });
             $SatAttend=array_filter($attendanceLog, function ($item)use ($Sat) {
-            return Carbon::parse($item['timestamp'])->toDateString() === $Sat->toDateString(); // Keep only strings
+            return Carbon::parse($item['timestamp'])->toDateString() === $Sat->toDateString();
            });
             $SunAttend=array_filter($attendanceLog, function ($item)use ($Sun) {
-            return Carbon::parse($item['timestamp'])->toDateString() === $Sun->toDateString(); // Keep only strings
+            return Carbon::parse($item['timestamp'])->toDateString() === $Sun->toDateString();
            });
          
+             // Helper function to calculate work hours for a day
+             function calculateWorkHours($dayAttendances, $employeeId = null) {
+                 if (empty($dayAttendances)) {
+                     return null;
+                 }
+                 
+                 // Filter by employee if specified
+                 if ($employeeId) {
+                     $dayAttendances = array_filter($dayAttendances, function($item) use ($employeeId) {
+                         return $item['id'] == $employeeId;
+                     });
+                 }
+                 
+                 if (empty($dayAttendances)) {
+                     return null;
+                 }
+                 
+                 // Group by employee ID
+                 $groupedAttendances = [];
+                 foreach ($dayAttendances as $attendance) {
+                     $employeeId = $attendance['id'];
+                     if (!isset($groupedAttendances[$employeeId])) {
+                         $groupedAttendances[$employeeId] = [];
+                     }
+                     $groupedAttendances[$employeeId][] = $attendance;
+                 }
+                 
+                 $results = [];
+                 foreach ($groupedAttendances as $empId => $attendances) {
+                     // Sort by timestamp
+                     usort($attendances, function($a, $b) {
+                         return strtotime($a['timestamp']) - strtotime($b['timestamp']);
+                     });
+                     
+                     $isCorrect = true;
+                     
+                     // Check if first attendance is entry (type 0)
+                     if (empty($attendances) || $attendances[0]['type'] != 0) {
+                         $isCorrect = false;
+                     }
+                     // Check if last attendance is exit (type 1)
+                     elseif (end($attendances)['type'] != 1) {
+                         $isCorrect = false;
+                     }
+                     // Check if number of attendances is even
+                     elseif (count($attendances) % 2 != 0) {
+                         $isCorrect = false;
+                     }
+                     else {
+                         // Check if alternating types (0,1,0,1...)
+                         for ($i = 0; $i < count($attendances); $i++) {
+                             if ($attendances[$i]['type'] != ($i % 2)) {
+                                 $isCorrect = false;
+                                 break;
+                             }
+                         }
+                     }
+                     
+                     if ($isCorrect) {
+                         $totalHours = 0;
+                         $totalPause = 0;
+                         
+                         // Calculate work hours and pauses
+                         for ($i = 0; $i < count($attendances) - 1; $i += 2) {
+                             $entryTime = Carbon::parse($attendances[$i]['timestamp']);
+                             $exitTime = Carbon::parse($attendances[$i + 1]['timestamp']);
+                             
+                             $totalHours += $entryTime->diffInMinutes($exitTime) / 60;
+                             
+                             // Calculate pause between this exit and next entry
+                             if ($i + 2 < count($attendances)) {
+                                 $nextEntryTime = Carbon::parse($attendances[$i + 2]['timestamp']);
+                                 $totalPause += $exitTime->diffInMinutes($nextEntryTime);
+                             }
+                         }
+                         
+                         $workHour = new \stdClass();
+                         $workHour->hours = round($totalHours, 2);
+                         $workHour->pause = $totalPause;
+                         $workHour->nbPause = count($attendances) / 2 - 1;
+                         
+                         $results[$empId] = $workHour;
+                     } else {
+                         $results[$empId] = null;
+                     }
+                 }
+                 
+                 return $results;
+             }
 
             if($request->has('idUser')){
                $employe = Employee::select('id', 'first_name','last_name')
                ->where('id',$request->input('idUser'))
                ->get(); 
+               
                $employe->map(function ($employe) {
                   $employe->MonHours = null; 
                   $employe->TueHours = null; 
@@ -298,441 +385,27 @@ class ZktecoController extends Controller
 
                   return $employe;
                 });
-              $MonAttend= array_filter($MonAttend, function ($item) use($request) {
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-              $TueAttend= array_filter($TueAttend, function ($item) use($request){
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-              $WedAttend= array_filter($WedAttend, function ($item) use($request){
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-              $ThuAttend= array_filter($ThuAttend, function ($item)use($request) {
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-              $FriAttend= array_filter($FriAttend, function ($item) use($request){
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-              $SatAttend= array_filter($SatAttend, function ($item) use($request){
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-              $SunAttend= array_filter($SunAttend, function ($item) use($request){
-              return $item['id']==$request->input('idUser'); // Keep only strings
-              });
-                $employe->map(function ($employe) use ($MonAttend,$TueAttend,$WedAttend,$ThuAttend,$FriAttend,$SatAttend,$SunAttend) {
-                          
-                       if ( in_array($employe->id, $MonAttend)) {
-                          
-                         
-                            $value=array_values((array) $MonAttend[$employe->id])[0];
-                            Log::error("mon : " .json_encode(($value)));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("mon false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->MonHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->MonHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->MonHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i -= 2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->MonHours=null;
-                                   break;
-                                }
-                             //   $hour+=(($value[$i]['timestamp'])->diffInMinutes(($value[$i-1]['timestamp'])))/60;
-
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->MonHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ( in_array($employe->id, $TueAttend)) {
-                                $value=array_values((array) $TueAttend[$employe->id])[0];
-                            Log::error("tue : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("tue false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->TueHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->TueHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->TueHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->TueHours=null;
-                                   break;
-                                }
-                                 $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->TueHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if (in_array($employe->id, $WedAttend)) {
-                               $value=array_values((array) $WedAttend[$employe->id])[0];
-                            Log::error("wed : " .json_encode(($value)));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("wed false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->WedHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->WedHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->WedHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->WedHours=null;
-                                   break;
-                                }
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->WedHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if (in_array($employe->id, $ThuAttend)) {
-                               $value=array_values((array) $ThuAttend[$employe->id])[0];
-                            Log::error("thu : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("thu false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->ThuHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->ThuHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->ThuHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->ThuHours=null;
-                                   break;
-                                }
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->ThuHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if (in_array($employe->id, $FriAttend)) {
-                                $value=array_values((array) $FriAttend[$employe->id])[0];
-                            Log::error("fri : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("fri false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->FriHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->FriHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->FriHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->FriHours=null;
-                                   break;
-                                }
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->FriHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if (in_array($employe->id, $SatAttend)) {
-                               $value=array_values((array) $SatAttend[$employe->id])[0];
-                            Log::error("sat : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("sat false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->SatHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->SatHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->SatHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->SatHours=null;
-                                   break;
-                                }
-                                 $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->SatHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if (in_array($employe->id, $SunAttend)) {
-                               $value=array_values((array) $SunAttend[$employe->id])[0];
-                            Log::error("sun : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("sun false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->SunHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->SunHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->SunHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->SunHours=null;
-                                   break;
-                                }
-                            $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->SunHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       return $employe;
-                       });
+                
+                // Calculate work hours for each day
+                $monResults = calculateWorkHours($MonAttend, $request->input('idUser'));
+                $tueResults = calculateWorkHours($TueAttend, $request->input('idUser'));
+                $wedResults = calculateWorkHours($WedAttend, $request->input('idUser'));
+                $thuResults = calculateWorkHours($ThuAttend, $request->input('idUser'));
+                $friResults = calculateWorkHours($FriAttend, $request->input('idUser'));
+                $satResults = calculateWorkHours($SatAttend, $request->input('idUser'));
+                $sunResults = calculateWorkHours($SunAttend, $request->input('idUser'));
+                
+                $employe->map(function ($employe) use ($monResults, $tueResults, $wedResults, $thuResults, $friResults, $satResults, $sunResults) {
+                    $employe->MonHours = $monResults[$employe->id] ?? null;
+                    $employe->TueHours = $tueResults[$employe->id] ?? null;
+                    $employe->WedHours = $wedResults[$employe->id] ?? null;
+                    $employe->ThuHours = $thuResults[$employe->id] ?? null;
+                    $employe->FriHours = $friResults[$employe->id] ?? null;
+                    $employe->SatHours = $satResults[$employe->id] ?? null;
+                    $employe->SunHours = $sunResults[$employe->id] ?? null;
+                    
+                    return $employe;
+                });
               }
             else{
               $employe = Employee::select('id', 'first_name','last_name')->get();
@@ -747,430 +420,27 @@ class ZktecoController extends Controller
 
                   return $employe;
                 });
-              $MonAttend=collect($MonAttend)->groupBy("id");
-              $TueAttend=collect($TueAttend)->groupBy("id");
-              $WedAttend=collect($WedAttend)->groupBy("id");
-              $ThuAttend=collect($ThuAttend)->groupBy("id");
-              $FriAttend=collect($FriAttend)->groupBy("id");
-              $SatAttend=collect($SatAttend)->groupBy("id");
-              $SunAttend=collect($SunAttend)->groupBy("id");
-              
-            
-              $employe->map(function ($employe) use ($MonAttend,$TueAttend,$WedAttend,$ThuAttend,$FriAttend,$SatAttend,$SunAttend) {
-                          
-                       if ($MonAttend->contains('id', $employe->id)) {
-                          
-                         
-                            $value=array_values((array) $MonAttend[$employe->id])[0];
-                            Log::error("mon : " .json_encode(($value)));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("mon false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->MonHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->MonHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->MonHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i -= 2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->MonHours=null;
-                                   break;
-                                }
-                             //   $hour+=(($value[$i]['timestamp'])->diffInMinutes(($value[$i-1]['timestamp'])))/60;
-
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->MonHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ($TueAttend->contains('id', $employe->id)) {
-                                $value=array_values((array) $TueAttend[$employe->id])[0];
-                            Log::error("tue : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("tue false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->TueHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->TueHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->TueHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->TueHours=null;
-                                   break;
-                                }
-                                 $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->TueHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ($WedAttend->contains('id', $employe->id)) {
-                               $value=array_values((array) $WedAttend[$employe->id])[0];
-                            Log::error("wed : " .json_encode(($value)));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                              
-
-                              $isCorrect=false;
-                              $employe->WedHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->WedHours=null;
-                              }
-                              else{
-                               
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->WedHours=null;
-                              }
-                              else{
-                           
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->WedHours=null;
-                                   
-                                   Log::error("wed true : " .json_encode(count($value))); 
-                                   break;
-                                }
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->WedHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ($ThuAttend->contains('id', $employe->id)) {
-                               $value=array_values((array) $ThuAttend[$employe->id])[0];
-                            Log::error("thu : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("thu false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->ThuHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->ThuHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->ThuHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->ThuHours=null;
-                                   break;
-                                }
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->ThuHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ($FriAttend->contains('id', $employe->id)) {
-                                $value=array_values((array) $FriAttend[$employe->id])[0];
-                            Log::error("fri : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("fri false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->FriHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->FriHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->FriHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->FriHours=null;
-                                   break;
-                                }
-                                $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->FriHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ($SatAttend->contains('id', $employe->id)) {
-                               $value=array_values((array) $SatAttend[$employe->id])[0];
-                            Log::error("sat : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("sat false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->SatHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->SatHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->SatHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->SatHours=null;
-                                   break;
-                                }
-                                 $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->SatHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       if ($SunAttend->contains('id', $employe->id)) {
-                               $value=array_values((array) $SunAttend[$employe->id])[0];
-                            Log::error("sun : " .json_encode(($value[0])));
-                           
-                            $isCorrect=true;
-                            //first Pointage Must be Enter
-                            
-                            if($value[0]['type']!=0){
-                               Log::error("sun false : " .json_encode(count($value)));
-
-                              $isCorrect=false;
-                              $employe->SunHours=null;
-                            }
-                            else{
-
-                            
-                            // Last pointage must be Quit
-                              if($value[count($value)-1]['type']!=1){
-                                $isCorrect=false;
-                               $employe->SunHours=null;
-                              }
-                              else{
-
-                            
-                            //number of pointage must be pair
-                              if(count($value)%2!=0){
-                                $isCorrect=false;
-                               $employe->SunHours=null;
-                              }
-                              else{
-
-                            
-                            $hour=0;
-                            $pause=0;
-                            //each two related pointage must have different type
-                            for ($i = count($value)-1; $i >0; $i-=2) {
-                                if($value[$i]['type']==$value[$i-1]['type']){
-                                   $isCorrect=false;
-                                   $employe->SunHours=null;
-                                   break;
-                                }
-                            $hour+=(Carbon::parse($value[$i]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-1]['timestamp'])))/60;
-                                if($i==1){
-                                   continue;
-                                }
-                                $pause+=(Carbon::parse($value[$i-1]['timestamp'])->diffInMinutes(Carbon::parse($value[$i-2]['timestamp'])));
-                            }
-                            $NbPause=count($value)/2-1;
-
-                            $workHour = new \stdClass();
-                            $workHour->hours = $hour;
-                            $workHour->pause = $pause;
-                            $workHour->nbPause = $NbPause;
-                            $employe->SunHours =$isCorrect?$workHour:null ;
-                            }
-                            }
-                            }
-                       } 
-                       return $employe;
-                       });
+                
+                // Calculate work hours for each day for all employees
+                $monResults = calculateWorkHours($MonAttend);
+                $tueResults = calculateWorkHours($TueAttend);
+                $wedResults = calculateWorkHours($WedAttend);
+                $thuResults = calculateWorkHours($ThuAttend);
+                $friResults = calculateWorkHours($FriAttend);
+                $satResults = calculateWorkHours($SatAttend);
+                $sunResults = calculateWorkHours($SunAttend);
+                
+                $employe->map(function ($employe) use ($monResults, $tueResults, $wedResults, $thuResults, $friResults, $satResults, $sunResults) {
+                    $employe->MonHours = $monResults[$employe->id] ?? null;
+                    $employe->TueHours = $tueResults[$employe->id] ?? null;
+                    $employe->WedHours = $wedResults[$employe->id] ?? null;
+                    $employe->ThuHours = $thuResults[$employe->id] ?? null;
+                    $employe->FriHours = $friResults[$employe->id] ?? null;
+                    $employe->SatHours = $satResults[$employe->id] ?? null;
+                    $employe->SunHours = $sunResults[$employe->id] ?? null;
+                    
+                    return $employe;
+                });
               }
              return response()->json([
                 'success' => true,

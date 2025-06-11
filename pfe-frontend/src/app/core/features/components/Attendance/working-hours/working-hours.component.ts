@@ -78,7 +78,6 @@ export class WorkingHoursComponent implements OnInit {
         return;
       }
 
-      // For employees and managers, always use their ID
       if (this.isEmployee || this.isManager) {
         this.selectedUserId = user.employee_id;
         console.log('Setting user ID for employee/manager:', {

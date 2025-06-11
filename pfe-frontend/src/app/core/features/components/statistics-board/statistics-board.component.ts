@@ -55,6 +55,8 @@ export class StatisticsBoardComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.subscription = this.statisticsService.getAllStatistics().subscribe({
       next: (data) => {
+        console.log('Statistics data received:', data);
+        console.log('Employee stats:', data.employeeStats);
         this.statistics = data;
         this.initializeCharts();
         this.loading = false;
@@ -68,6 +70,16 @@ export class StatisticsBoardComponent implements OnInit, OnDestroy {
 
   private initializeCharts(): void {
     if (!this.statistics) return;
+
+    // Ensure we have default values for employee stats
+    const employeeStats = this.statistics.employeeStats || {
+      total: 0,
+      byType: {
+        fullTime: 0,
+        partTime: 0,
+        contract: 0
+      }
+    };
 
     // Ensure attendanceTrend is an array and type it properly
     const attendanceTrend: AttendanceTrend[] = Array.isArray(this.statistics.attendanceTrend) 
@@ -109,9 +121,9 @@ export class StatisticsBoardComponent implements OnInit, OnDestroy {
       labels: ['Full-time', 'Part-time', 'Contract'],
       datasets: [{
         data: [
-          this.statistics.employeeStats.byType.fullTime,
-          this.statistics.employeeStats.byType.partTime,
-          this.statistics.employeeStats.byType.contract
+          employeeStats.byType.fullTime || 0,
+          employeeStats.byType.partTime || 0,
+          employeeStats.byType.contract || 0
         ],
         backgroundColor: [
           '#3B82F6', // Blue

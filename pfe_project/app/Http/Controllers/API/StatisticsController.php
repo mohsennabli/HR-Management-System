@@ -117,26 +117,65 @@ class StatisticsController extends Controller
         $currentYear = Carbon::now()->year;
 
         // Get employee counts by type from contracts table
+        $fullTimeCount = DB::table('medysis_contracts')
+            ->where('pattern', 'full_time')
+            ->where('end_date', '>=', now())
+            ->select('employee_id')
+            ->distinct()
+            ->count();
+            
+        $partTimeCount = DB::table('medysis_contracts')
+            ->where('pattern', 'part_time')
+            ->where('end_date', '>=', now())
+            ->select('employee_id')
+            ->distinct()
+            ->count();
+            
+        // Count SIVP contracts by pattern
+        $sivpFullTimeCount = DB::table('sivp_contracts')
+            ->where('pattern', 'full_time')
+            ->where('end_date', '>=', now())
+            ->select('employee_id')
+            ->distinct()
+            ->count();
+            
+        $sivpPartTimeCount = DB::table('sivp_contracts')
+            ->where('pattern', 'part_time')
+            ->where('end_date', '>=', now())
+            ->select('employee_id')
+            ->distinct()
+            ->count();
+
+        // Combine Medysis and SIVP counts
+        $totalFullTime = $fullTimeCount + $sivpFullTimeCount;
+        $totalPartTime = $partTimeCount + $sivpPartTimeCount;
+        
+        // Count all contracts from both SIVP and Medysis tables
+        $sivpContractCount = DB::table('sivp_contracts')
+            ->where('end_date', '>=', now())
+            ->select('employee_id')
+            ->distinct()
+            ->count();
+            
+        $medysisContractCount = DB::table('medysis_contracts')
+            ->where('end_date', '>=', now())
+            ->select('employee_id')
+            ->distinct()
+            ->count();
+            
+        $totalContractCount = $sivpContractCount + $medysisContractCount;
+
         $employeeStats = [
             'total' => Employee::count(),
             'byType' => [
-                'fullTime' => DB::table('contracts')
-                    ->where('pattern', 'full-time')
-                    ->where('end_date', '>=', now())
-                    ->distinct('employee_id')
-                    ->count('employee_id'),
-                'partTime' => DB::table('contracts')
-                    ->where('pattern', 'part-time')
-                    ->where('end_date', '>=', now())
-                    ->distinct('employee_id')
-                    ->count('employee_id'),
-                'contract' => DB::table('contracts')
-                    ->where('contract_type', 'sivp')
-                    ->where('end_date', '>=', now())
-                    ->distinct('employee_id')
-                    ->count('employee_id')
+                'fullTime' => $totalFullTime,
+                'partTime' => $totalPartTime,
+                'contract' => $totalContractCount
             ]
         ];
+
+        // Debug logging
+        \Log::info('Employee Statistics:', $employeeStats);
 
         // Get attendance stats for current month
         $attendanceStats = [

@@ -147,16 +147,64 @@ export class EmployeeLeaveRequestFormComponent implements OnInit {
             },
             error: (err) => {
               console.error('Failed to create leave request', err);
-              if (err.error?.message) {
-                this.errorMessage = err.error.message;
-              } else {
-                this.errorMessage = 'An error occurred while creating the leave request.';
+              console.log('Error structure:', JSON.stringify(err, null, 2));
+              console.log('Error type:', typeof err);
+              console.log('Error keys:', Object.keys(err || {}));
+              
+              // Extract the specific error message from the backend response
+              let errorMessage = 'An error occurred while creating the leave request.';
+              
+              // Check different possible error structures
+              if (err?.error?.message) {
+                // Backend returned a specific error message
+                errorMessage = err.error.message;
+                console.log('Found message in err.error.message:', errorMessage);
+              } else if (err?.error?.errors) {
+                // Laravel validation errors
+                const errors = err.error.errors;
+                const firstError = Object.values(errors)[0];
+                if (Array.isArray(firstError)) {
+                  errorMessage = firstError[0];
+                } else {
+                  errorMessage = firstError as string;
+                }
+                console.log('Found Laravel validation errors:', errorMessage);
+              } else if (err?.message) {
+                // Error has a message property
+                errorMessage = err.message;
+                console.log('Found message in err.message:', errorMessage);
+              } else if (typeof err === 'string') {
+                // Error is a string
+                errorMessage = err;
+                console.log('Error is a string:', errorMessage);
+              } else if (err?.status === 422) {
+                // 422 Unprocessable Content - try to extract from error body
+                errorMessage = 'Validation failed. Please check your input.';
+                console.log('422 error detected');
               }
+              
+              // If we still have the generic message, try to extract from error text
+              if (errorMessage === 'An error occurred while creating the leave request.' && err?.error) {
+                console.log('Trying to extract from err.error:', err.error);
+                if (typeof err.error === 'string') {
+                  try {
+                    const parsedError = JSON.parse(err.error);
+                    if (parsedError.message) {
+                      errorMessage = parsedError.message;
+                      console.log('Extracted from parsed error:', errorMessage);
+                    }
+                  } catch (e) {
+                    console.log('Could not parse error as JSON');
+                  }
+                }
+              }
+              
+              this.errorMessage = errorMessage;
               
               this.messageService.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: this.errorMessage
+                detail: errorMessage
               });
             }
           });
