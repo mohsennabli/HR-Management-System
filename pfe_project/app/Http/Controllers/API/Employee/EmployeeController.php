@@ -71,9 +71,17 @@ class EmployeeController extends Controller
             'bank_agency' => 'nullable|string|max:255',
             'bank_rib' => 'nullable|string|max:255',
             'is_user' => 'boolean',
-            'email' => 'required_if:is_user,true|email|unique:users,email',
-            'role_id' => 'required_if:is_user,true|exists:roles,id'
+            'email' => 'nullable|email|unique:users,email',
+            'role_id' => 'nullable|exists:roles,id'
         ]);
+
+        // Add conditional validation for email and role_id when is_user is true
+        if ($request->is_user) {
+            $validator->addRules([
+                'email' => 'required|email|unique:users,email',
+                'role_id' => 'required|exists:roles,id'
+            ]);
+        }
 
         if ($validator->fails()) {
             Log::error('Validation failed:', $validator->errors()->toArray());
