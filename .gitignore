@@ -1,0 +1,13 @@
+# Laravel backend
+/vendor
+.env
+.env.*
+/storage/*.key
+/storage/logs
+/storage/framework/*
+/bootstrap/cache
+
+# Angular frontend
+/node_modules
+/dist
+/src/environments/environment*.ts
