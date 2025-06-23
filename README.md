@@ -37,7 +37,8 @@ A full-stack HR Management Web Application built with **Angular 16** and **Larav
 PFE/
 ├── pfe_project/      # Laravel 8 backend API
 └── pfe-frontend/     # Angular 16 frontend
-⚙️ Installation Guide
+
+##⚙️ Installation Guide
 Prerequisites
 PHP 8 installed
 
@@ -49,7 +50,7 @@ MySQL installed and running
 
 Angular CLI installed globally (npm install -g @angular/cli)
 
-1. Clone the Repository
+##1. Clone the Repository
 bash
 Copy
 Edit
@@ -93,7 +94,7 @@ ZKTECO_DEVICE_IP=192.168.1.201
 ZKTECO_DEVICE_PORT=4370
 You can test attendance functionality with mock data if the device is unavailable.
 
-👤 Author
+##👤 Author
 Mohsen Nabli
 www.linkedin.com/in/mohsennabli
 
