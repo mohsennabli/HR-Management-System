@@ -1,3 +1,4 @@
+
 # 🧑‍💼 HR Management System
 
 A full-stack HR Management Web Application built with **Angular 16** and **Laravel 8 (PHP 8)**. The system allows companies to manage employee information, leave requests, role-based access, attendance via biometric devices, and more — all through a modern web interface and secure JWT-based authentication.
@@ -36,8 +37,6 @@ A full-stack HR Management Web Application built with **Angular 16** and **Larav
 PFE/
 ├── pfe_project/      # Laravel 8 backend API
 └── pfe-frontend/     # Angular 16 frontend
-
-
 ⚙️ Installation Guide
 Prerequisites
 PHP 8 installed
@@ -96,5 +95,5 @@ You can test attendance functionality with mock data if the device is unavailabl
 
 👤 Author
 Mohsen Nabli
-LinkedIn
-GitHub
+www.linkedin.com/in/mohsennabli
+
